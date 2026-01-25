@@ -5,7 +5,7 @@ import { Container } from "@/components/sections/components/container"
 
 export function HeroSection() {
   return (
-    <Section variant="tight" className="px-0 py-0 pt-4 sm:pt-6 h-[80vh]">
+    <Section variant="tight" className="py-0 pt-4 sm:pt-6 h-[80vh]">
       <Container variant="left" className="gap-8">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
           <div className="space-y-5">

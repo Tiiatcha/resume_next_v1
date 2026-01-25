@@ -12,11 +12,8 @@ export function Tag({
 }) {
   return (
     <Badge
-      variant="secondary"
-      className={cn(
-        "bg-muted text-muted-foreground border-border/60 hover:bg-muted/80 dark:border-border/40",
-        className
-      )}
+      variant="pop"
+      className={cn(className)}
     >
       {children}
     </Badge>

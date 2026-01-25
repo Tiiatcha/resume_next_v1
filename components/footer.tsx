@@ -59,7 +59,7 @@ export function Footer() {
     getContactHrefs(contactDetails)
 
   return (
-    <footer className="relative isolate overflow-hidden border-t">
+    <footer className="relative isolate overflow-hidden border-t px-4">
       {/* Decorative glow, consistent with section glows (no x-overflow). */}
       <SectionGlowOrb
         side="right"
@@ -183,27 +183,27 @@ export function Footer() {
           <div className="space-y-3">
             <p className="text-sm font-semibold tracking-tight">Built with</p>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">
+              <Badge variant="pop">
                 <Layers aria-hidden="true" />
                 Next.js
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="pop">
                 <Atom aria-hidden="true" />
                 React
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="pop">
                 <Wind aria-hidden="true" />
                 Tailwind v4
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="pop">
                 <LayoutGrid aria-hidden="true" />
                 shadcn/ui
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="pop">
                 <Activity aria-hidden="true" />
                 Motion
               </Badge>
-              <Badge asChild variant="secondary">
+              <Badge asChild variant="pop">
                 <a
                   href="https://github.com/Tiiatcha/resume_next_v1"
                   target="_blank"
@@ -215,7 +215,7 @@ export function Footer() {
                   <ArrowUpRight className="size-3" aria-hidden="true" />
                 </a>
               </Badge>
-              <Badge asChild variant="secondary">
+              <Badge asChild variant="pop">
                 <a
                   href="https://vercel.com"
                   target="_blank"

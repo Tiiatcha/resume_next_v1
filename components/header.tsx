@@ -2,9 +2,21 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
 import { motion } from "motion/react"
+import { MenuIcon } from "lucide-react"
 
 type NavSectionId = "home" | "about" | "experience" | "projects" | "contact"
 
@@ -34,6 +46,9 @@ function getUnionRect(a: HighlightRect, b: HighlightRect): HighlightRect {
 }
 
 export function Header() {
+    const pathname = usePathname()
+    const isHomeRoute = pathname === "/"
+
     const [hasScrolled, setHasScrolled] = React.useState(false)
     const [activeSectionId, setActiveSectionId] = React.useState<NavSectionId>("home")
     const [hoveredSectionId, setHoveredSectionId] = React.useState<NavSectionId | null>(null)
@@ -125,6 +140,8 @@ export function Header() {
     }, [getHighlightRectForSectionId])
 
     React.useEffect(() => {
+        if (!isHomeRoute) return
+
         const scrollThresholdPx = 8
         const activeSectionThresholdPx = 160
 
@@ -176,7 +193,7 @@ export function Header() {
 
         window.addEventListener("scroll", syncHeaderState, { passive: true })
         return () => window.removeEventListener("scroll", syncHeaderState)
-    }, [])
+    }, [isHomeRoute])
 
     const sectionMaxWidthClass = "max-w-[calc(72rem+2rem)] sm:max-w-[calc(72rem+3rem)]"
     const topOfPageMaxWidthClass = "max-w-full"
@@ -188,13 +205,17 @@ export function Header() {
 
     // Keep highlight position correct on first render + resize.
     React.useLayoutEffect(() => {
+        if (!isHomeRoute) return
+
         // Prefer hovered if present; otherwise use active.
         const targetId = hoveredSectionId ?? activeSectionId
         syncHighlightRect(targetId)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [isHomeRoute])
 
     React.useEffect(() => {
+        if (!isHomeRoute) return
+
         // When active changes due to scroll, animate with the same "stretch then snap"
         // behavior as hover (unless the user is currently hovering a link).
         if (hoveredSectionId) return
@@ -229,19 +250,21 @@ export function Header() {
         clearActiveSettleTimeout,
         getHighlightRectForSectionId,
         hoveredSectionId,
+        isHomeRoute,
         prefersReducedMotion,
         syncHighlightRect,
     ])
 
     React.useEffect(() => {
         function handleResize() {
+            if (!isHomeRoute) return
             const targetId = hoveredSectionId ?? activeSectionId
             syncHighlightRect(targetId)
         }
 
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize)
-    }, [activeSectionId, hoveredSectionId, syncHighlightRect])
+    }, [activeSectionId, hoveredSectionId, isHomeRoute, syncHighlightRect])
 
     function handleNavItemHover(sectionId: NavSectionId) {
         clearHoverSettleTimeout()
@@ -279,6 +302,13 @@ export function Header() {
         clearHoverSettleTimeout()
         clearActiveSettleTimeout()
         setHoveredSectionId(null)
+        if (!isHomeRoute) {
+            // Non-home pages don't have the homepage sections; avoid implying an "active"
+            // section and clear the highlight once hover ends.
+            setHighlightRect(null)
+            return
+        }
+
         syncHighlightRect(activeSectionId)
     }
 
@@ -310,7 +340,9 @@ export function Header() {
                     className={[
                         // Use a 3-column grid so the middle nav stays *actually centered*
                         // regardless of left/right content widths.
-                        "grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6",
+                        // On mobile, use `auto 1fr auto` so the right-side controls are
+                        // truly pinned to the far edge even though the center nav is hidden.
+                        "grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6",
                     ].join(" ")}
                 >
                     <div className="flex items-center justify-start">
@@ -367,7 +399,7 @@ export function Header() {
                             ) : null}
 
                             {navItems.map((item) => {
-                                const isActive = activeSectionId === item.id
+                                const isActive = isHomeRoute && activeSectionId === item.id
                                 const isHovered = hoveredSectionId === item.id
                                 const isHighlighted = isHovered || (!hoveredSectionId && isActive)
 
@@ -398,13 +430,86 @@ export function Header() {
 
                     <div className="flex items-center justify-end gap-3">
                         <a
-                            className="text-muted-foreground hover:text-foreground text-sm font-medium"
+                            className="hidden text-muted-foreground hover:text-foreground text-sm font-medium sm:inline"
                             href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
                             download="Craig-Davison-CV.pdf"
                         >
                             Download CV
                         </a>
-                        <ThemeToggle />
+                        {/* Mobile: keep actions pinned to the far right. */}
+                        <div className="flex items-center justify-end gap-2 sm:gap-3">
+                            <ThemeToggle />
+
+                            {/* Mobile navigation (hamburger → sheet). */}
+                            <div className="sm:hidden">
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            aria-label="Open navigation menu"
+                                        >
+                                            <MenuIcon className="size-4" aria-hidden="true" />
+                                        </Button>
+                                    </SheetTrigger>
+
+                                    <SheetContent>
+                                        <SheetHeader>
+                                            <SheetTitle>Menu</SheetTitle>
+                                            <SheetDescription>
+                                                Navigate the site.
+                                            </SheetDescription>
+                                        </SheetHeader>
+
+                                    <div className="flex flex-1 flex-col gap-6 px-6 pb-6">
+                                        <div className="grid gap-2">
+                                            {navItems.map((item) => (
+                                                <SheetClose key={item.id} asChild>
+                                                    <a
+                                                        href={item.href}
+                                                        className={[
+                                                            "rounded-lg px-3 py-2 text-base font-medium",
+                                                            "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
+                                                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                                        ].join(" ")}
+                                                    >
+                                                        {item.label}
+                                                    </a>
+                                                </SheetClose>
+                                            ))}
+
+                                            <div className="my-2 border-t" aria-hidden="true" />
+
+                                            <SheetClose asChild>
+                                                <Link
+                                                    href="/roadmap"
+                                                    className={[
+                                                        "rounded-lg px-3 py-2 text-base font-medium",
+                                                        "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
+                                                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                                    ].join(" ")}
+                                                >
+                                                    Roadmap
+                                                </Link>
+                                            </SheetClose>
+                                        </div>
+
+                                        <div className="mt-auto flex flex-col gap-3">
+                                            <Button asChild>
+                                                <a
+                                                    href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
+                                                    download="Craig-Davison-CV.pdf"
+                                                >
+                                                    Download CV
+                                                </a>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>

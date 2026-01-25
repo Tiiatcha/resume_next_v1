@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { SiteBackground } from "@/components/layout/site-background"
+import { Reveal } from "@/components/motion/reveal"
 import { Container } from "@/components/sections/components/container"
 import { Button } from "@/components/ui/button"
 import {
@@ -91,54 +92,58 @@ export default function RoadmapPage() {
 
       <main className="w-full">
         <Container variant="left" className="py-12 sm:py-16">
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
-              Site roadmap
-            </p>
-            <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
-              What I’m building next
-            </h1>
-            <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
-              This site is intentionally evolving. The goal is to keep the CV
-              fast and readable while adding CMS-backed content that’s easy to
-              maintain (projects, experience, endorsements, and a small blog).
-            </p>
-            <p className="text-muted-foreground max-w-prose text-sm">
-              Note: this is a direction-of-travel list, not a promise of dates.
-            </p>
+          <Reveal>
+            <div className="space-y-4">
+              <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
+                Site roadmap
+              </p>
+              <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
+                What I’m building next
+              </h1>
+              <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
+                This site is intentionally evolving. The goal is to keep the CV
+                fast and readable while adding CMS-backed content that’s easy to
+                maintain (projects, experience, endorsements, and a small blog).
+              </p>
+              <p className="text-muted-foreground max-w-prose text-sm">
+                Note: this is a direction-of-travel list, not a promise of dates.
+              </p>
 
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <Button asChild variant="outline" size="sm">
-                <Link href="/#projects">View projects</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/#experience">View experience</Link>
-              </Button>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/#projects">View projects</Link>
+                </Button>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/#experience">View experience</Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </Reveal>
 
           <Separator className="my-10" />
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {roadmapItems.map((item) => (
-              <Card key={item.status} className="bg-card/60 supports-[backdrop-filter]:bg-card/40">
-                <CardHeader className="gap-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <CardTitle className="text-base">{item.title}</CardTitle>
-                    <RoadmapStatusLabel status={item.status} />
-                  </div>
-                  <CardDescription className="text-pretty">
-                    {item.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="text-muted-foreground grid list-disc gap-2 pl-5 text-sm">
-                    {item.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+            {roadmapItems.map((item, idx) => (
+              <Reveal key={item.status} className="h-full" delaySeconds={idx * 0.05}>
+                <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full">
+                  <CardHeader className="gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <CardTitle className="text-base">{item.title}</CardTitle>
+                      <RoadmapStatusLabel status={item.status} />
+                    </div>
+                    <CardDescription className="text-pretty">
+                      {item.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-muted-foreground grid list-disc gap-2 pl-5 text-sm">
+                      {item.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </Reveal>
             ))}
           </div>
         </Container>

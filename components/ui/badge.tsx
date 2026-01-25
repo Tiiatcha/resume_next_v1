@@ -18,6 +18,15 @@ const badgeVariants = cva(
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        /**
+         * Standout "pill" badge used for home-page tags/chips.
+         *
+         * Rationale:
+         * - The site is intentionally muted/neutral; this gives a single accent that "pops"
+         *   without introducing a whole new theme system.
+         * - Matches the roadmap page's badge pattern (tinted background + subtle outline).
+         */
+        pop: "bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/25 hover:bg-violet-500/15 dark:text-violet-300",
       },
     },
     defaultVariants: {
