@@ -2,6 +2,13 @@
 
 import * as React from "react"
 import Image from "next/image"
+import Section from "@/components/sections/components/section"
+import {
+    Container,
+    ContainerIntro,
+    ContainerEyebrow,
+    ContainerContent
+} from "@/components/sections/components/container"
 
 type StackLogo = {
     src: string
@@ -29,26 +36,30 @@ export function StackMarquee({
     const duration = `${durationSeconds}s`
 
     return (
-        <section aria-label="Technology stack logos" className="pt-4 sm:pt-6">
-            <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
-                Stack
-            </p>
+        <Section id="stack" aria-label="Technology stack logos" variant="tight">
+            <Container>
+                <ContainerIntro>
+                    <ContainerEyebrow variant="left">Stack</ContainerEyebrow>
+                </ContainerIntro>
 
-            <div className="mt-3 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
-                <div
-                    className="cv-marquee flex w-max items-center gap-10 pr-10"
-                    style={{ ["--cv-marquee-duration" as never]: duration }}
-                >
-                    {stackLogos.map((logo) => (
-                        <Logo key={logo.src} logo={logo} />
-                    ))}
-                    {/* duplicate for seamless loop */}
-                    {stackLogos.map((logo) => (
-                        <Logo key={`${logo.src}-dup`} logo={logo} ariaHidden />
-                    ))}
-                </div>
-            </div>
-        </section>
+                <ContainerContent className="w-full min-w-0 items-stretch">
+                    <div className="logo-carousel relative w-full max-w-full min-w-0 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
+                        <div
+                            className="cv-marquee inline-flex w-max shrink-0 items-center gap-10"
+                            style={{ ["--cv-marquee-duration" as never]: duration }}
+                        >
+                            {stackLogos.map((logo) => (
+                                <Logo key={logo.src} logo={logo} />
+                            ))}
+                            {/* duplicate for seamless loop */}
+                            {stackLogos.map((logo) => (
+                                <Logo key={`${logo.src}-dup`} logo={logo} ariaHidden />
+                            ))}
+                        </div>
+                    </div>
+                </ContainerContent>
+            </Container>
+        </Section>
     )
 }
 

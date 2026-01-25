@@ -62,13 +62,21 @@ export function Header() {
             >
                 <div
                     className={[
-                        "flex w-full items-center justify-between gap-4 px-4 py-3 sm:px-6",
+                        // Use a 3-column grid so the middle nav stays *actually centered*
+                        // regardless of left/right content widths.
+                        "grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6",
                     ].join(" ")}
                 >
-                    <a href="#" className="text-sm font-semibold tracking-tight">
-                        Craig Davison
-                    </a>
-                    <div className="hidden items-center gap-6 text-sm sm:flex" aria-label="Primary">
+                    <div className="flex items-center justify-start">
+                        <a href="#" className="text-sm font-semibold tracking-tight whitespace-nowrap">
+                            Craig Davison
+                        </a>
+                    </div>
+
+                    <div
+                        className="hidden items-center justify-self-center gap-6 text-sm sm:flex"
+                        aria-label="Primary"
+                    >
                         <a className="text-muted-foreground hover:text-foreground" href="#about">
                             About
                         </a>
@@ -79,7 +87,8 @@ export function Header() {
                             Projects
                         </a>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    <div className="flex items-center justify-end gap-3">
                         <a
                             className="text-muted-foreground hover:text-foreground text-sm font-medium"
                             href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
