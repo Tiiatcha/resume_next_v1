@@ -20,7 +20,10 @@ function Container({
   variant = "default",
   ...props
 }: ContainerProps): React.JSX.Element {
-  const baseClasses = "w-full max-w-6xl gap-6";
+  // `mx-auto` makes the container self-centering even when it's *not* a child of our
+  // flex-based `Section` wrapper (e.g. inside `<footer>`). This keeps alignment
+  // consistent across the site.
+  const baseClasses = "mx-auto w-full max-w-6xl gap-6";
   const variants: Record<ContainerVariant, string> = {
     default:
       (cn(baseClasses, "container flex flex-col items-center justify-center")),

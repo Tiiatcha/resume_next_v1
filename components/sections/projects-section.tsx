@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import Section from "@/components/sections/components/section"
-import { ProjectCard } from "@/components/cards/project-card"
 import { ProjectDetailsPanel } from "@/components/panels/project-details-panel"
 import {
   Accordion,
@@ -20,15 +19,12 @@ import {
   ContainerLead,
   ContainerTitle,
 } from "@/components/sections/components/container"
+import { ProjectsGrid } from "@/components/sections/projects-grid"
 
 export function ProjectsSection({ items }: { items: ProjectItem[] }) {
   const [activeProject, setActiveProject] = React.useState<ProjectItem | null>(
     null
   )
-
-  function getProjectKey(project: ProjectItem) {
-    return `${project.title}-${project.date}`
-  }
 
   const selectedProjects = React.useMemo(
     () => items.filter((project) => project.status !== "decommissioned"),
@@ -41,7 +37,7 @@ export function ProjectsSection({ items }: { items: ProjectItem[] }) {
   )
 
   return (
-    <Section id="projects" glow={{ side: "left", tone: "warm" }}>
+    <Section id="projects" surface="featured" glow={{ side: "right", tone: "cool" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
           <ContainerEyebrow>Projects</ContainerEyebrow>
@@ -52,48 +48,27 @@ export function ProjectsSection({ items }: { items: ProjectItem[] }) {
           </ContainerLead>
         </ContainerIntro>
         <ContainerContent variant="left">
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {selectedProjects.map((item) => {
-              const projectKey = getProjectKey(item)
-              const isActive =
-                activeProject ? getProjectKey(activeProject) === projectKey : false
-
-              return (
-                <ProjectCard
-                  key={projectKey}
-                  item={item}
-                  isActive={isActive}
-                  onOpenDetails={setActiveProject}
-                />
-              )
-            })}
+          <div className="mt-6">
+            <ProjectsGrid
+              items={selectedProjects}
+              activeProject={activeProject}
+              onOpenDetails={setActiveProject}
+            />
           </div>
 
           {archivedProjects.length ? (
-            <div className="mt-6">
-              <Accordion type="single" collapsible>
+            <div className="mt-6 w-full">
+              <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="archived-projects">
                   <AccordionTrigger>
                     Archived ({archivedProjects.length})
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {archivedProjects.map((item) => {
-                        const projectKey = getProjectKey(item)
-                        const isActive = activeProject
-                          ? getProjectKey(activeProject) === projectKey
-                          : false
-
-                        return (
-                          <ProjectCard
-                            key={projectKey}
-                            item={item}
-                            isActive={isActive}
-                            onOpenDetails={setActiveProject}
-                          />
-                        )
-                      })}
-                    </div>
+                    <ProjectsGrid
+                      items={archivedProjects}
+                      activeProject={activeProject}
+                      onOpenDetails={setActiveProject}
+                    />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

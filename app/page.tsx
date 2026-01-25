@@ -4,10 +4,12 @@ import { StackMarquee } from "@/components/sections/stack-marquee"
 import { AboutSection } from "@/components/sections/about-section"
 import { ExperienceSection } from "@/components/sections/experience-section"
 import { ProjectsSection } from "@/components/sections/projects-section"
+import { ContactSection } from "@/components/sections/contact-section"
 import { Separator } from "@/components/ui/separator"
 import { SiteBackground } from "@/components/layout/site-background"
 import { getExperienceData, getProjectsData, getSkillsData } from "@/lib/cv-data"
 import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export default async function Home() {
   // Data is read server-side (filesystem) for a fast, SEO-friendly single-page CV.
@@ -23,29 +25,21 @@ export default async function Home() {
       <Header />
 
       <main className=" w-full">
+        {/* Anchor target for the "Home" nav link */}
+        <div id="home" />
 
         <HeroSection />
         <StackMarquee />
 
-        <div className="py-2">
-          <Separator />
-        </div>
 
         <AboutSection skills={skills} />
         <ExperienceSection items={experience} />
         <ProjectsSection items={projects} />
+        <ContactSection />
 
       </main>
 
-      <footer className="border-t">
-        <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-10 text-sm sm:px-6">
-          <p>© {new Date().getFullYear()} Craig Davison</p>
-          <p>
-            Built with Tailwind v4 + shadcn/ui. Animations use Motion (kept subtle on
-            purpose).
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </SiteBackground>
   )
 }

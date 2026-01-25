@@ -7,7 +7,7 @@ import { SkillProgress } from "@/components/about/skill-progress"
 
 export function AboutSection({ skills }: { skills: SkillItem[] }) {
   return (
-    <Section id="about" glow={{ side: "left", tone: "warm" }}>
+    <Section id="about" surface="alt" glow={{ side: "right", tone: "cool" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
           <ContainerEyebrow>About</ContainerEyebrow>

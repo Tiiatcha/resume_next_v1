@@ -12,7 +12,7 @@ import { ExperienceTimeline } from "@/components/sections/experience-timeline"
 
 export function ExperienceSection({ items }: { items: ExperienceItem[] }) {
   return (
-    <Section id="experience" glow={{ side: "right", tone: "cool" }}>
+    <Section id="experience" glow={{ side: "left", tone: "warm" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
           <ContainerEyebrow>Experience</ContainerEyebrow>
@@ -21,11 +21,11 @@ export function ExperienceSection({ items }: { items: ExperienceItem[] }) {
             A quick overview of positions, impact, and the technologies used.
           </ContainerLead>
         </ContainerIntro>
+        <ContainerContent variant="left">
+          <ExperienceTimeline items={items} />
+        </ContainerContent>
       </Container>
 
-      <ContainerContent variant="left">
-        <ExperienceTimeline items={items} />
-      </ContainerContent>
     </Section>
   )
 }

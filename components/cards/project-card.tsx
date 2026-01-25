@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { ExternalLinkIcon } from "lucide-react"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TagList } from "@/components/primitives/tag-list"
 import type { ProjectItem } from "@/lib/cv-types"
@@ -10,6 +11,7 @@ export function ProjectCard({
   item,
   isActive = false,
   onOpenDetails,
+  className,
 }: {
   item: ProjectItem
   /**
@@ -22,6 +24,7 @@ export function ProjectCard({
    * If omitted, the card renders in "read-only" mode (no Details button).
    */
   onOpenDetails?: (item: ProjectItem) => void
+  className?: string
 }) {
   const hasDetails =
     Boolean(item.problem) ||
@@ -32,12 +35,18 @@ export function ProjectCard({
 
   return (
     <Card
-      className={[
-        "bg-card/60 supports-[backdrop-filter]:bg-card/40 transition will-change-transform hover:-translate-y-0.5 hover:shadow-md",
+      className={cn(
+        // Note: scroll-based reveal is applied by the parent grid via `Reveal`.
+        // Layout note:
+        // - We render the Card as a grid so it can participate in CSS Subgrid when wrapped
+        //   in a `CardContainer` (4 rows). In non-subgrid contexts this remains a normal
+        //   two-section card with no layout regressions.
+        "bg-card/60 supports-[backdrop-filter]:bg-card/40 grid h-full transition will-change-transform hover:-translate-y-0.5 hover:shadow-md",
         isActive ? "border-foreground/15 ring-1 ring-foreground/10" : "",
-      ].join(" ")}
+        className,
+      )}
     >
-      <CardHeader className="space-y-2">
+      <CardHeader className="row-start-1 space-y-2">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <CardTitle className="text-base">{item.title}</CardTitle>
           <p className="text-muted-foreground text-xs">{item.date}</p>
@@ -68,7 +77,7 @@ export function ProjectCard({
           ) : null}
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="row-start-2 row-span-2 flex flex-col gap-5">
         {hasDetails && onOpenDetails ? (
           <div className="flex items-center justify-between gap-3">
             <p className="text-muted-foreground text-xs">
@@ -84,8 +93,11 @@ export function ProjectCard({
             </Button>
           </div>
         ) : null}
-        <TagList tags={item.tags} />
       </CardContent>
+
+      <CardFooter className="row-start-4 items-end">
+        <TagList tags={item.tags} />
+      </CardFooter>
     </Card>
   )
 }

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { TagList } from "@/components/primitives/tag-list"
 import { RichText } from "@/components/content/rich-text"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ExperienceItem } from "@/lib/cv-types"
 
 const DEFAULT_HIGHLIGHT_COUNT = 3
@@ -105,11 +105,15 @@ export function ExperienceCard({
   return (
     <Card
       className={cn(
-        "bg-card/60 supports-[backdrop-filter]:bg-card/40 transition will-change-transform hover:-translate-y-0.5 hover:shadow-md",
+        // Note: scroll-based reveal is applied by the parent timeline via `Reveal`.
+        // Layout note:
+        // - Render the Card as a grid so it can participate in CSS Subgrid when the
+        //   parent establishes explicit tracks (e.g. `CardContainer` with 4 rows).
+        "bg-card/60 supports-[backdrop-filter]:bg-card/40 grid h-full transition will-change-transform hover:-translate-y-0.5 hover:shadow-md",
         className,
       )}
     >
-      <CardHeader className="gap-1">
+      <CardHeader className="row-start-1 gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <CardTitle className="text-base">{item.title}</CardTitle>
           <p className="text-muted-foreground text-xs">
@@ -138,7 +142,7 @@ export function ExperienceCard({
         </CardAction>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="row-start-2 row-span-2">
         {isExpanded ? (
           <div className="animate-in fade-in duration-200">
             <RichText value={item.content} />
@@ -150,9 +154,11 @@ export function ExperienceCard({
             ))}
           </ul>
         ) : null}
-
-        <TagList tags={item.tags} />
       </CardContent>
+
+      <CardFooter className="row-start-4 items-end">
+        <TagList tags={item.tags} />
+      </CardFooter>
     </Card>
   )
 }

@@ -5,6 +5,7 @@ import * as React from "react"
 import type { ExperienceItem } from "@/lib/cv-types"
 import { cn } from "@/lib/utils"
 import { ExperienceCard } from "@/components/cards/experience-card"
+import { Reveal } from "@/components/motion/reveal"
 
 function getExperienceKey(item: ExperienceItem) {
   return `${item.company}-${item.from}-${item.title}`
@@ -49,7 +50,7 @@ export function ExperienceTimeline({ items }: { items: ExperienceItem[] }) {
               <span className="bg-primary size-1.5 rounded-full" />
             </span>
 
-            <div
+            <Reveal
               className={cn(
                 // Keep cards slightly closer to the center line for a tighter look.
                 "md:max-w-xl",
@@ -65,7 +66,7 @@ export function ExperienceTimeline({ items }: { items: ExperienceItem[] }) {
                   setExpandedKey((currentKey) => (currentKey === key ? null : key))
                 }
               />
-            </div>
+            </Reveal>
           </li>
         )
       })}
