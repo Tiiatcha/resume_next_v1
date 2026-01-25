@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { motion } from "motion/react"
@@ -10,7 +11,11 @@ type NavSectionId = "home" | "about" | "experience" | "projects" | "contact"
 type NavItem = {
     id: NavSectionId
     label: string
-    href: `#${NavSectionId}`
+    /**
+     * Use an absolute in-app hash link (`/#section-id`) so the header remains
+     * useful on non-home pages (e.g. `/roadmap`).
+     */
+    href: `/#${NavSectionId}`
 }
 
 type HighlightRect = {
@@ -48,11 +53,11 @@ export function Header() {
 
     const navItems: NavItem[] = React.useMemo(
         () => [
-            { id: "home", label: "Home", href: "#home" },
-            { id: "about", label: "About", href: "#about" },
-            { id: "experience", label: "Experience", href: "#experience" },
-            { id: "projects", label: "Projects", href: "#projects" },
-            { id: "contact", label: "Contact", href: "#contact" },
+            { id: "home", label: "Home", href: "/#home" },
+            { id: "about", label: "About", href: "/#about" },
+            { id: "experience", label: "Experience", href: "/#experience" },
+            { id: "projects", label: "Projects", href: "/#projects" },
+            { id: "contact", label: "Contact", href: "/#contact" },
         ],
         [],
     )
@@ -309,12 +314,12 @@ export function Header() {
                     ].join(" ")}
                 >
                     <div className="flex items-center justify-start">
-                        <a
-                            href="#"
+                        <Link
+                            href="/"
                             className="text-sm font-semibold tracking-tight whitespace-nowrap"
                         >
                             Craig Davison
-                        </a>
+                        </Link>
                     </div>
 
                     <div

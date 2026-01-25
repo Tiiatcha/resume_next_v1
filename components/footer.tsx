@@ -23,16 +23,27 @@ import { contactDetails, getContactHrefs } from "@/lib/contact-details"
 
 type FooterNavLink = {
   label: string
-  href: `#${string}`
+  /**
+   * Use an absolute in-app hash link (`/#section-id`) so navigation works even
+   * from non-home pages (e.g. `/roadmap`).
+   */
+  href: `/#${string}`
 }
 
 const footerNavLinks: FooterNavLink[] = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Experience", href: "#experience" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/#home" },
+  { label: "About", href: "/#about" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Contact", href: "/#contact" },
 ]
+
+type FooterSiteLink = {
+  label: string
+  href: `/${string}`
+}
+
+const footerSiteLinks: FooterSiteLink[] = [{ label: "Roadmap", href: "/roadmap" }]
 
 /**
  * Site footer for the single-page CV.
@@ -110,6 +121,17 @@ export function Footer() {
             <p className="text-sm font-semibold tracking-tight">Navigate</p>
             <ul className="text-muted-foreground grid gap-2 text-sm">
               {footerNavLinks.map((link) => (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="underline underline-offset-4 hover:no-underline"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+              <li aria-hidden="true" className="my-1 border-t" />
+              {footerSiteLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
