@@ -1,65 +1,72 @@
-import Image from "next/image";
 
-export default function Home() {
+import { HeroSection } from "@/components/sections/hero-section"
+import { StackMarquee } from "@/components/sections/stack-marquee"
+import { AboutSection } from "@/components/sections/about-section"
+import { ExperienceSection } from "@/components/sections/experience-section"
+import { ProjectsSection } from "@/components/sections/projects-section"
+import { Separator } from "@/components/ui/separator"
+import { SiteBackground } from "@/components/layout/site-background"
+import { SectionGlowOrb } from "@/components/layout/section-glow-orb"
+import { getExperienceData, getProjectsData, getSkillsData } from "@/lib/cv-data"
+import { Header } from "@/components/header"
+
+export default async function Home() {
+  // Data is read server-side (filesystem) for a fast, SEO-friendly single-page CV.
+  // Styling remains Tailwind v4 tokens; Motion only handles subtle reveal animations.
+  const [experience, projects, skills] = await Promise.all([
+    getExperienceData(),
+    getProjectsData(),
+    getSkillsData(),
+  ])
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <SiteBackground className="font-sans">
+      <Header />
+
+      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="space-y-10">
+          {/* Top-of-page "header/hero" area already has global background glow; no per-section orb. */}
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <HeroSection />
+            <StackMarquee />
+          </div>
+
+          <div className="py-2">
+            <Separator />
+          </div>
+
+          <div className="relative isolate animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <SectionGlowOrb side="left" tone="warm" />
+            <div className="relative z-10">
+              <AboutSection skills={skills} />
+            </div>
+          </div>
+
+          <div className="relative isolate animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <SectionGlowOrb side="right" tone="cool" />
+            <div className="relative z-10">
+              <ExperienceSection items={experience} />
+            </div>
+          </div>
+
+          <div className="relative isolate animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <SectionGlowOrb side="left" tone="warm" />
+            <div className="relative z-10">
+              <ProjectsSection items={projects} />
+            </div>
+          </div>
         </div>
       </main>
-    </div>
-  );
+
+      <footer className="border-t">
+        <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-10 text-sm sm:px-6">
+          <p>© {new Date().getFullYear()} Craig Davison</p>
+          <p>
+            Built with Tailwind v4 + shadcn/ui. Animations use Motion (kept subtle on
+            purpose).
+          </p>
+        </div>
+      </footer>
+    </SiteBackground>
+  )
 }

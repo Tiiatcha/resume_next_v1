@@ -1,0 +1,110 @@
+[
+  {
+    "from": "January 2024",
+    "to": "Present",
+    "company": "Ncodein.com",
+    "title": "Founder & Owner",
+    "content": {
+      "type": "mixed",
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "After taking redundancy from my previous role at Cadent, I followed my passion for web development by founding Ncodeing, a website development business. I have since worked on a variety of client projects, including website builds and infrastructure-related tasks, while also exploring DevOps practices to broaden my technical expertise. When time allows, I focus on personal projects, writing blogs, creating tutorials, and producing video content for YouTube to share knowledge and engage with the developer community."
+        },
+        {
+          "type": "section",
+          "heading": "Key Tasks and responsibilities",
+          "items": [
+            "Building and maintaining websites for clients, focusing on functionality, performance, and user experience.",
+            "Managing wider infrastructure projects, incorporating DevOps practices such as containerization and CI/CD pipelines.",
+            "Collaborating with clients to gather requirements, provide technical guidance, and deliver tailored solutions.",
+            "Developing custom plugins, themes, and integrations for WordPress and other platforms to meet unique client needs.",
+            "Producing blog posts, tutorials, and video content on web development topics, contributing to the developer community.",
+            "Continuously researching and adopting modern development techniques and tools to ensure high-quality deliverables."
+          ]
+        }
+      ]
+    },
+    "tags": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "NodeJs",
+      "React",
+      "PHP",
+      "MySQL",
+      "BootStrap",
+      "TailWind",
+      "NPM",
+      "GIT",
+      "WordPress",
+      "DevOps",
+      "CI/CD",
+      "Docker"
+    ]
+  },
+  {
+    "from": "2017",
+    "to": "Aug 2023",
+    "company": "Cadent Gas",
+    "title": "Lead Developer",
+    "content": {
+      "type": "mixed",
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "In my role as Lead SAP HANA Developer, I successfully managed a small team focused on designing, developing, and delivering MI reporting solutions. Additionally, I spearheaded the creation of custom web applications and microservices for tasks beyond our existing technology scope."
+        },
+        {
+          "type": "section",
+          "heading": "Key Tasks and responsibilities",
+          "items": [
+            "Lead a small team of developers in the creation of a work management system.",
+            "Driving initiatives like the Back Office Transformation Program and the Regulatory Reporting Automation Project.",
+            "Ensuring timely and specification-compliant delivery by my team, coupled with thorough documentation to maintain high standards.",
+            "Providing coaching to enhance team skills, ensuring they have the necessary tools to fulfill business needs.",
+            "Designing and developing flexible, reusable HANA and BW models to streamline business reporting processes.",
+            "Promoting technical best practices within the team, including the development of reusable models and standardized documentation."
+          ]
+        }
+      ]
+    },
+    "tags": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "NodeJs",
+      "React",
+      "PHP",
+      "MySQL",
+      "BootStrap",
+      "TailWind",
+      "NPM",
+      "GIT"
+    ]
+  },
+  {
+    "from": "2011",
+    "to": "Aug 2017",
+    "company": "National Grid",
+    "title": "Senior MI Developer",
+    "content": {
+      "type": "mixed",
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "In my role as a Junior MI Developer at National Grid, I was instrumental in designing, developing, and delivering MI reports. My collaboration with Process and Functional teams ensured that our outputs aligned with the required specifications, cost, time, and quality standards while adhering to governance protocols."
+        }
+      ]
+    },
+    "tags": [
+      "SAP HANA",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "PHP",
+      "MySQL",
+      "BootStrap"
+    ]
+  }
+]

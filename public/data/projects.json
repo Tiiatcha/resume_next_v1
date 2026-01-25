@@ -1,0 +1,330 @@
+[
+  {
+    "date": "Jan 2026",
+    "title": "CV / Resume Website",
+    "status": "active",
+    "role": "Owner / Developer",
+    "type": "Personal Site",
+    "problem": {
+      "type": "paragraphs",
+      "content": [
+        "I wanted a modern, fast, single-page CV that presents my experience and projects clearly, is easy to maintain, and works well on mobile."
+      ]
+    },
+    "solution": {
+      "type": "paragraphs",
+      "content": [
+        "Built a Next.js (App Router) site with server-rendered content sourced from versioned JSON files. The UI is styled with Tailwind CSS v4 and shadcn/ui primitives, with subtle Motion animations and a dark/light theme toggle."
+      ]
+    },
+    "management": null,
+    "impact": null,
+    "contribution": null,
+    "tags": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS v4",
+      "shadcn/ui",
+      "Radix UI",
+      "Motion"
+    ]
+  },
+  {
+    "date": "2025",
+    "title": "ncodein.com",
+    "status": "active",
+    "role": "Founder",
+    "type": "Business Site",
+    "url": "https://ncodein.com",
+    "problem": {
+      "type": "paragraphs",
+      "content": [
+        "I needed a clear, professional presence for my business that communicates services and makes it easy for potential clients to get in touch."
+      ]
+    },
+    "solution": {
+      "type": "paragraphs",
+      "content": [
+        "Created a focused business website that explains what I offer, highlights my approach, and provides simple paths to contact and next steps.",
+        "Added a blog and an academy section to explain web concepts, terminology, and delivery processes in a client-friendly way. The goal isn't deep technical documentation; it's to help clients make informed decisions and feel confident about the work."
+      ]
+    },
+    "management": null,
+    "impact": null,
+    "contribution": null,
+    "tags": [
+      "Consulting",
+      "Web Development",
+      "Business",
+      "Blog",
+      "Client Education",
+      "Academy"
+    ]
+  },
+  {
+    "date": "2026",
+    "title": "DJ Alkemy Website",
+    "url": "https://djalkemy.com",
+    "type": "Portfolio and Ecommerce Site",
+    "problem": {
+      "type": "paragraphs",
+      "content": [
+        "A DJ and producer that goes by the name of Alkemy approached me to fix and update their website built in WordPress. The site was originally built by them using Elementor, but was experiencing significant performance issues due to the dozens of plugins required to achieve the desired functionality. Additionally, they needed ongoing custom functionality and plugins to meet their specific requirements, including the ability to showcase and sell their music."
+      ]
+    },
+    "solution": {
+      "type": "paragraphs",
+      "content": [
+        "I rebuilt the site using Bricks builder, which provided greater flexibility and allowed me to create the desired functionality without relying on numerous plugins that were impacting performance. I then developed a custom plugin to enable them to add, manage, and showcase their music on the site, meeting their specific ecommerce and portfolio needs.",
+        "This project is ongoing with a new plugin being developed to enable greater integration with the streaming platforms they use to distribute their music in a way that allows their followers to easily follow them on their preferred plaform and also to pre-add new releases to their library when they are releaseed."
+      ]
+    },
+    "management": null,
+    "impact": null,
+    "contribution": null,
+    "tags": [
+      "WordPress",
+      "Bricks Builder",
+      "PHP",
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Custom Plugins",
+      "Ecommerce",
+      "Portfolio"
+    ]
+  },
+  {
+    "date": "May 2024",
+    "title": "Flourish with Phoenix",
+    "url": "https://flourishwithphoenix.co.uk",
+    "type": "Brochure Site",
+    "problem": {
+      "type": "paragraphs",
+      "content": [
+        "The Phoenix Foundation, a Leicester-based charity supporting young people with additional needs and their families, approached me in February 2024 to create a brochure-style website for their new project, Flourish with Phoenix. The primary goal was to design a site that was easy to navigate, allowing parents and carers to quickly find relevant information. Additionally, the project required a document library for other service providers, accessible only to registered users. As the Foundation already had experience with WordPress, they requested the new site be built on the same platform for consistency and ease of use."
+      ]
+    },
+    "solution": {
+      "type": "paragraphs",
+      "content": [
+        "To meet the client's needs, I developed the site using WordPress, leveraging Bricks Builder to create a user-friendly, visually appealing design. This approach allowed the client to make content updates independently without needing coding knowledge, while providing me with the flexibility to implement custom solutions.",
+        "To address the document library requirement, I built a custom plugin enabling the client to upload and categorize documents. A custom page template was then created to display these documents in an organized and user-friendly format. Additionally, I developed a custom registration form for users to gain secure access to the library.",
+        "The site was built with a mobile-first approach, ensuring a responsive design optimized for a wide range of devices. Rigorous testing across multiple platforms confirmed that the site delivered an excellent user experience for all visitors."
+      ]
+    },
+    "management": null,
+    "impact": null,
+    "contribution": null,
+    "tags": [
+      "React",
+      "JavaScript"
+    ]
+  },
+  {
+    "date": "2019",
+    "title": "Workload Management Web Application - Cadent",
+    "role": "Lead Developer",
+    "type": "Web App",
+    "problem": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Challenge",
+          "text": "The primary challenge was to create an efficient system for managing the workload of repeatable tasks, including a report library and the scheduling of manual report generation and other tasks by the report production team."
+        },
+        {
+          "label": "Context",
+          "text": "The need was for an application that could improve task estimation times for better future planning, automate task assignment based on dependencies and staff availability, and integrate a report library."
+        }
+      ]
+    },
+    "solution": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Approach",
+          "text": "Developed a user-friendly web application focusing on task management and scheduling efficiency. Implemented iterative testing phases with end-users to ensure usability and effectiveness of new features."
+        },
+        {
+          "label": "Key Features",
+          "text": "The app included a report library, automated scheduling and task assignment capabilities, and enhanced task estimation features. peers."
+        },
+        {
+          "label": "User Testing and Quality Assurance",
+          "text": "Conducted thorough testing of new features with end-users, gathering feedback to refine and optimize the application. Established a systematic process for identifying and addressing defects, cycling these back into the development workload for continuous enhancement."
+        }
+      ]
+    },
+    "management": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Team Size",
+          "text": "Managed a small team of junior web developers."
+        },
+        {
+          "label": "Agile Practices",
+          "text": "Continued use of Agile concepts such as Kanban, daily scrums, pair programming to enhance code reliability, and burn down charts for progress tracking. Also introduced the use of an electronic Kanban through YouTrack and the concept of user stories."
+        },
+        {
+          "label": "Leadership Role",
+          "items": [
+            {
+              "label": "Coaching and Skill Development",
+              "text": "Actively coached team members in PHP and JavaScript, enhancing their technical skills and project contributions."
+            },
+            {
+              "label": "Task Prioritization",
+              "text": "Efficiently prioritized tasks to align with project goals and timelines, ensuring optimal use of resources and timely delivery."
+            },
+            {
+              "label": "Stakeholder Management",
+              "text": "Managed expectations of stakeholders effectively, maintaining clear communication and setting realistic timelines and deliverables."
+            }
+          ]
+        }
+      ]
+    },
+    "impact": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Results",
+          "text": "The application significantly improved the efficiency of managing repeatable tasks, leading to better planning and resource allocation."
+        },
+        {
+          "label": "Quantifiable Achievements",
+          "text": "Streamlined task estimation and scheduling, resulting in more efficient operation of the report production team."
+        }
+      ]
+    },
+    "contribution": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Key Contributions",
+          "text": "Apart from leading the development of the application, I played a crucial role in mentoring junior developers and managing the project workflow."
+        },
+        {
+          "label": "Skills Demonstrated",
+          "text": "Leadership, coaching, technical expertise in web development (PHP and JavaScript), stakeholder management, and project management."
+        }
+      ]
+    },
+    "tags": [
+      "HTML",
+      "CSS",
+      "PHP",
+      "JavaScript",
+      "BootStrap"
+    ]
+  },
+  {
+    "date": "2017",
+    "title": "Core KPI - Cadent",
+    "role": "Lead SAP HANA Developer/Web Solutions Architect",
+    "type": "Web Based Reporting Suite",
+    "problem": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Challenge",
+          "text": "The primary challenge was addressing the gap in reporting individual performance within operations at Cadent, particularly focusing on 'Start of Day' and 'Log Job' activities, including the usage of Long Job requests."
+        },
+        {
+          "label": "Context",
+          "text": "The need was for a responsive reporting solution accessible on any device connected to the corporate network."
+        }
+      ]
+    },
+    "solution": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Approach",
+          "text": "Employed a blend of traditional and Agile methodologies to drive project development."
+        },
+        {
+          "label": "Key Features",
+          "text": "Developed a web-based reporting suite using SAP UI5 based on OpenUI5, enabling management at different levels to assess team performance and individuals to compare their performance against peers."
+        }
+      ]
+    },
+    "management": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Team Size",
+          "text": "Small development team."
+        },
+        {
+          "label": "Agile Practices",
+          "text": "Introduced Agile concepts such as Kanban, daily scrums, pair programming to enhance code reliability, and burn down charts for progress tracking."
+        },
+        {
+          "label": "Leadership Role",
+          "text": "Managed team dynamics, coached team members, and led the implementation of Agile practices to ensure efficient project delivery."
+        }
+      ]
+    },
+    "impact": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Results",
+          "text": "The project significantly improved operational efficiency, with 'Start of Day' performance increasing by up to 30%."
+        },
+        {
+          "label": "Quantifiable Achievements",
+          "text": "Enhanced start of day operations by 30%, demonstrating the effectiveness of the reporting suite in improving productivity. tracking."
+        }
+      ]
+    },
+    "contribution": {
+      "type": "list",
+      "items": [
+        {
+          "label": "Key Contributions",
+          "text": "Led the design and development of the solution, managed team operations, and introduced Agile methodologies."
+        },
+        {
+          "label": "Skills Demonstrated",
+          "text": "Project management, team leadership, Agile methodologies, technical proficiency in SAP UI5."
+        }
+      ]
+    },
+    "tags": [
+      "HTML",
+      "CSS",
+      "SAP UI5",
+      "JavaScript"
+    ]
+  },
+  {
+    "date": "July 2022",
+    "title": "CEASE Hair Salon",
+    "status": "decommissioned",
+    "type": "Brochure Site",
+    "problem": {
+      "type": "paragraphs",
+      "content": [
+        "Cease Salon in Leicester approached me a number of years ago to build them a brochure style website for their business. Like with many businesses sinse Covid and the cost of living increases the needs of the business changed and as such required a refresh to reflect their simplified business model."
+      ]
+    },
+    "solution": {
+      "type": "paragraphs",
+      "content": [
+        "Given their simplified business model and associated changes I took the opportunity to rebuild the site as a single page brochure style site. With this particular project I was guided by a designer who specified, colors and fonts to be used."
+      ]
+    },
+    "management": null,
+    "impact": null,
+    "contribution": null,
+    "tags": [
+      "React",
+      "JavaScript"
+    ]
+  }
+]
