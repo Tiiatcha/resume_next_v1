@@ -1,4 +1,18 @@
-import { ArrowUp, ArrowUpRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react"
+import {
+  Activity,
+  Atom,
+  ArrowUp,
+  ArrowUpRight,
+  Github,
+  LayoutGrid,
+  Layers,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Triangle,
+  Wind,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -147,11 +161,38 @@ export function Footer() {
           <div className="space-y-3">
             <p className="text-sm font-semibold tracking-tight">Built with</p>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">Next.js</Badge>
-              <Badge variant="secondary">React</Badge>
-              <Badge variant="secondary">Tailwind v4</Badge>
-              <Badge variant="secondary">shadcn/ui</Badge>
-              <Badge variant="secondary">Motion</Badge>
+              <Badge variant="secondary">
+                <Layers aria-hidden="true" />
+                Next.js
+              </Badge>
+              <Badge variant="secondary">
+                <Atom aria-hidden="true" />
+                React
+              </Badge>
+              <Badge variant="secondary">
+                <Wind aria-hidden="true" />
+                Tailwind v4
+              </Badge>
+              <Badge variant="secondary">
+                <LayoutGrid aria-hidden="true" />
+                shadcn/ui
+              </Badge>
+              <Badge variant="secondary">
+                <Activity aria-hidden="true" />
+                Motion
+              </Badge>
+              <Badge asChild variant="secondary">
+                <a
+                  href="https://github.com/Tiiatcha/resume_next_v1"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Source code on GitHub (opens in a new tab)"
+                >
+                  <Github className="size-3" aria-hidden="true" />
+                  Source code on GitHub
+                  <ArrowUpRight className="size-3" aria-hidden="true" />
+                </a>
+              </Badge>
               <Badge asChild variant="secondary">
                 <a
                   href="https://vercel.com"
@@ -159,7 +200,9 @@ export function Footer() {
                   rel="noreferrer"
                   aria-label="Deployed on Vercel (opens in a new tab)"
                 >
-                  Deployed on Vercel <ArrowUpRight className="size-3" aria-hidden="true" />
+                  <Triangle className="size-3" aria-hidden="true" />
+                  Deployed on Vercel
+                  <ArrowUpRight className="size-3" aria-hidden="true" />
                 </a>
               </Badge>
             </div>
