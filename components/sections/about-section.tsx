@@ -27,7 +27,7 @@ export function AboutSection({ skills }: { skills: SkillItem[] }) {
               <div className="border-l pl-4">
                 <p className="text-pretty text-lg leading-relaxed">
                   <span className="font-medium">
-                    Transitioning into modern web development
+                    Transitioned into modern web development
                   </span>{" "}
                   after a proven career building high-impact reporting and data
                   solutions.
