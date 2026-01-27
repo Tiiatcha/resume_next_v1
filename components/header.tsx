@@ -18,7 +18,7 @@ import {
 import { motion } from "motion/react"
 import { MenuIcon } from "lucide-react"
 
-type NavSectionId = "home" | "about" | "experience" | "projects" | "contact"
+type NavSectionId = "home" | "about" | "experience" | "projects" | "endorsements" | "contact"
 
 type NavItem = {
     id: NavSectionId
@@ -63,6 +63,7 @@ export function Header() {
         about: null,
         experience: null,
         projects: null,
+        endorsements: null,
         contact: null,
     })
 
@@ -72,6 +73,7 @@ export function Header() {
             { id: "about", label: "About", href: "/#about" },
             { id: "experience", label: "Experience", href: "/#experience" },
             { id: "projects", label: "Projects", href: "/#projects" },
+            { id: "endorsements", label: "Endorsements", href: "/#endorsements" },
             { id: "contact", label: "Contact", href: "/#contact" },
         ],
         [],
@@ -139,21 +141,32 @@ export function Header() {
         if (rect) setHighlightRect(rect)
     }, [getHighlightRectForSectionId])
 
+    // Scroll state detection: works on ALL pages to style the header properly
     React.useEffect(() => {
-        if (!isHomeRoute) return
-
         const scrollThresholdPx = 8
-        const activeSectionThresholdPx = 160
 
         function syncScrolledState() {
             setHasScrolled(window.scrollY > scrollThresholdPx)
         }
 
+        // Sync once on mount (important for reload mid-page).
+        syncScrolledState()
+
+        window.addEventListener("scroll", syncScrolledState, { passive: true })
+        return () => window.removeEventListener("scroll", syncScrolledState)
+    }, [])
+
+    // Active section detection: only works on the home page
+    React.useEffect(() => {
+        if (!isHomeRoute) return
+
+        const activeSectionThresholdPx = 160
+
         function syncActiveSection() {
             // Determine which section is currently "active" based on scroll position.
             // We pick the last section whose top has passed a threshold so the highlight
             // feels stable as you scroll.
-            const candidateIds: NavSectionId[] = ["home", "about", "experience", "projects", "contact"]
+            const candidateIds: NavSectionId[] = ["home", "about", "experience", "projects", "endorsements", "contact"]
             const thresholdFromTop = activeSectionThresholdPx
 
             let newestActiveId: NavSectionId = candidateIds[0]
@@ -183,16 +196,11 @@ export function Header() {
             setActiveSectionId((current) => (current === newestActiveId ? current : newestActiveId))
         }
 
-        function syncHeaderState() {
-            syncScrolledState()
-            syncActiveSection()
-        }
-
         // Sync once on mount (important for reload mid-page).
-        syncHeaderState()
+        syncActiveSection()
 
-        window.addEventListener("scroll", syncHeaderState, { passive: true })
-        return () => window.removeEventListener("scroll", syncHeaderState)
+        window.addEventListener("scroll", syncActiveSection, { passive: true })
+        return () => window.removeEventListener("scroll", syncActiveSection)
     }, [isHomeRoute])
 
     const sectionMaxWidthClass = "max-w-[calc(72rem+2rem)] sm:max-w-[calc(72rem+3rem)]"
@@ -425,17 +433,31 @@ export function Header() {
                                     </a>
                                 )
                             })}
+
+                            {/* Separator before blog link */}
+                            <div 
+                                className="relative mx-2 h-6 w-px bg-muted-foreground/20" 
+                                aria-hidden="true" 
+                            />
+
+                            {/* Blog link - separate from hash-based navigation */}
+                            <Link
+                                href="/blog"
+                                className={[
+                                    "relative z-10 rounded-full px-3 py-1.5 transition-colors",
+                                    "border-l border-border pl-4 ml-1",
+                                    pathname === "/blog"
+                                        ? "text-foreground"
+                                        : "text-muted-foreground hover:text-foreground",
+                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                ].join(" ")}
+                            >
+                                Blog
+                            </Link>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-end gap-3">
-                        <a
-                            className="hidden text-muted-foreground hover:text-foreground text-sm font-medium sm:inline"
-                            href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
-                            download="Craig-Davison-CV.pdf"
-                        >
-                            Download CV
-                        </a>
                         {/* Mobile: keep actions pinned to the far right. */}
                         <div className="flex items-center justify-end gap-2 sm:gap-3">
                             <ThemeToggle />
@@ -483,27 +505,16 @@ export function Header() {
 
                                             <SheetClose asChild>
                                                 <Link
-                                                    href="/roadmap"
+                                                    href="/blog"
                                                     className={[
                                                         "rounded-lg px-3 py-2 text-base font-medium",
                                                         "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
                                                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                                     ].join(" ")}
                                                 >
-                                                    Roadmap
+                                                    Blog
                                                 </Link>
                                             </SheetClose>
-                                        </div>
-
-                                        <div className="mt-auto flex flex-col gap-3">
-                                            <Button asChild>
-                                                <a
-                                                    href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
-                                                    download="Craig-Davison-CV.pdf"
-                                                >
-                                                    Download CV
-                                                </a>
-                                            </Button>
                                         </div>
                                     </div>
                                     </SheetContent>

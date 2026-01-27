@@ -27,7 +27,7 @@ function Container({
   const variants: Record<ContainerVariant, string> = {
     default:
       (cn(baseClasses, "container flex flex-col items-center justify-center")),
-    left: (cn(baseClasses, "container flex flex-col items-start")),
+    left: (cn(baseClasses, "container flex flex-col items-start justify-start")),
   };
 
   return (
@@ -139,11 +139,10 @@ function ContainerContent({
   variant = "default",
   ...props
 }: ContainerContentProps): React.JSX.Element {
-  const baseClasses =
-    "container-content flex flex-col items-center justify-center gap-4";
+  const baseClasses = "container-content flex flex-col gap-4";
   const variants: Record<ContainerVariant, string> = {
-    default: `${baseClasses} text-center`,
-    left: `${baseClasses} text-left`,
+    default: `${baseClasses} items-center justify-center text-center`,
+    left: `${baseClasses} items-start justify-start text-left`,
   };
 
   return (

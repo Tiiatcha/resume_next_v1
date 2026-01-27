@@ -140,6 +140,26 @@ html {
   body {
     @apply bg-background text-foreground;
   }
+
+  /*
+    Fix for Radix Dialog / react-remove-scroll breaking layouts.
+    
+    When Radix Dialog opens, react-remove-scroll applies `position: relative !important`
+    to the body to manage scroll locking. This creates a new stacking context that breaks
+    fixed positioning and causes dialog overlays/content to not display correctly.
+    
+    Override the position to keep body static while preserving scroll lock behavior.
+    
+    References:
+    - https://github.com/radix-ui/primitives/issues/1662
+    - https://github.com/shadcn-ui/ui/issues/2614
+  */
+  body[data-scroll-locked] {
+    position: static !important;
+    overflow: hidden !important;
+    /* Prevent layout shift from scrollbar compensation */
+    margin-right: 0 !important;
+  }
 }
 
 /*
@@ -169,5 +189,87 @@ html {
   .cv-marquee {
     animation: none;
     transform: none;
+  }
+}
+
+/*
+  Payload Lexical rendering (blog posts).
+
+  We intentionally avoid the Tailwind Typography plugin to keep the dependency
+  surface small. Instead, we use modern CSS + Tailwind tokens to style the
+  HTML that the Lexical React converter outputs.
+*/
+@layer components {
+  .payload-richtext {
+    @apply text-foreground;
+  }
+
+  /*
+    Image attribution:
+    - visible and accessible
+    - intentionally subtle (caption tone)
+    - avoids competing with the post content
+  */
+  .image-attribution {
+    @apply text-muted-foreground;
+  }
+
+  /* Create consistent vertical rhythm without needing element-specific margins. */
+  .payload-richtext > :where(* + *) {
+    margin-block-start: 1rem;
+  }
+
+  .payload-richtext :where(p) {
+    @apply text-muted-foreground text-pretty leading-relaxed;
+  }
+
+  .payload-richtext :where(h1, h2, h3) {
+    @apply text-foreground font-semibold tracking-tight;
+  }
+
+  .payload-richtext :where(h1) {
+    @apply text-2xl;
+  }
+
+  .payload-richtext :where(h2) {
+    @apply text-xl;
+  }
+
+  .payload-richtext :where(h3) {
+    @apply text-lg;
+  }
+
+  .payload-richtext :where(ul) {
+    list-style: disc;
+    padding-inline-start: 1.25rem;
+  }
+
+  .payload-richtext :where(ol) {
+    list-style: decimal;
+    padding-inline-start: 1.25rem;
+  }
+
+  .payload-richtext :where(li) {
+    @apply text-muted-foreground leading-relaxed;
+  }
+
+  .payload-richtext :where(a) {
+    @apply underline underline-offset-4;
+  }
+
+  .payload-richtext :where(a:hover) {
+    text-decoration-thickness: 2px;
+  }
+
+  .payload-richtext :where(blockquote) {
+    @apply border-l-2 border-border pl-4 text-muted-foreground;
+  }
+
+  .payload-richtext :where(code) {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-sm;
+  }
+
+  .payload-richtext :where(pre) {
+    @apply overflow-x-auto rounded-lg border bg-card/60 p-4 font-mono text-sm;
   }
 }
