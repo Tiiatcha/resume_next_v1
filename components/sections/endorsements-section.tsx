@@ -17,6 +17,9 @@ import type { EndorsementSummary } from "@/components/sections/endorsements-type
 import { EndorsementCard } from "@/components/sections/endorsement-card"
 import { EndorsementDetailsPanel } from "@/components/panels/endorsement-details-panel"
 
+// Re-export the type for convenience
+export type { EndorsementSummary }
+
 
 interface EndorsementsSectionProps {
   endorsements: EndorsementSummary[]

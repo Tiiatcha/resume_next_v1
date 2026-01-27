@@ -18,7 +18,7 @@ import {
 import { motion } from "motion/react"
 import { MenuIcon } from "lucide-react"
 
-type NavSectionId = "home" | "about" | "experience" | "projects" | "contact"
+type NavSectionId = "home" | "about" | "experience" | "projects" | "endorsements" | "contact"
 
 type NavItem = {
     id: NavSectionId
@@ -63,6 +63,7 @@ export function Header() {
         about: null,
         experience: null,
         projects: null,
+        endorsements: null,
         contact: null,
     })
 
@@ -72,6 +73,7 @@ export function Header() {
             { id: "about", label: "About", href: "/#about" },
             { id: "experience", label: "Experience", href: "/#experience" },
             { id: "projects", label: "Projects", href: "/#projects" },
+            { id: "endorsements", label: "Endorsements", href: "/#endorsements" },
             { id: "contact", label: "Contact", href: "/#contact" },
         ],
         [],
@@ -139,21 +141,32 @@ export function Header() {
         if (rect) setHighlightRect(rect)
     }, [getHighlightRectForSectionId])
 
+    // Scroll state detection: works on ALL pages to style the header properly
     React.useEffect(() => {
-        if (!isHomeRoute) return
-
         const scrollThresholdPx = 8
-        const activeSectionThresholdPx = 160
 
         function syncScrolledState() {
             setHasScrolled(window.scrollY > scrollThresholdPx)
         }
 
+        // Sync once on mount (important for reload mid-page).
+        syncScrolledState()
+
+        window.addEventListener("scroll", syncScrolledState, { passive: true })
+        return () => window.removeEventListener("scroll", syncScrolledState)
+    }, [])
+
+    // Active section detection: only works on the home page
+    React.useEffect(() => {
+        if (!isHomeRoute) return
+
+        const activeSectionThresholdPx = 160
+
         function syncActiveSection() {
             // Determine which section is currently "active" based on scroll position.
             // We pick the last section whose top has passed a threshold so the highlight
             // feels stable as you scroll.
-            const candidateIds: NavSectionId[] = ["home", "about", "experience", "projects", "contact"]
+            const candidateIds: NavSectionId[] = ["home", "about", "experience", "projects", "endorsements", "contact"]
             const thresholdFromTop = activeSectionThresholdPx
 
             let newestActiveId: NavSectionId = candidateIds[0]
@@ -183,16 +196,11 @@ export function Header() {
             setActiveSectionId((current) => (current === newestActiveId ? current : newestActiveId))
         }
 
-        function syncHeaderState() {
-            syncScrolledState()
-            syncActiveSection()
-        }
-
         // Sync once on mount (important for reload mid-page).
-        syncHeaderState()
+        syncActiveSection()
 
-        window.addEventListener("scroll", syncHeaderState, { passive: true })
-        return () => window.removeEventListener("scroll", syncHeaderState)
+        window.addEventListener("scroll", syncActiveSection, { passive: true })
+        return () => window.removeEventListener("scroll", syncActiveSection)
     }, [isHomeRoute])
 
     const sectionMaxWidthClass = "max-w-[calc(72rem+2rem)] sm:max-w-[calc(72rem+3rem)]"

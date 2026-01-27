@@ -72,7 +72,7 @@ export function Footer() {
 
       <Container
         variant="left"
-        className="relative z-10 gap-10 py-14 sm:px-6"
+        className="relative z-10 gap-10 py-14"
       >
         {/* CTA card */}
         <div className="w-full rounded-2xl border bg-card/60 p-6 supports-[backdrop-filter]:bg-card/40 sm:p-8">

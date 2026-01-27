@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { SiteBackground } from "@/components/layout/site-background"
 import { Reveal } from "@/components/motion/reveal"
+import Section from "@/components/sections/components/section"
 import { Container } from "@/components/sections/components/container"
 import { ImageAttribution } from "@/components/blog/image-attribution"
 import { PayloadRichText } from "@/components/content/payload-rich-text"
@@ -102,66 +103,68 @@ export default async function BlogPostPage({
       <Header />
 
       <main className="w-full">
-        <Container variant="left" className="py-12 sm:py-16">
-          <Reveal>
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
-                  Blog
-                </p>
-                <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
-                  {post.title}
-                </h1>
-                {post.publishedAt ? (
-                  <p className="text-muted-foreground text-sm">
-                    {new Date(post.publishedAt).toLocaleDateString("en-GB", {
-                      year: "numeric",
-                      month: "long",
-                      day: "2-digit",
-                    })}
+        <Section id="blog-post" surface="base">
+          <Container variant="left">
+            <Reveal>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
+                    Blog
                   </p>
-                ) : null}
-                {post.excerpt ? (
-                  <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                ) : null}
-              </div>
-
-              {featuredImage?.url && (
-                <figure className="space-y-3">
-                  <div className="relative overflow-hidden rounded-2xl border bg-card/60 supports-[backdrop-filter]:bg-card/40">
-                    <Image
-                      src={featuredImage.url}
-                      alt={featuredImage.alt || post.title}
-                      width={featuredImage.width ?? 1600}
-                      height={featuredImage.height ?? 900}
-                      className="w-full h-auto object-cover"
-                      priority
-                    />
-                  </div>
-                  <ImageAttribution attribution={post.imageAttribution} />
-                </figure>
-              )}
-
-              {!featuredImage?.url && post.imageAttribution && (
-                <ImageAttribution attribution={post.imageAttribution} />
-              )}
-              
-              {currentUser && (
-                <div>
-                  <BlogAdminControls postId={post.id} variant="post" />
+                  <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {post.title}
+                  </h1>
+                  {post.publishedAt ? (
+                    <p className="text-muted-foreground text-sm">
+                      {new Date(post.publishedAt).toLocaleDateString("en-GB", {
+                        year: "numeric",
+                        month: "long",
+                        day: "2-digit",
+                      })}
+                    </p>
+                  ) : null}
+                  {post.excerpt ? (
+                    <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  ) : null}
                 </div>
-              )}
-            </div>
-          </Reveal>
 
-          <Separator className="my-10" />
+                {featuredImage?.url && (
+                  <figure className="space-y-3">
+                    <div className="relative overflow-hidden rounded-2xl border bg-card/60 supports-[backdrop-filter]:bg-card/40">
+                      <Image
+                        src={featuredImage.url}
+                        alt={featuredImage.alt || post.title}
+                        width={featuredImage.width ?? 1600}
+                        height={featuredImage.height ?? 900}
+                        className="w-full h-auto object-cover"
+                        priority
+                      />
+                    </div>
+                    <ImageAttribution attribution={post.imageAttribution} />
+                  </figure>
+                )}
 
-          <article className="payload-richtext">
-            <PayloadRichText data={post.content} />
-          </article>
-        </Container>
+                {!featuredImage?.url && post.imageAttribution && (
+                  <ImageAttribution attribution={post.imageAttribution} />
+                )}
+                
+                {currentUser && (
+                  <div>
+                    <BlogAdminControls postId={post.id} variant="post" />
+                  </div>
+                )}
+              </div>
+            </Reveal>
+
+            <Separator className="my-10" />
+
+            <article className="payload-richtext">
+              <PayloadRichText data={post.content} />
+            </article>
+          </Container>
+        </Section>
       </main>
 
       <Footer />

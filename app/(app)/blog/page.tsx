@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { SiteBackground } from "@/components/layout/site-background"
 import { Reveal } from "@/components/motion/reveal"
+import Section from "@/components/sections/components/section"
 import { Container } from "@/components/sections/components/container"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -59,102 +60,104 @@ export default async function BlogIndexPage() {
       <Header />
 
       <main className="w-full">
-        <Container variant="left" className="py-12 sm:py-16">
-          <Reveal>
-            <div className="space-y-4">
-              <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
-                Blog
-              </p>
-              <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
-                Ship Log
-              </h1>
-              <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
-                Thoughts, lessons, and behind-the-scenes notes from projects I'm
-                building and shipping.
-              </p>
-              
-              {currentUser && (
-                <div className="pt-2 space-y-2">
-                  <BlogAdminControls variant="list" />
-                  <p className="text-muted-foreground text-xs leading-relaxed">
-                    Admin: manage drafts and publish posts.
-                  </p>
-                </div>
-              )}
-            </div>
-          </Reveal>
-
-          <Separator className="my-10" />
-
-          {posts.length ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post, idx) => {
-                const featuredImage =
-                  post.featuredImage && typeof post.featuredImage === "object"
-                    ? (post.featuredImage as Media)
-                    : null
-
-                return (
-                  <Reveal key={post.id} delaySeconds={idx * 0.05}>
-                    <Link href={`/blog/${post.slug}`} className="group block h-full">
-                      <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full overflow-hidden transition-all hover:border-primary/50 p-0">
-                        {featuredImage?.url && (
-                          <div className="relative aspect-[2/1] w-full overflow-hidden">
-                            <Image
-                              src={featuredImage.url}
-                              alt={featuredImage.alt || post.title}
-                              width={featuredImage.width ?? 800}
-                              height={featuredImage.height ?? 400}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          </div>
-                        )}
-                        <CardHeader className="gap-2">
-                          <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            {post.title}
-                          </CardTitle>
-                          {post.publishedAt ? (
-                            <p className="text-muted-foreground text-xs">
-                              {new Date(post.publishedAt).toLocaleDateString("en-GB", {
-                                year: "numeric",
-                                month: "short",
-                                day: "2-digit",
-                              })}
-                            </p>
-                          ) : null}
-                        </CardHeader>
-                        <CardContent>
-                          {post.excerpt ? (
-                            <p className="text-muted-foreground text-pretty leading-relaxed">
-                              {post.excerpt}
-                            </p>
-                          ) : (
-                            <p className="text-muted-foreground text-sm">
-                              Read post →
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </Reveal>
-                )
-              })}
-            </div>
-          ) : (
+        <Section id="blog" surface="alt" glow={{ side: "left", tone: "warm" }}>
+          <Container variant="left">
             <Reveal>
-              <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40">
-                <CardHeader>
-                  <CardTitle className="text-base">No posts yet</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    I'm working on the first articles—check back soon.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
+                  Blog
+                </p>
+                <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Field Notes
+                </h1>
+                <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
+                  Thoughts, lessons, and behind-the-scenes notes from projects I&apos;m
+                  building and shipping to ideas and musings.
+                </p>
+
+                {currentUser && (
+                  <div className="pt-2 space-y-2">
+                    <BlogAdminControls variant="list" />
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      Admin: manage drafts and publish posts.
+                    </p>
+                  </div>
+                )}
+              </div>
             </Reveal>
-          )}
-        </Container>
+
+            <Separator className="my-10" />
+
+            {posts.length ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {posts.map((post, idx) => {
+                  const featuredImage =
+                    post.featuredImage && typeof post.featuredImage === "object"
+                      ? (post.featuredImage as Media)
+                      : null
+
+                  return (
+                    <Reveal key={post.id} delaySeconds={idx * 0.05}>
+                      <Link href={`/blog/${post.slug}`} className="group block h-full">
+                        <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full overflow-hidden transition-all hover:border-primary/50 p-0">
+                          {featuredImage?.url && (
+                            <div className="relative aspect-[2/1] w-full overflow-hidden">
+                              <Image
+                                src={featuredImage.url}
+                                alt={featuredImage.alt || post.title}
+                                width={featuredImage.width ?? 800}
+                                height={featuredImage.height ?? 400}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                          )}
+                          <CardHeader className="gap-2">
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                              {post.title}
+                            </CardTitle>
+                            {post.publishedAt ? (
+                              <p className="text-muted-foreground text-xs">
+                                {new Date(post.publishedAt).toLocaleDateString("en-GB", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "2-digit",
+                                })}
+                              </p>
+                            ) : null}
+                          </CardHeader>
+                          <CardContent>
+                            {post.excerpt ? (
+                              <p className="text-muted-foreground text-pretty leading-relaxed">
+                                {post.excerpt}
+                              </p>
+                            ) : (
+                              <p className="text-muted-foreground text-sm">
+                                Read post →
+                              </p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </Reveal>
+                  )
+                })}
+              </div>
+            ) : (
+              <Reveal>
+                <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40">
+                  <CardHeader>
+                    <CardTitle className="text-base">No posts yet</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      I&apos;m working on the first articles—check back soon.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Reveal>
+            )}
+          </Container>
+        </Section>
       </main>
 
       <Footer />
