@@ -425,17 +425,31 @@ export function Header() {
                                     </a>
                                 )
                             })}
+
+                            {/* Separator before blog link */}
+                            <div 
+                                className="relative mx-2 h-6 w-px bg-muted-foreground/20" 
+                                aria-hidden="true" 
+                            />
+
+                            {/* Blog link - separate from hash-based navigation */}
+                            <Link
+                                href="/blog"
+                                className={[
+                                    "relative z-10 rounded-full px-3 py-1.5 transition-colors",
+                                    "border-l border-border pl-4 ml-1",
+                                    pathname === "/blog"
+                                        ? "text-foreground"
+                                        : "text-muted-foreground hover:text-foreground",
+                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                ].join(" ")}
+                            >
+                                Blog
+                            </Link>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-end gap-3">
-                        <a
-                            className="hidden text-muted-foreground hover:text-foreground text-sm font-medium sm:inline"
-                            href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
-                            download="Craig-Davison-CV.pdf"
-                        >
-                            Download CV
-                        </a>
                         {/* Mobile: keep actions pinned to the far right. */}
                         <div className="flex items-center justify-end gap-2 sm:gap-3">
                             <ThemeToggle />
@@ -483,27 +497,16 @@ export function Header() {
 
                                             <SheetClose asChild>
                                                 <Link
-                                                    href="/roadmap"
+                                                    href="/blog"
                                                     className={[
                                                         "rounded-lg px-3 py-2 text-base font-medium",
                                                         "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
                                                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                                     ].join(" ")}
                                                 >
-                                                    Roadmap
+                                                    Blog
                                                 </Link>
                                             </SheetClose>
-                                        </div>
-
-                                        <div className="mt-auto flex flex-col gap-3">
-                                            <Button asChild>
-                                                <a
-                                                    href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
-                                                    download="Craig-Davison-CV.pdf"
-                                                >
-                                                    Download CV
-                                                </a>
-                                            </Button>
                                         </div>
                                     </div>
                                     </SheetContent>

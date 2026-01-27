@@ -43,7 +43,10 @@ type FooterSiteLink = {
   href: `/${string}`
 }
 
-const footerSiteLinks: FooterSiteLink[] = [{ label: "Roadmap", href: "/roadmap" }]
+const footerSiteLinks: FooterSiteLink[] = [
+  { label: "Blog", href: "/blog" },
+  { label: "Roadmap", href: "/roadmap" },
+]
 
 /**
  * Site footer for the single-page CV.

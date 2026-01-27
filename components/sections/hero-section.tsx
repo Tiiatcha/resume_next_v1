@@ -28,10 +28,15 @@ export function HeroSection() {
 
             <div className="flex flex-wrap gap-3 pt-1">
               <Button asChild>
-                <a href="#projects">View projects</a>
+                <a
+                  href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
+                  download="Craig-Davison-CV.pdf"
+                >
+                  Download CV
+                </a>
               </Button>
               <Button asChild variant="outline">
-                <a href="#experience">View experience</a>
+                <a href="#contact">Contact me</a>
               </Button>
             </div>
           </div>
