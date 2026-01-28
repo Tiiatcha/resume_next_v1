@@ -39,6 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${siteBaseUrl}/changelog`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
       url: `${siteBaseUrl}/roadmap`,
       lastModified,
       changeFrequency: "monthly",
@@ -78,7 +84,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     }
 
-    return [...baseEntries, ...postEntries]
+    const changelog = await payload.find({
+      collection: "changelog-entries",
+      depth: 0,
+      limit: 500,
+      sort: "-publishedAt",
+      where: {
+        status: { equals: "published" },
+      },
+    })
+
+    const changelogEntries: MetadataRoute.Sitemap = []
+
+    for (const doc of changelog.docs) {
+      const slug = (doc as { slug?: unknown }).slug
+      if (typeof slug !== "string" || !slug) continue
+
+      const updatedAt = (doc as { updatedAt?: unknown }).updatedAt
+      const lastModifiedForEntry =
+        typeof updatedAt === "string" ? new Date(updatedAt) : lastModified
+
+      changelogEntries.push({
+        url: `${siteBaseUrl}/changelog/${slug}`,
+        lastModified: lastModifiedForEntry,
+        changeFrequency: "monthly",
+        priority: 0.45,
+      })
+    }
+
+    return [...baseEntries, ...postEntries, ...changelogEntries]
   } catch {
     return baseEntries
   }

@@ -69,8 +69,10 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    categories: Category;
     'blog-posts': BlogPost;
     endorsements: Endorsement;
+    'changelog-entries': ChangelogEntry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,8 +82,10 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
+    'changelog-entries': ChangelogEntriesSelect<false> | ChangelogEntriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -207,6 +211,33 @@ export interface Media {
   };
 }
 /**
+ * Categories can be scoped to specific collections (e.g. Blog posts now, other content types later).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  /**
+   * Human-friendly label shown on the site (e.g. Engineering).
+   */
+  name: string;
+  /**
+   * Used for filtering and URLs. Auto-generated from the name, but you can edit it.
+   */
+  slug: string;
+  /**
+   * Controls where this category can be selected. Each collection filters the category picker to only show relevant categories.
+   */
+  scopes: ('blog-posts' | 'changelog-entries')[];
+  /**
+   * Optional summary shown in admin and can be used for SEO/UX later.
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Blog posts support drafts, published dates, and Lexical rich text content.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -228,6 +259,10 @@ export interface BlogPost {
    * Short summary used on the blog listing page and in metadata.
    */
   excerpt?: string | null;
+  /**
+   * Optional category used for filtering (e.g. Engineering, Deep dives).
+   */
+  category?: (string | null) | Category;
   /**
    * Main post content (Lexical rich text). Use headings, links, and lists.
    */
@@ -346,6 +381,66 @@ export interface Endorsement {
   createdAt: string;
 }
 /**
+ * Changelog entries are short, structured release notes. Use the blog for deep dives and longer write-ups.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "changelog-entries".
+ */
+export interface ChangelogEntry {
+  id: string;
+  /**
+   * Human-friendly summary (e.g. “Projects section now CMS-backed”).
+   */
+  title: string;
+  /**
+   * Used in the URL. Auto-generated from the title, but you can edit it.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  /**
+   * Date the change shipped (not the date you clicked Publish). You can backdate this.
+   */
+  publishedAt: string;
+  /**
+   * Optional version label (e.g. v1.3.0). Useful if you start tagging releases.
+   */
+  version?: string | null;
+  /**
+   * 1–2 sentence overview shown on the changelog listing page.
+   */
+  summary: string;
+  /**
+   * The structured change list. Keep each item short and user-facing.
+   */
+  changes: {
+    type: 'added' | 'changed' | 'fixed' | 'removed' | 'security';
+    text: string;
+    /**
+     * Optional link for extra context. Internal links should be used for your own content (e.g. a deep-dive blog post).
+     */
+    linkKind: 'none' | 'external' | 'internal';
+    /**
+     * Full URL (e.g. https://example.com).
+     */
+    externalUrl?: string | null;
+    /**
+     * Choose which internal content to link to. Add more options as new content types ship.
+     */
+    internalCollection?: 'blog-posts' | null;
+    /**
+     * Select the blog post to link to.
+     */
+    internalBlogPost?: (string | null) | BlogPost;
+    id?: string | null;
+  }[];
+  /**
+   * Optional deep dive blog post that explains this change in more detail.
+   */
+  relatedPost?: (string | null) | BlogPost;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -378,12 +473,20 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
         relationTo: 'blog-posts';
         value: string | BlogPost;
       } | null)
     | ({
         relationTo: 'endorsements';
         value: string | Endorsement;
+      } | null)
+    | ({
+        relationTo: 'changelog-entries';
+        value: string | ChangelogEntry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -507,6 +610,18 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  scopes?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog-posts_select".
  */
 export interface BlogPostsSelect<T extends boolean = true> {
@@ -515,6 +630,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   status?: T;
   publishedAt?: T;
   excerpt?: T;
+  category?: T;
   content?: T;
   featuredImage?: T;
   imageAttribution?:
@@ -564,6 +680,32 @@ export interface EndorsementsSelect<T extends boolean = true> {
         ipAddress?: T;
         userAgent?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "changelog-entries_select".
+ */
+export interface ChangelogEntriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  publishedAt?: T;
+  version?: T;
+  summary?: T;
+  changes?:
+    | T
+    | {
+        type?: T;
+        text?: T;
+        linkKind?: T;
+        externalUrl?: T;
+        internalCollection?: T;
+        internalBlogPost?: T;
+        id?: T;
+      };
+  relatedPost?: T;
   updatedAt?: T;
   createdAt?: T;
 }

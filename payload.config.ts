@@ -7,8 +7,10 @@ import sharp from "sharp";
 
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
+import { Categories } from "./collections/BlogCategories";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
+import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Roadmap } from "./globals/Roadmap";
 
 import { s3Storage } from "@payloadcms/storage-s3";
@@ -24,7 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, BlogPosts, Endorsements],
+  collections: [Users, Media, Categories, BlogPosts, Endorsements, ChangelogEntries],
   globals: [Roadmap],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
