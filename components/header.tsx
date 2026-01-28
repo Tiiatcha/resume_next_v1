@@ -459,11 +459,11 @@ export function Header() {
 
                     <div className="flex items-center justify-end gap-3">
                         {/* Mobile: keep actions pinned to the far right. */}
-                        <div className="flex items-center justify-end gap-2 sm:gap-3">
+                        <div className="flex items-center justify-end gap-2 sm:gap-3" suppressHydrationWarning>
                             <ThemeToggle />
 
                             {/* Mobile navigation (hamburger → sheet). */}
-                            <div className="sm:hidden">
+                            <div className="sm:hidden" suppressHydrationWarning>
                                 <Sheet>
                                     <SheetTrigger asChild>
                                         <Button
