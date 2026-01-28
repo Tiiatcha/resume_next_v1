@@ -9,10 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/hooks/use-auth"
 
 /**
  * Admin controls for blog management that appear when a user is authenticated.
  * Provides quick access to Payload CMS for managing blog posts.
+ * 
+ * Authentication is checked client-side to allow the page to be statically generated.
+ * The controls will appear after hydration if the user is logged in.
  * 
  * Responsive design:
  * - Mobile: Compact dropdown menu
@@ -28,6 +32,13 @@ export function BlogAdminControls({
   postId?: string
   variant?: 'list' | 'post'
 }) {
+  const { isAuthenticated, isLoading } = useAuth()
+
+  // Don't render anything while checking authentication or if not authenticated
+  if (isLoading || !isAuthenticated) {
+    return null
+  }
+
   return (
     <>
       {/* Mobile: Compact dropdown */}

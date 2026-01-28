@@ -38,11 +38,8 @@ export default buildConfig({
       collections: {
         media: {
           disableLocalStorage: true,
-          // Public URL configuration - REQUIRED for images to display
-          // This tells Payload where to access the uploaded files
           generateFileURL: (args: { filename: string }) => {
             const publicUrl = process.env.R2_URL || ""
-            // Files are stored in the 'media' prefix, so include it in the URL
             return `${publicUrl}/resume/${args.filename}`
           },
         },
@@ -55,7 +52,7 @@ export default buildConfig({
         },
         region: "auto",
         endpoint: process.env.R2_ENDPOINT || "",
-        // CRITICAL for R2: Use path-style URLs instead of virtual-hosted style
+
         forcePathStyle: true,
       },
     }),
