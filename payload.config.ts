@@ -10,6 +10,8 @@ import { Media } from "./collections/Media";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
 
+import { s3Storage } from "@payloadcms/storage-s3";
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -30,5 +32,20 @@ export default buildConfig({
     url: process.env.DATABASE_URL || "",
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    s3Storage({
+      collections: {
+        media: { prefix: "media" },
+      },
+      bucket: process.env.R2_BUCKET ?? "",
+      config: {
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.R2_SECRET_KEY || "",
+        },
+        region: 'auto',
+        endpoint: process.env.R2_ENDPOINT || "",
+      },
+    }),
+  ],
 });
