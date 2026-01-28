@@ -11,7 +11,6 @@ import { Container } from "@/components/sections/components/container"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
-import { getCurrentUser } from "@/lib/payload/get-current-user"
 import { BlogAdminControls } from "@/components/blog/blog-admin-menubar"
 
 export const metadata: Metadata = {
@@ -41,7 +40,6 @@ type BlogPostListItem = {
 
 export default async function BlogIndexPage() {
   const payload = await getPayloadClient()
-  const currentUser = await getCurrentUser()
 
   const postsResult = await payload.find({
     collection: "blog-posts",
@@ -75,14 +73,8 @@ export default async function BlogIndexPage() {
                   building and shipping to ideas and musings.
                 </p>
 
-                {currentUser && (
-                  <div className="pt-2 space-y-2">
-                    <BlogAdminControls variant="list" />
-                    <p className="text-muted-foreground text-xs leading-relaxed">
-                      Admin: manage drafts and publish posts.
-                    </p>
-                  </div>
-                )}
+                {/* Admin controls render client-side to allow static page generation */}
+                <BlogAdminControls variant="list" />
               </div>
             </Reveal>
 

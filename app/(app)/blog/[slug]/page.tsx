@@ -12,7 +12,6 @@ import { ImageAttribution } from "@/components/blog/image-attribution"
 import { PayloadRichText } from "@/components/content/payload-rich-text"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
-import { getCurrentUser } from "@/lib/payload/get-current-user"
 import { BlogAdminControls } from "@/components/blog/blog-admin-menubar"
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 
@@ -91,8 +90,6 @@ export default async function BlogPostPage({
   const post = await getPublishedPostBySlug(slug)
   if (!post) notFound()
 
-  const currentUser = await getCurrentUser()
-
   const featuredImage =
     post.featuredImage && typeof post.featuredImage === "object"
       ? (post.featuredImage as Media)
@@ -150,11 +147,8 @@ export default async function BlogPostPage({
                   <ImageAttribution attribution={post.imageAttribution} />
                 )}
                 
-                {currentUser && (
-                  <div>
-                    <BlogAdminControls postId={post.id} variant="post" />
-                  </div>
-                )}
+                {/* Admin controls render client-side to allow static page generation */}
+                <BlogAdminControls postId={post.id} variant="post" />
               </div>
             </Reveal>
 
