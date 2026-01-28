@@ -97,6 +97,7 @@ export const Roadmap: GlobalConfig = {
       defaultValue: [
         { label: "View projects", href: "/#projects", variant: "outline" },
         { label: "View experience", href: "/#experience", variant: "ghost" },
+        { label: "Changelog", href: "/changelog", variant: "outline" },
       ],
     },
     {

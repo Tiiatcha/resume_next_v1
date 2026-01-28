@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/blog/blog-admin-menubar"
+import { Badge } from "@/components/ui/badge"
 
 export const metadata: Metadata = {
   title: "Blog — Craig Davison",
@@ -28,18 +29,54 @@ type Media = {
   height?: number | null
 }
 
+type Category = {
+  id: string
+  name?: string | null
+  slug?: string | null
+}
+
 type BlogPostListItem = {
   id: string
   title: string
   slug: string
   excerpt?: string | null
   featuredImage?: string | Media | null
+  category?: string | Category | null
   publishedAt?: string | null
   updatedAt?: string | null
 }
 
-export default async function BlogIndexPage() {
+function normaliseCategorySlug(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  return trimmed ? trimmed : null
+}
+
+export default async function BlogIndexPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+  const activeCategorySlug = normaliseCategorySlug(category)
+
   const payload = await getPayloadClient()
+
+  const categoriesResult = await payload.find({
+    collection: "categories",
+    depth: 0,
+    limit: 200,
+    sort: "name",
+    where: {
+      scopes: { contains: "blog-posts" },
+    },
+  })
+
+  const categories = categoriesResult.docs as unknown as Category[]
+  const activeCategory =
+    activeCategorySlug
+      ? categories.find((cat) => cat.slug === activeCategorySlug) ?? null
+      : null
 
   const postsResult = await payload.find({
     collection: "blog-posts",
@@ -47,7 +84,10 @@ export default async function BlogIndexPage() {
     limit: 50,
     sort: "-publishedAt",
     where: {
-      status: { equals: "published" },
+      and: [
+        { status: { equals: "published" } },
+        ...(activeCategory?.id ? [{ category: { equals: activeCategory.id } }] : []),
+      ],
     },
   })
 
@@ -73,6 +113,34 @@ export default async function BlogIndexPage() {
                   building and shipping to ideas and musings.
                 </p>
 
+                {categories.length ? (
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
+                    <Link href="/blog">
+                      <Badge variant={activeCategorySlug ? "outline" : "default"}>
+                        All
+                      </Badge>
+                    </Link>
+                    {categories
+                      .filter((cat) => typeof cat.slug === "string" && cat.slug)
+                      .map((cat) => {
+                        const slug = cat.slug as string
+                        const name = typeof cat.name === "string" && cat.name.trim()
+                          ? cat.name.trim()
+                          : slug
+
+                        const isActive = slug === activeCategorySlug
+
+                        return (
+                          <Link key={cat.id} href={`/blog?category=${encodeURIComponent(slug)}`}>
+                            <Badge variant={isActive ? "default" : "outline"}>
+                              {name}
+                            </Badge>
+                          </Link>
+                        )
+                      })}
+                  </div>
+                ) : null}
+
                 {/* Admin controls render client-side to allow static page generation */}
                 <BlogAdminControls variant="list" />
               </div>
@@ -86,6 +154,10 @@ export default async function BlogIndexPage() {
                   const featuredImage =
                     post.featuredImage && typeof post.featuredImage === "object"
                       ? (post.featuredImage as Media)
+                      : null
+                  const category =
+                    post.category && typeof post.category === "object"
+                      ? (post.category as Category)
                       : null
 
                   return (
@@ -104,6 +176,11 @@ export default async function BlogIndexPage() {
                             </div>
                           )}
                           <CardHeader className="gap-2">
+                            {category?.name ? (
+                              <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
+                                {category.name}
+                              </p>
+                            ) : null}
                             <CardTitle className="text-lg group-hover:text-primary transition-colors">
                               {post.title}
                             </CardTitle>

@@ -46,6 +46,7 @@ type FooterSiteLink = {
 const footerSiteLinks: FooterSiteLink[] = [
   { label: "Blog", href: "/blog" },
   { label: "Roadmap", href: "/roadmap" },
+  { label: "Changelog", href: "/changelog" },
 ]
 
 /**

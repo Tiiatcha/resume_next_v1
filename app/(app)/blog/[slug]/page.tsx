@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 
 import Image from "next/image"
 import { Footer } from "@/components/footer"
@@ -14,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/blog/blog-admin-menubar"
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
+import { Badge } from "@/components/ui/badge"
 
 export const revalidate = 60
 
@@ -31,6 +33,7 @@ type BlogPost = {
     artistUrl?: string | null
     imageUrl?: string | null
   } | null
+  category?: string | Category | null
   publishedAt?: string | null
   updatedAt?: string | null
 }
@@ -40,6 +43,12 @@ type Media = {
   alt?: string | null
   width?: number | null
   height?: number | null
+}
+
+type Category = {
+  id: string
+  name?: string | null
+  slug?: string | null
 }
 
 async function getPublishedPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -94,6 +103,10 @@ export default async function BlogPostPage({
     post.featuredImage && typeof post.featuredImage === "object"
       ? (post.featuredImage as Media)
       : null
+  const category =
+    post.category && typeof post.category === "object"
+      ? (post.category as Category)
+      : null
 
   return (
     <SiteBackground className="font-sans">
@@ -111,6 +124,13 @@ export default async function BlogPostPage({
                   <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
                     {post.title}
                   </h1>
+                  {category?.slug ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link href={`/blog?category=${encodeURIComponent(category.slug)}`}>
+                        <Badge variant="outline">{category.name ?? category.slug}</Badge>
+                      </Link>
+                    </div>
+                  ) : null}
                   {post.publishedAt ? (
                     <p className="text-muted-foreground text-sm">
                       {new Date(post.publishedAt).toLocaleDateString("en-GB", {

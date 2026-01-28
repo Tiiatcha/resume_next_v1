@@ -67,6 +67,7 @@ const fallbackRoadmapContent = {
   ctaLinks: [
     { label: "View projects", href: "/#projects", variant: "outline" as const },
     { label: "View experience", href: "/#experience", variant: "ghost" as const },
+    { label: "Changelog", href: "/changelog", variant: "outline" as const },
   ],
   items: [
     {
@@ -116,6 +117,14 @@ function normaliseCtaVariant(value: unknown, fallback: RoadmapCtaVariant): Roadm
   return value === "outline" || value === "ghost" ? value : fallback
 }
 
+function ensureChangelogCta(
+  ctaLinks: Array<{ label: string; href: string; variant: RoadmapCtaVariant }>,
+): Array<{ label: string; href: string; variant: RoadmapCtaVariant }> {
+  const hasChangelog = ctaLinks.some((cta) => cta.href === "/changelog")
+  if (hasChangelog) return ctaLinks
+  return [...ctaLinks, { label: "Changelog", href: "/changelog", variant: "outline" }]
+}
+
 function normaliseBulletTextList(value: unknown, fallback: string[]): string[] {
   if (!Array.isArray(value)) return fallback
 
@@ -162,7 +171,8 @@ async function getRoadmapContent(): Promise<{
           .filter((cta) => Boolean(cta.label) && Boolean(cta.href))
       : []
 
-    const ctaLinks = ctaLinksFromCms.length ? ctaLinksFromCms : fallbackRoadmapContent.ctaLinks
+    const ctaLinksBase = ctaLinksFromCms.length ? ctaLinksFromCms : fallbackRoadmapContent.ctaLinks
+    const ctaLinks = ensureChangelogCta(ctaLinksBase)
 
     const statusToGroup: Record<RoadmapStatus, RoadmapColumnGroup | null | undefined> = {
       Now: roadmap?.now,
@@ -192,7 +202,7 @@ async function getRoadmapContent(): Promise<{
       heading: fallbackRoadmapContent.heading,
       lead: fallbackRoadmapContent.lead,
       note: fallbackRoadmapContent.note,
-      ctaLinks: fallbackRoadmapContent.ctaLinks,
+      ctaLinks: ensureChangelogCta(fallbackRoadmapContent.ctaLinks),
       items: fallbackRoadmapContent.items,
     }
   }

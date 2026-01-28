@@ -93,6 +93,21 @@ export const BlogPosts: CollectionConfig = {
       },
     },
     {
+      name: "category",
+      type: "relationship",
+      relationTo: "categories",
+      filterOptions: {
+        // Only show categories that explicitly apply to blog posts.
+        // This keeps the picker clean if other collections start using categories later.
+        scopes: { contains: "blog-posts" },
+      },
+      admin: {
+        position: "sidebar",
+        description:
+          "Optional category used for filtering (e.g. Engineering, Deep dives).",
+      },
+    },
+    {
       name: "content",
       type: "richText",
       required: true,
