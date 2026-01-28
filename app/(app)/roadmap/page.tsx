@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getPayloadClient } from "@/lib/payload/get-payload-client"
 
 export const metadata: Metadata = {
   title: "Roadmap — Craig Davison",
@@ -22,49 +23,180 @@ export const metadata: Metadata = {
     "Planned improvements and upcoming features for Craig Davison’s CV/portfolio site.",
 }
 
+export const revalidate = 60
+
 type RoadmapStatus = "Now" | "Next" | "Later"
 
 type RoadmapItem = {
   status: RoadmapStatus
   title: string
   description: string
-  bullets: readonly string[]
+  bullets: string[]
 }
 
-const roadmapItems: readonly RoadmapItem[] = [
-  {
-    status: "Now",
-    title: "Payload CMS foundation",
-    description:
-      "Introduce an editorial workflow so content updates don’t require code changes.",
-    bullets: [
-      "Add Payload CMS (auth + admin) with a clean content model",
-      "Move projects and experience to CMS-backed collections",
-      "Add an endorsements collection with moderation + “featured” support",
-    ],
-  },
-  {
-    status: "Next",
-    title: "Mini blog + richer project case studies",
-    description: "Make it easier to share learnings and show depth per project.",
-    bullets: [
-      "Add blog posts with draft/publish states and tags",
-      "Support richer content blocks (images, links, callouts)",
-      "Add project detail pages generated from CMS content",
-    ],
-  },
-  {
-    status: "Later",
-    title: "Polish, discoverability, and ops",
-    description:
-      "Improve navigation, long-term maintainability, and content distribution.",
-    bullets: [
-      "RSS feed for blog posts",
-      "Privacy-friendly analytics for content performance",
-      "Performance and accessibility audits as the site grows",
-    ],
-  },
-]
+type RoadmapCtaVariant = "outline" | "ghost"
+
+type RoadmapGlobal = {
+  kicker?: string | null
+  heading?: string | null
+  lead?: string | null
+  note?: string | null
+  ctaLinks?: Array<{
+    label?: string | null
+    href?: string | null
+    variant?: RoadmapCtaVariant | null
+  }> | null
+  now?: RoadmapColumnGroup | null
+  next?: RoadmapColumnGroup | null
+  later?: RoadmapColumnGroup | null
+}
+
+type RoadmapColumnGroup = {
+  isVisible?: boolean | null
+  title?: string | null
+  description?: string | null
+  bullets?: Array<{ text?: string | null }> | null
+}
+
+const fallbackRoadmapContent = {
+  kicker: "Site roadmap",
+  heading: "What I’m building next",
+  lead:
+    "This site is intentionally evolving. The goal is to keep the CV fast and readable while adding CMS-backed content that’s easy to maintain (projects, experience, endorsements, and a small blog).",
+  note: "Note: this is a direction-of-travel list, not a promise of dates.",
+  ctaLinks: [
+    { label: "View projects", href: "/#projects", variant: "outline" as const },
+    { label: "View experience", href: "/#experience", variant: "ghost" as const },
+  ],
+  items: [
+    {
+      status: "Now" as const,
+      title: "Payload CMS foundation",
+      description:
+        "Introduce an editorial workflow so content updates don’t require code changes.",
+      bullets: [
+        "Add Payload CMS (auth + admin) with a clean content model",
+        "Move projects and experience to CMS-backed collections",
+        "Add an endorsements collection with moderation + “featured” support",
+      ],
+    },
+    {
+      status: "Next" as const,
+      title: "Mini blog + richer project case studies",
+      description: "Make it easier to share learnings and show depth per project.",
+      bullets: [
+        "Add blog posts with draft/publish states and tags",
+        "Support richer content blocks (images, links, callouts)",
+        "Add project detail pages generated from CMS content",
+      ],
+    },
+    {
+      status: "Later" as const,
+      title: "Polish, discoverability, and ops",
+      description:
+        "Improve navigation, long-term maintainability, and content distribution.",
+      bullets: [
+        "RSS feed for blog posts",
+        "Privacy-friendly analytics for content performance",
+        "Performance and accessibility audits as the site grows",
+      ],
+    },
+  ],
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function normaliseText(value: unknown, fallback: string): string {
+  return isNonEmptyString(value) ? value.trim() : fallback
+}
+
+function normaliseCtaVariant(value: unknown, fallback: RoadmapCtaVariant): RoadmapCtaVariant {
+  return value === "outline" || value === "ghost" ? value : fallback
+}
+
+function normaliseBulletTextList(value: unknown, fallback: string[]): string[] {
+  if (!Array.isArray(value)) return fallback
+
+  const bullets = value
+    .map((bullet) => (bullet && typeof bullet === "object" ? (bullet as { text?: unknown }).text : undefined))
+    .filter(isNonEmptyString)
+    .map((text) => text.trim())
+
+  return bullets.length ? bullets : fallback
+}
+
+async function getRoadmapContent(): Promise<{
+  kicker: string
+  heading: string
+  lead: string
+  note: string
+  ctaLinks: Array<{ label: string; href: string; variant: RoadmapCtaVariant }>
+  items: RoadmapItem[]
+}> {
+  // Best-effort DB read: if Payload/DB isn't reachable (local builds, CI, etc.),
+  // fall back to the code-defined content so the page still renders.
+  try {
+    const payload = await getPayloadClient()
+    const roadmap = (await payload.findGlobal({
+      slug: "roadmap",
+      depth: 0,
+    })) as unknown as RoadmapGlobal
+
+    const kicker = normaliseText(roadmap?.kicker, fallbackRoadmapContent.kicker)
+    const heading = normaliseText(roadmap?.heading, fallbackRoadmapContent.heading)
+    const lead = normaliseText(roadmap?.lead, fallbackRoadmapContent.lead)
+    const note = normaliseText(roadmap?.note, fallbackRoadmapContent.note)
+
+    const ctaLinksFromCms = Array.isArray(roadmap?.ctaLinks)
+      ? roadmap.ctaLinks
+          .map((cta, idx) => {
+            const fallbackCta = fallbackRoadmapContent.ctaLinks[idx]
+            return {
+              label: normaliseText(cta?.label, fallbackCta?.label ?? "Learn more"),
+              href: normaliseText(cta?.href, fallbackCta?.href ?? "/"),
+              variant: normaliseCtaVariant(cta?.variant, fallbackCta?.variant ?? "outline"),
+            }
+          })
+          .filter((cta) => Boolean(cta.label) && Boolean(cta.href))
+      : []
+
+    const ctaLinks = ctaLinksFromCms.length ? ctaLinksFromCms : fallbackRoadmapContent.ctaLinks
+
+    const statusToGroup: Record<RoadmapStatus, RoadmapColumnGroup | null | undefined> = {
+      Now: roadmap?.now,
+      Next: roadmap?.next,
+      Later: roadmap?.later,
+    }
+
+    const items = fallbackRoadmapContent.items.reduce<RoadmapItem[]>((acc, fallbackItem) => {
+      const group = statusToGroup[fallbackItem.status]
+      const isVisible = group?.isVisible
+      if (isVisible === false) return acc
+
+      acc.push({
+        status: fallbackItem.status,
+        title: normaliseText(group?.title, fallbackItem.title),
+        description: normaliseText(group?.description, fallbackItem.description),
+        bullets: normaliseBulletTextList(group?.bullets, fallbackItem.bullets),
+      })
+
+      return acc
+    }, [])
+
+    return { kicker, heading, lead, note, ctaLinks, items }
+  } catch {
+    return {
+      kicker: fallbackRoadmapContent.kicker,
+      heading: fallbackRoadmapContent.heading,
+      lead: fallbackRoadmapContent.lead,
+      note: fallbackRoadmapContent.note,
+      ctaLinks: fallbackRoadmapContent.ctaLinks,
+      items: fallbackRoadmapContent.items,
+    }
+  }
+}
 
 function RoadmapStatusLabel({ status }: { status: RoadmapStatus }) {
   const statusStylesByStatus: Record<RoadmapStatus, string> = {
@@ -85,7 +217,9 @@ function RoadmapStatusLabel({ status }: { status: RoadmapStatus }) {
   )
 }
 
-export default function RoadmapPage() {
+export default async function RoadmapPage() {
+  const { kicker, heading, lead, note, ctaLinks, items } = await getRoadmapContent()
+
   return (
     <SiteBackground className="font-sans">
       <Header />
@@ -95,27 +229,24 @@ export default function RoadmapPage() {
           <Reveal>
             <div className="space-y-4">
               <p className="text-muted-foreground text-xs font-medium tracking-[0.2em] uppercase">
-                Site roadmap
+                {kicker}
               </p>
               <h1 className="text-pretty text-3xl font-semibold tracking-tight sm:text-4xl">
-                What I’m building next
+                {heading}
               </h1>
               <p className="text-muted-foreground max-w-prose text-pretty leading-relaxed">
-                This site is intentionally evolving. The goal is to keep the CV
-                fast and readable while adding CMS-backed content that’s easy to
-                maintain (projects, experience, endorsements, and a small blog).
+                {lead}
               </p>
               <p className="text-muted-foreground max-w-prose text-sm">
-                Note: this is a direction-of-travel list, not a promise of dates.
+                {note}
               </p>
 
               <div className="flex flex-wrap items-center gap-2 pt-2">
-                <Button asChild variant="outline" size="sm">
-                  <Link href="/#projects">View projects</Link>
-                </Button>
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/#experience">View experience</Link>
-                </Button>
+                {ctaLinks.map((cta) => (
+                  <Button key={`${cta.href}-${cta.label}`} asChild variant={cta.variant} size="sm">
+                    <Link href={cta.href}>{cta.label}</Link>
+                  </Button>
+                ))}
               </div>
             </div>
           </Reveal>
@@ -123,7 +254,7 @@ export default function RoadmapPage() {
           <Separator className="my-10" />
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {roadmapItems.map((item, idx) => (
+            {items.map((item, idx) => (
               <Reveal key={item.status} className="h-full" delaySeconds={idx * 0.05}>
                 <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full">
                   <CardHeader className="gap-3">

@@ -91,8 +91,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    roadmap: Roadmap;
+  };
+  globalsSelect: {
+    roadmap: RoadmapSelect<false> | RoadmapSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -602,6 +606,145 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Content shown on the public /roadmap page. Update the copy and bullets here without changing code.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roadmap".
+ */
+export interface Roadmap {
+  id: string;
+  /**
+   * Small uppercase label above the heading.
+   */
+  kicker: string;
+  heading: string;
+  lead: string;
+  note?: string | null;
+  /**
+   * Optional buttons shown under the intro copy (e.g. anchor links to sections on the homepage).
+   */
+  ctaLinks?:
+    | {
+        label: string;
+        /**
+         * Internal links (e.g. /#projects) are recommended.
+         */
+        href: string;
+        variant: 'outline' | 'ghost';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Items you are actively working on right now.
+   */
+  now: {
+    /**
+     * Toggle to hide this column from the public roadmap page.
+     */
+    isVisible?: boolean | null;
+    title: string;
+    description: string;
+    bullets: {
+      text: string;
+      id?: string | null;
+    }[];
+  };
+  /**
+   * Items you plan to tackle once the current work lands.
+   */
+  next: {
+    /**
+     * Toggle to hide this column from the public roadmap page.
+     */
+    isVisible?: boolean | null;
+    title: string;
+    description: string;
+    bullets: {
+      text: string;
+      id?: string | null;
+    }[];
+  };
+  /**
+   * Longer-term improvements and operational polish.
+   */
+  later: {
+    /**
+     * Toggle to hide this column from the public roadmap page.
+     */
+    isVisible?: boolean | null;
+    title: string;
+    description: string;
+    bullets: {
+      text: string;
+      id?: string | null;
+    }[];
+  };
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roadmap_select".
+ */
+export interface RoadmapSelect<T extends boolean = true> {
+  kicker?: T;
+  heading?: T;
+  lead?: T;
+  note?: T;
+  ctaLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        variant?: T;
+        id?: T;
+      };
+  now?:
+    | T
+    | {
+        isVisible?: T;
+        title?: T;
+        description?: T;
+        bullets?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  next?:
+    | T
+    | {
+        isVisible?: T;
+        title?: T;
+        description?: T;
+        bullets?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  later?:
+    | T
+    | {
+        isVisible?: T;
+        title?: T;
+        description?: T;
+        bullets?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

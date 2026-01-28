@@ -9,6 +9,7 @@ import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
+import { Roadmap } from "./globals/Roadmap";
 
 import { s3Storage } from "@payloadcms/storage-s3";
 
@@ -24,6 +25,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, BlogPosts, Endorsements],
+  globals: [Roadmap],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
