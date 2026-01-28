@@ -10,8 +10,11 @@ import { Media } from "./collections/Media";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
 
+import { s3Storage } from "@payloadcms/storage-s3";
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+
 
 export default buildConfig({
   admin: {
@@ -30,5 +33,31 @@ export default buildConfig({
     url: process.env.DATABASE_URL || "",
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    s3Storage({
+      collections: {
+        media: {
+          disableLocalStorage: true,
+          // Public URL configuration - REQUIRED for images to display
+          // This tells Payload where to access the uploaded files
+          generateFileURL: (args: { filename: string }) => {
+            const publicUrl = process.env.R2_URL || ""
+            // Files are stored in the 'media' prefix, so include it in the URL
+            return `${publicUrl}/resume/${args.filename}`
+          },
+        },
+      },
+      bucket: process.env.R2_BUCKET ?? "",
+      config: {
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.R2_SECRET_KEY || "",
+        },
+        region: "auto",
+        endpoint: process.env.R2_ENDPOINT || "",
+        // CRITICAL for R2: Use path-style URLs instead of virtual-hosted style
+        forcePathStyle: true,
+      },
+    }),
+  ],
 });
