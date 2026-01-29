@@ -4,11 +4,12 @@ import { notFound } from "next/navigation"
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
-import { SiteBackground } from "@/components/layout/site-background"
-import { Reveal } from "@/components/motion/reveal"
-import Section from "@/components/sections/components/section"
-import { Container } from "@/components/sections/components/container"
+import { SiteBackground } from "@/components/shared/layout/site-background"
+import { Reveal } from "@/components/shared/motion/reveal"
+import Section from "@/components/shared/layout/section"
+import { Container } from "@/components/shared/layout/container"
 import { Badge } from "@/components/ui/badge"
+import { Tag } from "@/components/shared/primitives/tag"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
@@ -52,28 +53,18 @@ const sectionHeadingByType: Record<ChangeType, string> = {
 }
 
 function ChangeTypeCountBadge({ type, count }: { type: ChangeType; count: number }) {
-  const pillStylesByType: Record<ChangeType, string> = {
-    added:
-      "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/20 dark:text-emerald-300",
-    changed:
-      "bg-sky-500/10 text-sky-700 ring-1 ring-sky-500/20 dark:text-sky-300",
-    fixed:
-      "bg-amber-500/10 text-amber-700 ring-1 ring-amber-500/20 dark:text-amber-300",
-    removed:
-      "bg-zinc-500/10 text-zinc-700 ring-1 ring-zinc-500/20 dark:text-zinc-300",
-    security:
-      "bg-rose-500/10 text-rose-700 ring-1 ring-rose-500/20 dark:text-rose-300",
+  const variantByType: Record<ChangeType, "emerald" | "sky" | "amber" | "zinc" | "rose"> = {
+    added: "emerald",
+    changed: "sky",
+    fixed: "amber",
+    removed: "zinc",
+    security: "rose",
   }
 
   return (
-    <span
-      className={[
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        pillStylesByType[type],
-      ].join(" ")}
-    >
+    <Tag variant={variantByType[type]}>
       {count} {sectionHeadingByType[type]}
-    </span>
+    </Tag>
   )
 }
 

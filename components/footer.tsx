@@ -17,8 +17,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Container } from "@/components/sections/components/container"
-import { SectionGlowOrb } from "@/components/layout/section-glow-orb"
+import { Container } from "@/components/shared/layout/container"
+import { SectionGlowOrb } from "@/components/shared/layout/section-glow-orb"
 import { contactDetails, getContactHrefs } from "@/lib/contact-details"
 
 type FooterNavLink = {

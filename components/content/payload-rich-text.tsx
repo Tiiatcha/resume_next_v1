@@ -10,14 +10,6 @@ type PayloadRichTextProps = {
   data: SerializedEditorState | null | undefined
   className?: string
 }
-
-/**
- * Render Payload Lexical rich text as React elements.
- *
- * This keeps "how we render rich text" in one place so blog pages stay simple.
- * If you later add custom blocks (images, callouts, code snippets), this is where
- * you’ll extend the converter.
- */
 export function PayloadRichText({ data, className }: PayloadRichTextProps) {
   if (!data) return null
 

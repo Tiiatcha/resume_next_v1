@@ -7,7 +7,7 @@
   Smooth anchor navigation (e.g. header links to `#about`).
 
   Notes:
-  - Section-level `scroll-mt-24` (see `components/sections/components/section.tsx`)
+  - Section-level `scroll-mt-24` (see `components/shared/layout/section.tsx`)
     provides the sticky-header offset.
   - Respect reduced-motion preferences by disabling smooth scrolling.
 */

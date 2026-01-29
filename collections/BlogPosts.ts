@@ -183,19 +183,19 @@ export const BlogPosts: CollectionConfig = {
     },
     {
       name: "tags",
-      type: "array",
+      type: "relationship",
+      relationTo: "tags",
+      hasMany: true,
+      filterOptions: {
+        // Only show tags that explicitly apply to blog posts.
+        // This keeps the picker clean and relevant.
+        scopes: { contains: "blog-posts" },
+      },
       admin: {
         position: "sidebar",
         description:
-          "Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript).",
+          "Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.",
       },
-      fields: [
-        {
-          name: "tag",
-          type: "text",
-          required: true,
-        },
-      ],
     },
     {
       name: "author",

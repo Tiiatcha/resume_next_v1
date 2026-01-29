@@ -8,12 +8,16 @@ import sharp from "sharp";
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { Categories } from "./collections/BlogCategories";
+import { Tags } from "./collections/Tags";
+import { TagCategories } from "./collections/TagCategories";
+import { TagColors } from "./collections/TagColors";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
 import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Roadmap } from "./globals/Roadmap";
 
 import { s3Storage } from "@payloadcms/storage-s3";
+import { Experiences } from "./collections/Experiences";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -26,7 +30,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Categories, BlogPosts, Endorsements, ChangelogEntries],
+  collections: [Users, Media, Categories, Tags, TagCategories, TagColors, Experiences, Endorsements, BlogPosts, ChangelogEntries],
   globals: [Roadmap],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
