@@ -105,9 +105,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     roadmap: Roadmap;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     roadmap: RoadmapSelect<false> | RoadmapSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -1086,6 +1088,49 @@ export interface Roadmap {
   createdAt?: string | null;
 }
 /**
+ * Default SEO and social sharing metadata for the site. Individual pages can override these values in code when needed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  /**
+   * Used as the Open Graph site name and as part of the title template.
+   */
+  siteName: string;
+  /**
+   * The canonical public base URL (used for canonical URLs and absolute OG image URLs). Include https://
+   */
+  siteUrl: string;
+  /**
+   * Used for pages that do not define a specific title (e.g. the homepage).
+   */
+  defaultTitle: string;
+  /**
+   * Used when a page defines a specific title. Keep `%s` as the placeholder for the page title.
+   */
+  titleTemplate: string;
+  /**
+   * Used for pages that do not define a specific meta description.
+   */
+  defaultDescription: string;
+  /**
+   * Recommended: 1200×630 PNG/JPG for rich previews (Open Graph + Twitter). Uses the Media item alt text for accessibility.
+   */
+  defaultShareImage?: (string | null) | Media;
+  /**
+   * Optional. Example: @craigdavison (used for Twitter card metadata).
+   */
+  twitterHandle?: string | null;
+  /**
+   * Enable this to set `noindex, nofollow` site-wide (useful for staging environments).
+   */
+  preventIndexing?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roadmap_select".
  */
@@ -1142,6 +1187,23 @@ export interface RoadmapSelect<T extends boolean = true> {
             };
       };
   _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteUrl?: T;
+  defaultTitle?: T;
+  titleTemplate?: T;
+  defaultDescription?: T;
+  defaultShareImage?: T;
+  twitterHandle?: T;
+  preventIndexing?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

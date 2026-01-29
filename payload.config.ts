@@ -15,6 +15,7 @@ import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
 import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Roadmap } from "./globals/Roadmap";
+import { SiteSettings } from "./globals/SiteSettings";
 
 import { s3Storage } from "@payloadcms/storage-s3";
 import { Experiences } from "./collections/Experiences";
@@ -31,7 +32,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, Tags, TagCategories, TagColors, Experiences, Endorsements, BlogPosts, ChangelogEntries],
-  globals: [Roadmap],
+  globals: [Roadmap, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
