@@ -70,8 +70,11 @@ export interface Config {
     users: User;
     media: Media;
     categories: Category;
-    'blog-posts': BlogPost;
+    tags: Tag;
+    'tag-colors': TagColor;
+    experiences: Experience;
     endorsements: Endorsement;
+    'blog-posts': BlogPost;
     'changelog-entries': ChangelogEntry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,8 +86,11 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
+    experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
+    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'changelog-entries': ChangelogEntriesSelect<false> | ChangelogEntriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -238,79 +244,142 @@ export interface Category {
   createdAt: string;
 }
 /**
- * Blog posts support drafts, published dates, and Lexical rich text content.
+ * Reusable tags for blog posts, experiences, and other content. Tags can be scoped to specific collections.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
+ * via the `definition` "tags".
  */
-export interface BlogPost {
+export interface Tag {
   id: string;
-  title: string;
   /**
-   * Used in the URL. Auto-generated from the title, but you can edit it.
+   * Tag label shown on the site (e.g. TypeScript, React, Leadership). Keep it consistent and canonical.
+   */
+  name: string;
+  /**
+   * Used for filtering and URLs. Auto-generated from the name, but you can edit it.
    */
   slug: string;
-  status: 'draft' | 'published';
   /**
-   * Set automatically when a post is first published (you can override).
+   * Controls where this tag can be selected. Each collection filters the tag picker to only show relevant tags. Select all that apply.
    */
-  publishedAt?: string | null;
+  scopes: ('blog-posts' | 'experiences' | 'changelog-entries')[];
   /**
-   * Short summary used on the blog listing page and in metadata.
+   * Optional context about when to use this tag (helpful for content authors).
    */
-  excerpt?: string | null;
+  description?: string | null;
   /**
-   * Optional category used for filtering (e.g. Engineering, Deep dives).
+   * Optional color scheme for this tag. The selected color's Tailwind classes will be applied when rendering this tag in the UI.
    */
-  category?: (string | null) | Category;
+  color?: (string | null) | TagColor;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Define color schemes for tags. Each color includes all required Tailwind classes for consistent styling across light and dark modes.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tag-colors".
+ */
+export interface TagColor {
+  id: string;
   /**
-   * Main post content (Lexical rich text). Use headings, links, and lists.
+   * Descriptive name for this color scheme (e.g. Violet, Emerald, Sky).
+   */
+  name: string;
+  /**
+   * Used programmatically to reference this color. Auto-generated from the name.
+   */
+  slug: string;
+  /**
+   * Complete Tailwind class string for this color (e.g. "bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/25 hover:bg-violet-500/15 dark:text-violet-300"). Include light mode, dark mode, and hover states.
+   */
+  tailwindClasses: string;
+  /**
+   * Tailwind background color for preview (e.g. "bg-violet-500"). Used for visual reference in the admin UI.
+   */
+  previewSwatch?: string | null;
+  /**
+   * Optional usage guidance (e.g. 'Use for technology/framework tags', 'Use for soft skills').
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * CV experience entries. Dates are stored as real dates; the UI will format them later (e.g. yyyy-MMM, with “Present” for current roles).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experiences".
+ */
+export interface Experience {
+  id: string;
+  /**
+   * Company/organisation name (e.g. “Cadent Gas”).
+   */
+  company: string;
+  /**
+   * Role title (e.g. “Lead Developer”).
+   */
+  title: string;
+  /**
+   * Start date for the role. The UI will decide how to format it (e.g. yyyy-MMM).
+   */
+  fromDate: string;
+  /**
+   * Enable this for your current role. When enabled, the UI can render the end date as “Present”.
+   */
+  isCurrentRole?: boolean | null;
+  /**
+   * End date for the role. Leave empty when “Current role” is enabled.
+   */
+  toDate?: string | null;
+  /**
+   * Controls ordering on the resume. Decide the sort logic in the UI (e.g. descending by fromDate, then by sortOrder).
+   */
+  sortOrder?: number | null;
+  /**
+   * Structured content for the experience entry. Mirrors your current “mixed” model (paragraphs + headed bullet sections).
    */
   content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
+    /**
+     * Experiences currently use `type: mixed` (paragraph blocks plus headed bullet sections).
+     */
+    type: 'mixed';
+    /**
+     * Content blocks rendered in order. Use a Paragraph for narrative text, and a Section for headed bullet lists.
+     */
+    sections: {
+      /**
+       * Select the block type for this row.
+       */
+      type: 'paragraph' | 'section';
+      /**
+       * Paragraph text. Keep it readable and impact-focused.
+       */
+      text?: string | null;
+      /**
+       * Section heading (e.g. “Key Tasks and responsibilities”).
+       */
+      heading?: string | null;
+      /**
+       * Bullet points for the section. Keep each item short and specific.
+       */
+      items?:
+        | {
+            /**
+             * A single bullet point.
+             */
+            item: string;
+            id?: string | null;
+          }[]
+        | null;
+      id?: string | null;
+    }[];
   };
-  featuredImage?: (string | null) | Media;
   /**
-   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
+   * Technologies/skills used in this role. Select from the centralized tags collection.
    */
-  imageAttribution?: {
-    platformName?: string | null;
-    /**
-     * Link to the platform (or the platform’s credit URL if required).
-     */
-    platformUrl?: string | null;
-    artistName?: string | null;
-    /**
-     * Link to the artist/photographer profile page.
-     */
-    artistUrl?: string | null;
-    /**
-     * Link to the original image page (often required for attribution).
-     */
-    imageUrl?: string | null;
-  };
-  /**
-   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript).
-   */
-  tags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
-  author?: (string | null) | User;
+  tags?: (string | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -377,6 +446,78 @@ export interface Endorsement {
     ipAddress?: string | null;
     userAgent?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Blog posts support drafts, published dates, and Lexical rich text content.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: string;
+  title: string;
+  /**
+   * Used in the URL. Auto-generated from the title, but you can edit it.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  /**
+   * Set automatically when a post is first published (you can override).
+   */
+  publishedAt?: string | null;
+  /**
+   * Short summary used on the blog listing page and in metadata.
+   */
+  excerpt?: string | null;
+  /**
+   * Optional category used for filtering (e.g. Engineering, Deep dives).
+   */
+  category?: (string | null) | Category;
+  /**
+   * Main post content (Lexical rich text). Use headings, links, and lists.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  featuredImage?: (string | null) | Media;
+  /**
+   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
+   */
+  imageAttribution?: {
+    platformName?: string | null;
+    /**
+     * Link to the platform (or the platform’s credit URL if required).
+     */
+    platformUrl?: string | null;
+    artistName?: string | null;
+    /**
+     * Link to the artist/photographer profile page.
+     */
+    artistUrl?: string | null;
+    /**
+     * Link to the original image page (often required for attribution).
+     */
+    imageUrl?: string | null;
+  };
+  /**
+   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.
+   */
+  tags?: (string | Tag)[] | null;
+  author?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -477,12 +618,24 @@ export interface PayloadLockedDocument {
         value: string | Category;
       } | null)
     | ({
-        relationTo: 'blog-posts';
-        value: string | BlogPost;
+        relationTo: 'tags';
+        value: string | Tag;
+      } | null)
+    | ({
+        relationTo: 'tag-colors';
+        value: string | TagColor;
+      } | null)
+    | ({
+        relationTo: 'experiences';
+        value: string | Experience;
       } | null)
     | ({
         relationTo: 'endorsements';
         value: string | Endorsement;
+      } | null)
+    | ({
+        relationTo: 'blog-posts';
+        value: string | BlogPost;
       } | null)
     | ({
         relationTo: 'changelog-entries';
@@ -622,33 +775,61 @@ export interface CategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts_select".
+ * via the `definition` "tags_select".
  */
-export interface BlogPostsSelect<T extends boolean = true> {
-  title?: T;
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
   slug?: T;
-  status?: T;
-  publishedAt?: T;
-  excerpt?: T;
-  category?: T;
-  content?: T;
-  featuredImage?: T;
-  imageAttribution?:
+  scopes?: T;
+  description?: T;
+  color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tag-colors_select".
+ */
+export interface TagColorsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  tailwindClasses?: T;
+  previewSwatch?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experiences_select".
+ */
+export interface ExperiencesSelect<T extends boolean = true> {
+  company?: T;
+  title?: T;
+  fromDate?: T;
+  isCurrentRole?: T;
+  toDate?: T;
+  sortOrder?: T;
+  content?:
     | T
     | {
-        platformName?: T;
-        platformUrl?: T;
-        artistName?: T;
-        artistUrl?: T;
-        imageUrl?: T;
+        type?: T;
+        sections?:
+          | T
+          | {
+              type?: T;
+              text?: T;
+              heading?: T;
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
       };
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  author?: T;
+  tags?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -680,6 +861,33 @@ export interface EndorsementsSelect<T extends boolean = true> {
         ipAddress?: T;
         userAgent?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  publishedAt?: T;
+  excerpt?: T;
+  category?: T;
+  content?: T;
+  featuredImage?: T;
+  imageAttribution?:
+    | T
+    | {
+        platformName?: T;
+        platformUrl?: T;
+        artistName?: T;
+        artistUrl?: T;
+        imageUrl?: T;
+      };
+  tags?: T;
+  author?: T;
   updatedAt?: T;
   createdAt?: T;
 }

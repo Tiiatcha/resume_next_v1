@@ -3,9 +3,9 @@ import Link from "next/link"
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
-import { SiteBackground } from "@/components/layout/site-background"
-import { Reveal } from "@/components/motion/reveal"
-import { Container } from "@/components/sections/components/container"
+import { SiteBackground } from "@/components/shared/layout/site-background"
+import { Reveal } from "@/components/shared/motion/reveal"
+import { Container } from "@/components/shared/layout/container"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Tag } from "@/components/shared/primitives/tag"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 
 export const metadata: Metadata = {
@@ -209,21 +210,16 @@ async function getRoadmapContent(): Promise<{
 }
 
 function RoadmapStatusLabel({ status }: { status: RoadmapStatus }) {
-  const statusStylesByStatus: Record<RoadmapStatus, string> = {
-    Now: "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/20 dark:text-emerald-300",
-    Next: "bg-sky-500/10 text-sky-700 ring-1 ring-sky-500/20 dark:text-sky-300",
-    Later: "bg-zinc-500/10 text-zinc-700 ring-1 ring-zinc-500/20 dark:text-zinc-300",
+  const statusVariantsByStatus: Record<RoadmapStatus, "emerald" | "sky" | "zinc"> = {
+    Now: "emerald",
+    Next: "sky",
+    Later: "zinc",
   }
 
   return (
-    <span
-      className={[
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        statusStylesByStatus[status],
-      ].join(" ")}
-    >
+    <Tag variant={statusVariantsByStatus[status]}>
       {status}
-    </span>
+    </Tag>
   )
 }
 

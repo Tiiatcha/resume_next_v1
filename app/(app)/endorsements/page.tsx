@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
-import { SiteBackground } from "@/components/layout/site-background"
-import { Reveal } from "@/components/motion/reveal"
-import Section from "@/components/sections/components/section"
+import { SiteBackground } from "@/components/shared/layout/site-background"
+import { Reveal } from "@/components/shared/motion/reveal"
+import Section from "@/components/shared/layout/section"
 import {
   Container,
   ContainerContent,
@@ -12,8 +12,8 @@ import {
   ContainerIntro,
   ContainerLead,
   ContainerTitle,
-} from "@/components/sections/components/container"
-import { EndorsementForm } from "@/components/sections/endorsement-form"
+} from "@/components/shared/layout/container"
+import { EndorsementForm } from "@/app/(app)/endorsements/_components/endorsement-form"
 import { Separator } from "@/components/ui/separator"
 
 
