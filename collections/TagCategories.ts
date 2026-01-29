@@ -1,21 +1,26 @@
 import type { CollectionConfig } from "payload"
 
 /**
- * Tag taxonomy for content classification across multiple collections.
+ * Tag categories for grouping and coloring tags.
  *
- * Why this is a Collection (not inline text arrays):
- * - Tags are centrally managed in the admin UI without code changes.
- * - Relationship fields enforce consistency (no typos/variants like "Next.js" vs "NextJS").
- * - Enables better filtering, autocomplete, and analytics across all tagged content.
- * - Can be scoped to specific collections to keep tag pickers relevant.
+ * Purpose:
+ * - Group related tags together (e.g., "Technology", "Soft Skills", "Tools")
+ * - Apply consistent colors to all tags in a category
+ * - Provide semantic organization for tag management
+ *
+ * Example categories:
+ * - Technology → Sky blue (frameworks, languages)
+ * - Soft Skills → Pink (leadership, communication)
+ * - Tools → Violet (software, platforms)
+ * - Business → Emerald (achievements, metrics)
  */
-export const Tags: CollectionConfig = {
-  slug: "tags",
+export const TagCategories: CollectionConfig = {
+  slug: "tag-categories",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "slug", "scopes", "updatedAt"],
+    defaultColumns: ["name", "slug", "color", "updatedAt"],
     description:
-      "Reusable tags for blog posts, experiences, and other content. Tags can be scoped to specific collections.",
+      "Categories for organizing tags. Each category has a color that applies to all its tags.",
   },
   access: {
     read: () => true,
@@ -31,7 +36,7 @@ export const Tags: CollectionConfig = {
       unique: true,
       admin: {
         description:
-          "Tag label shown on the site (e.g. TypeScript, React, Leadership). Keep it consistent and canonical.",
+          "Category name (e.g. Technology, Soft Skills, Tools). All tags in this category will share the same color.",
       },
     },
     {
@@ -43,7 +48,7 @@ export const Tags: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Used for filtering and URLs. Auto-generated from the name, but you can edit it.",
+          "Used programmatically for filtering. Auto-generated from the name.",
       },
       hooks: {
         beforeValidate: [
@@ -53,27 +58,20 @@ export const Tags: CollectionConfig = {
 
             const name = typeof data?.name === "string" ? data.name : ""
             const generated = createUrlSlug(name)
-            return generated || "tag"
+            return generated || "category"
           },
         ],
       },
     },
     {
-      name: "scopes",
-      label: "Applies to",
-      type: "select",
-      hasMany: true,
+      name: "color",
+      type: "relationship",
+      relationTo: "tag-colors",
       required: true,
-      defaultValue: ["blog-posts", "experiences"],
-      options: [
-        { label: "Blog posts", value: "blog-posts" },
-        { label: "Experiences", value: "experiences" },
-        { label: "Changelog entries", value: "changelog-entries" },
-      ],
       admin: {
         position: "sidebar",
         description:
-          "Controls where this tag can be selected. Each collection filters the tag picker to only show relevant tags. Select all that apply.",
+          "Color scheme for all tags in this category. Choose from the predefined color palette.",
       },
     },
     {
@@ -81,17 +79,17 @@ export const Tags: CollectionConfig = {
       type: "textarea",
       admin: {
         description:
-          "Optional context about when to use this tag (helpful for content authors).",
+          "Optional description of when to use this category (e.g. 'Use for programming languages and frameworks').",
       },
     },
     {
-      name: "category",
-      type: "relationship",
-      relationTo: "tag-categories",
+      name: "sortOrder",
+      type: "number",
+      defaultValue: 0,
       admin: {
         position: "sidebar",
         description:
-          "Optional category for this tag (e.g. Technology, Soft Skills). The tag will inherit the category's color when rendered.",
+          "Controls display order in admin UI (lower numbers appear first).",
       },
     },
   ],

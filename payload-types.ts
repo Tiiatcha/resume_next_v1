@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     categories: Category;
     tags: Tag;
+    'tag-categories': TagCategory;
     'tag-colors': TagColor;
     experiences: Experience;
     endorsements: Endorsement;
@@ -87,6 +88,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
+    'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
     'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
     experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
@@ -268,9 +270,40 @@ export interface Tag {
    */
   description?: string | null;
   /**
-   * Optional color scheme for this tag. The selected color's Tailwind classes will be applied when rendering this tag in the UI.
+   * Optional category for this tag (e.g. Technology, Soft Skills). The tag will inherit the category's color when rendered.
    */
-  color?: (string | null) | TagColor;
+  category?: (string | null) | TagCategory;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Categories for organizing tags. Each category has a color that applies to all its tags.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tag-categories".
+ */
+export interface TagCategory {
+  id: string;
+  /**
+   * Category name (e.g. Technology, Soft Skills, Tools). All tags in this category will share the same color.
+   */
+  name: string;
+  /**
+   * Used programmatically for filtering. Auto-generated from the name.
+   */
+  slug: string;
+  /**
+   * Color scheme for all tags in this category. Choose from the predefined color palette.
+   */
+  color: string | TagColor;
+  /**
+   * Optional description of when to use this category (e.g. 'Use for programming languages and frameworks').
+   */
+  description?: string | null;
+  /**
+   * Controls display order in admin UI (lower numbers appear first).
+   */
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -622,6 +655,10 @@ export interface PayloadLockedDocument {
         value: string | Tag;
       } | null)
     | ({
+        relationTo: 'tag-categories';
+        value: string | TagCategory;
+      } | null)
+    | ({
         relationTo: 'tag-colors';
         value: string | TagColor;
       } | null)
@@ -782,7 +819,20 @@ export interface TagsSelect<T extends boolean = true> {
   slug?: T;
   scopes?: T;
   description?: T;
+  category?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tag-categories_select".
+ */
+export interface TagCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
   color?: T;
+  description?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

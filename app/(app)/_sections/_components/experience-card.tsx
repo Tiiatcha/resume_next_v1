@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import type { ExperienceItem } from "@/lib/cv-types"
+import { formatExperienceDateRange } from "@/lib/format-date"
 
 const DEFAULT_HIGHLIGHT_COUNT = 3
 const DEFAULT_HIGHLIGHT_TRUNCATION = 150
@@ -46,13 +47,15 @@ function getExperienceHighlights(
       if (highlights.length >= maxItems) break
 
       if (block.type === "paragraph") {
-        if (!highlights.length) push(block.text)
+        if (!highlights.length && block.text) push(block.text)
         continue
       }
 
-      for (const item of block.items) {
+      // Handle Payload structure where items is an array of {item: string} objects
+      const items = block.items ?? []
+      for (const itemObj of items) {
         if (highlights.length >= maxItems) break
-        push(item)
+        push(itemObj.item)
       }
     }
 
@@ -76,6 +79,14 @@ function getExperienceHighlights(
   return highlights
 }
 
+/**
+ * Extracts tag names from the experience item's tag objects.
+ * Tags are now relationship objects with id, name, and slug properties.
+ */
+function getTagNames(tags: ExperienceItem["tags"]): string[] {
+  return tags.map((tag) => tag.name)
+}
+
 export function ExperienceCard({
   item,
   isExpanded,
@@ -92,6 +103,14 @@ export function ExperienceCard({
     [item.content],
   )
 
+  const dateRange = formatExperienceDateRange(
+    item.fromDate,
+    item.toDate,
+    item.isCurrentRole,
+  )
+
+  const tagNames = getTagNames(item.tags)
+
   return (
     <Card
       className={cn(
@@ -102,9 +121,7 @@ export function ExperienceCard({
       <CardHeader className="row-start-1 gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <CardTitle className="text-base">{item.title}</CardTitle>
-          <p className="text-muted-foreground text-xs">
-            {item.from} — {item.to}
-          </p>
+          <p className="text-muted-foreground text-xs">{dateRange}</p>
         </div>
         <p className="text-muted-foreground text-sm">{item.company}</p>
 
@@ -143,7 +160,7 @@ export function ExperienceCard({
       </CardContent>
 
       <CardFooter className="row-start-4 items-end">
-        <TagList tags={item.tags} />
+        <TagList tags={tagNames} />
       </CardFooter>
     </Card>
   )

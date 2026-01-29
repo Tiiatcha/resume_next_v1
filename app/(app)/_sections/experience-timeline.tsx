@@ -7,8 +7,12 @@ import { cn } from "@/lib/utils"
 import { ExperienceCard } from "@/app/(app)/_sections/_components/experience-card"
 import { Reveal } from "@/components/shared/motion/reveal"
 
+/**
+ * Generates a unique key for an experience item.
+ * Uses the Payload ID for uniqueness and stability.
+ */
 function getExperienceKey(item: ExperienceItem) {
-  return `${item.company}-${item.from}-${item.title}`
+  return item.id
 }
 
 /**

@@ -18,14 +18,17 @@ function Mixed({
   sections,
 }: {
   sections: Array<
-    | { type: "paragraph"; text: string }
-    | { type: "section"; heading: string; items: string[] }
+    | { type: "paragraph"; text?: string | null }
+    | { type: "section"; heading?: string | null; items?: Array<{ item: string; id?: string | null }> | null }
   >
 }) {
   return (
     <div className="space-y-4">
       {sections.map((block, idx) => {
         if (block.type === "paragraph") {
+          // Skip empty paragraphs
+          if (!block.text?.trim()) return null
+
           return (
             <p
               key={idx}
@@ -36,12 +39,17 @@ function Mixed({
           )
         }
 
+        // Skip sections with no items
+        if (!block.items || block.items.length === 0) return null
+
         return (
           <div key={idx} className="space-y-2">
-            <p className="text-sm font-medium">{block.heading}</p>
+            {block.heading && (
+              <p className="text-sm font-medium">{block.heading}</p>
+            )}
             <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm leading-relaxed">
-              {block.items.map((item) => (
-                <li key={item}>{item}</li>
+              {block.items.map((itemObj) => (
+                <li key={itemObj.id ?? itemObj.item}>{itemObj.item}</li>
               ))}
             </ul>
           </div>

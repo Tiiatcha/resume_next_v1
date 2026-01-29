@@ -1,19 +1,26 @@
 export type RichTextBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "section"; heading: string; items: string[] }
+  | { type: "paragraph"; text?: string | null }
+  | { type: "section"; heading?: string | null; items?: Array<{ item: string; id?: string | null }> | null }
 
 export type RichTextContent =
   | { type: "paragraphs"; content: string[] }
   | { type: "list"; items: Array<{ label: string; text?: string; items?: Array<{ label: string; text: string }> }> }
   | { type: "mixed"; sections: RichTextBlock[] }
 
+/**
+ * Experience item structure matching the Payload CMS Experience collection.
+ * Dates are ISO strings from Payload and need to be formatted for display.
+ */
 export type ExperienceItem = {
-  from: string
-  to: string
+  id: string
+  fromDate: string
+  toDate?: string | null
+  isCurrentRole?: boolean | null
   company: string
   title: string
   content: RichTextContent
-  tags: string[]
+  tags: Array<{ id: string; name: string; slug: string }>
+  sortOrder?: number | null
 }
 
 export type ProjectStatus = "active" | "completed" | "decommissioned"

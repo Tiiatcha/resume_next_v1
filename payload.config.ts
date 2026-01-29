@@ -9,6 +9,7 @@ import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { Categories } from "./collections/BlogCategories";
 import { Tags } from "./collections/Tags";
+import { TagCategories } from "./collections/TagCategories";
 import { TagColors } from "./collections/TagColors";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
@@ -29,7 +30,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Categories, Tags, TagColors, Experiences, Endorsements, BlogPosts, ChangelogEntries],
+  collections: [Users, Media, Categories, Tags, TagCategories, TagColors, Experiences, Endorsements, BlogPosts, ChangelogEntries],
   globals: [Roadmap],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",

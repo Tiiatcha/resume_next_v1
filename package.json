@@ -10,6 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed:tag-colors": "tsx scripts/seed-tag-colors.ts",
+    "seed:tag-categories": "tsx scripts/seed-tag-categories.ts",
+    "seed:experiences": "tsx scripts/seed-experiences.ts",
     "env:sync": "./scripts/manage-vercel-env.sh sync",
     "env:remove": "./scripts/manage-vercel-env.sh remove",
     "env:list": "./scripts/manage-vercel-env.sh list"
