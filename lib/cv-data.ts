@@ -6,7 +6,7 @@ import path from "node:path"
 
 import type { ExperienceItem, ProjectItem, SkillItem } from "@/lib/cv-types"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
-import type { Experience, Tag } from "@/payload-types"
+import type { Experience } from "@/payload-types"
 
 function getPublicDataPath(relativePath: string) {
   return path.join(process.cwd(), "public", relativePath)
