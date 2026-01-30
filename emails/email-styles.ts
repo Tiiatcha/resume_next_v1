@@ -125,6 +125,32 @@ export const submitterEmailStyles = {
   } satisfies CSSProperties,
 
   /**
+   * Simple 2-column details table styling, used in a few templates for
+   * "what changed" / metadata style rows.
+   *
+   * Note: table layout is still the most reliable option across email clients.
+   */
+  detailsTable: {
+    width: "100%",
+    borderCollapse: "collapse",
+  } satisfies CSSProperties,
+
+  detailsLabelCell: {
+    padding: "8px 0",
+    color: emailTokens.colors.textMuted,
+    fontSize: "14px",
+    fontWeight: 600,
+    width: "34%",
+    verticalAlign: "top",
+  } satisfies CSSProperties,
+
+  detailsValueCell: {
+    padding: "8px 0",
+    color: emailTokens.colors.text,
+    fontSize: "14px",
+  } satisfies CSSProperties,
+
+  /**
    * Highlight block for lifecycle updates (e.g. approval).
    * Kept intentionally subtle and “on brand”, while still being visually distinct.
    */
