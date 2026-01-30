@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import Link from "next/link"
 
 import Section from "@/components/shared/layout/section"
 import {
@@ -46,6 +47,16 @@ export function EndorsementsSection({
               Short, honest notes from people I have worked with — clients, colleagues,
               and managers.
             </ContainerLead>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Learn about{' '}
+              <Link
+                href="/blog/building-a-trustworthy-endorsements-system-without-accounts"
+                className="text-foreground underline decoration-primary/40 underline-offset-4 transition-colors hover:decoration-primary"
+              >
+                how and why I built this endorsements system
+              </Link>{' '}
+              with privacy, transparency, and trust at its core.
+            </p>
           </ContainerIntro>
 
           <ContainerContent variant="left">
