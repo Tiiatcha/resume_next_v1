@@ -3,6 +3,7 @@ import { render } from "@react-email/components"
 import { EndorsementSubmitterEmail } from "../emails/endorsement-submitter"
 import { EndorsementAdminEmail } from "../emails/endorsement-admin"
 import { EndorsementApprovedEmail } from "../emails/endorsement-approved"
+import { getSiteBaseUrl } from "../lib/url/get-site-base-url"
 import type { Endorsement } from "../payload-types"
 /**
  * Endorsements from clients, colleagues, and managers.
@@ -326,7 +327,7 @@ export const Endorsements: CollectionConfig = {
         const BasePayload = req.payload
         const requestUser = req.user
         const resendApiKey = process.env.RESEND_API_KEY
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+        const baseUrl = getSiteBaseUrl(req)
         const payloadUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL || baseUrl
 
         const currentDoc = doc as Endorsement

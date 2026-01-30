@@ -10,6 +10,7 @@ import {
   normalizeEmailAddress,
 } from "@/lib/endorsements/otp"
 import { EndorsementOtpEmail } from "@/emails/endorsement-otp"
+import { getSiteBaseUrl } from "@/lib/url/get-site-base-url"
 
 type SendOtpRequestBody = {
   endorsementId?: unknown
@@ -181,7 +182,7 @@ export async function POST(request: Request): Promise<Response> {
     return jsonResponse(body, 200)
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const baseUrl = getSiteBaseUrl(request)
   const manageUrl = `${baseUrl}/endorsements/view/${endorsement.id}`
 
   try {
