@@ -13,13 +13,14 @@ import {
 } from "@react-email/components"
 import * as React from "react"
 import { submitterEmailStyles as styles } from "./email-styles"
+import type { EndorsementRelationshipType } from "../app/(app)/endorsements/_components/endorsement-types"
 
 /**
  * Email sent to endorsement submitter after they submit an endorsement.
  * 
  * @param {string} endorserName - The name of the endorser.
  * @param {string} endorsementText - The text of the endorsement.
- * @param {string} relationshipType - The relationship type of the endorser.
+ * @param {EndorsementRelationshipType} relationshipType - The relationship type of the endorser.
  * @param {string} viewUrl - The URL to view the endorsement.
  */
 
@@ -30,7 +31,7 @@ interface EndorsementSubmitterEmailProps {
   variant?: "created" | "updated" | "admin_edited_notice"
   endorserName: string
   endorsementText: string
-  relationshipType: string
+  relationshipType: EndorsementRelationshipType
   viewUrl: string
   /**
    * Optional summary of changes (used when notifying submitter about admin edits).
@@ -43,33 +44,57 @@ interface EndorsementSubmitterEmailProps {
     previous: string
     next: string
   }>
+  /**
+   * Set to true when rendering for preview purposes only (e.g., in the browser).
+   * When false or undefined (production emails), no default values will be used.
+   */
+  isPreview?: boolean
 }
 
 export const EndorsementSubmitterEmail = ({
-  variant = "created",
-  endorserName = "John Doe",
-  endorsementText = "Craig is an exceptional developer who consistently delivers high-quality work.",
-  relationshipType = "colleague",
-  viewUrl = "https://craigdavison.net/endorsements/view/123",
+  variant,
+  endorserName,
+  endorsementText,
+  relationshipType,
+  viewUrl,
   changedFields,
+  isPreview = false,
 }: EndorsementSubmitterEmailProps) => {
+  // Apply defaults only for preview mode
+  const safeVariant = isPreview ? (variant ?? "created") : (variant ?? "created")
+  const safeEndorserName = isPreview ? (endorserName || "John Doe") : endorserName
+  const safeEndorsementText = isPreview 
+    ? (endorsementText || "Craig is an exceptional developer who consistently delivers high-quality work.")
+    : endorsementText
+  const safeRelationshipType = isPreview ? (relationshipType || "colleague") : relationshipType
+  const safeViewUrl = isPreview ? (viewUrl || "https://craigdavison.net/endorsements/view/123") : viewUrl
+
+  // Validate that in non-preview mode, all required fields are provided
+  if (!isPreview) {
+    if (!safeEndorserName || !safeEndorsementText || !safeRelationshipType || !safeViewUrl) {
+      throw new Error(
+        "EndorsementSubmitterEmail: All required fields must be provided when not in preview mode"
+      )
+    }
+  }
+
   const previewText =
-    variant === "updated"
-      ? `We received your endorsement update, ${endorserName}`
-      : variant === "admin_edited_notice"
-        ? `A small update was made to your endorsement, ${endorserName}`
-      : `Thank you for your endorsement, ${endorserName}`
+    safeVariant === "updated"
+      ? `We received your endorsement update, ${safeEndorserName}`
+      : safeVariant === "admin_edited_notice"
+        ? `A small update was made to your endorsement, ${safeEndorserName}`
+      : `Thank you for your endorsement, ${safeEndorserName}`
 
   const headerTitle =
-    variant === "updated"
-      ? `Update received, ${endorserName}`
-      : variant === "admin_edited_notice"
-        ? `A small update, ${endorserName}`
-        : `Thank You, ${endorserName}`
+    safeVariant === "updated"
+      ? `Update received, ${safeEndorserName}`
+      : safeVariant === "admin_edited_notice"
+        ? `A small update, ${safeEndorserName}`
+        : `Thank You, ${safeEndorserName}`
   const headerSubtitle =
-    variant === "updated"
+    safeVariant === "updated"
       ? "Your endorsement update is now under review"
-      : variant === "admin_edited_notice"
+      : safeVariant === "admin_edited_notice"
         ? "Craig made a small edit for clarity"
         : "Your endorsement has been received"
 
@@ -87,17 +112,17 @@ export const EndorsementSubmitterEmail = ({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Text style={styles.paragraph}>Hi {endorserName},</Text>
+            <Text style={styles.paragraph}>Hi {safeEndorserName},</Text>
             
             <Text style={styles.paragraph}>
-              {variant === "updated"
+              {safeVariant === "updated"
                 ? "Thanks for taking the time to update your endorsement. Your changes have been saved and will be reviewed again before appearing on the public site."
-                : variant === "admin_edited_notice"
-                  ? "I made a small edit to your endorsement for clarity/spelling. If you’d like to tweak anything (or prefer the original wording), you can update it using the link below."
+                : safeVariant === "admin_edited_notice"
+                  ? "I made a small edit to your endorsement for clarity/spelling. If you'd like to tweak anything (or prefer the original wording), you can update it using the link below."
                 : "Thank you so much for taking the time to share your thoughts about working together. Your endorsement means a great deal and will help future employers and clients understand the value of collaboration."}
             </Text>
 
-            {variant === "admin_edited_notice" && changedFields && changedFields.length > 0 ? (
+            {safeVariant === "admin_edited_notice" && changedFields && changedFields.length > 0 ? (
               <Section style={styles.card}>
                 <Text style={styles.cardLabel}>What changed</Text>
                 <table
@@ -139,25 +164,25 @@ export const EndorsementSubmitterEmail = ({
             {/* Endorsement Preview Card */}
             <Section style={styles.card}>
               <Text style={styles.cardLabel}>Your Endorsement</Text>
-              <Text style={styles.quote}>&ldquo;{endorsementText}&rdquo;</Text>
+              <Text style={styles.quote}>&ldquo;{safeEndorsementText}&rdquo;</Text>
               <Text style={styles.cardMeta}>
                 <strong>Relationship:</strong>{" "}
-                {relationshipType.charAt(0).toUpperCase() + relationshipType.slice(1)}
+                {safeRelationshipType.charAt(0).toUpperCase() + safeRelationshipType.slice(1)}
               </Text>
             </Section>
 
             <Text style={styles.paragraph}>
-              {variant === "updated"
+              {safeVariant === "updated"
                 ? "Your updated endorsement is now pending review. Once approved, the latest version will be displayed on the public CV site."
-                : variant === "admin_edited_notice"
-                  ? "If you’re happy with the change, you don’t need to do anything. If you’d like to adjust it, your update will go back into review before it’s shown publicly."
+                : safeVariant === "admin_edited_notice"
+                  ? "If you're happy with the change, you don't need to do anything. If you'd like to adjust it, your update will go back into review before it's shown publicly."
                   : "Your endorsement is currently pending review. Once approved, it will be displayed on the public CV site."}{" "}
               You can view your endorsement (or request changes) at any time using the link below:
             </Text>
 
             {/* CTA Button */}
             <Section style={styles.buttonContainer}>
-              <Button style={styles.button} href={viewUrl}>
+              <Button style={styles.button} href={safeViewUrl}>
                 View Your Endorsement
               </Button>
             </Section>

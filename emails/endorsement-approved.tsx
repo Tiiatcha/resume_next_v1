@@ -13,6 +13,7 @@ import {
 } from "@react-email/components"
 import * as React from "react"
 import { submitterEmailStyles as styles } from "./email-styles"
+import type { EndorsementRelationshipType } from "../app/(app)/endorsements/_components/endorsement-types"
 
 /**
  * Email sent to the endorser when their endorsement is approved.
@@ -29,28 +30,53 @@ interface EndorsementApprovedEmailProps {
   variant?: "approved_initial" | "approved_after_edit"
   endorserName: string
   endorsementText: string
-  relationshipType: string
+  relationshipType: EndorsementRelationshipType
   viewUrl: string
   publicUrl: string
+  /**
+   * Set to true when rendering for preview purposes only (e.g., in the browser).
+   * When false or undefined (production emails), no default values will be used.
+   */
+  isPreview?: boolean
 }
 
 export const EndorsementApprovedEmail = ({
-  variant = "approved_initial",
-  endorserName = "John Doe",
-  endorsementText = "Craig is an exceptional developer who consistently delivers high-quality work.",
-  relationshipType = "colleague",
-  viewUrl = "https://craigdavison.net/endorsements/view/123",
-  publicUrl = "https://craigdavison.net/endorsements",
+  variant,
+  endorserName,
+  endorsementText,
+  relationshipType,
+  viewUrl,
+  publicUrl,
+  isPreview = false,
 }: EndorsementApprovedEmailProps) => {
+  // Apply defaults only for preview mode
+  const safeVariant = isPreview ? (variant ?? "approved_initial") : (variant ?? "approved_initial")
+  const safeEndorserName = isPreview ? (endorserName || "John Doe") : endorserName
+  const safeEndorsementText = isPreview 
+    ? (endorsementText || "Craig is an exceptional developer who consistently delivers high-quality work.")
+    : endorsementText
+  const safeRelationshipType = isPreview ? (relationshipType || "colleague") : relationshipType
+  const safeViewUrl = isPreview ? (viewUrl || "https://craigdavison.net/endorsements/view/123") : viewUrl
+  const safePublicUrl = isPreview ? (publicUrl || "https://craigdavison.net/endorsements") : publicUrl
+
+  // Validate that in non-preview mode, all required fields are provided
+  if (!isPreview) {
+    if (!safeEndorserName || !safeEndorsementText || !safeRelationshipType || !safeViewUrl || !safePublicUrl) {
+      throw new Error(
+        "EndorsementApprovedEmail: All required fields must be provided when not in preview mode"
+      )
+    }
+  }
+
   const previewText =
-    variant === "approved_after_edit"
-      ? `Your updated endorsement has been approved — thank you, ${endorserName}`
-      : `Your endorsement has been approved — thank you, ${endorserName}`
+    safeVariant === "approved_after_edit"
+      ? `Your updated endorsement has been approved — thank you, ${safeEndorserName}`
+      : `Your endorsement has been approved — thank you, ${safeEndorserName}`
 
   const headerTitle =
-    variant === "approved_after_edit" ? "Your update is approved" : "It’s live — thank you!"
+    safeVariant === "approved_after_edit" ? "Your update is approved" : "It's live — thank you!"
   const headerSubtitle =
-    variant === "approved_after_edit"
+    safeVariant === "approved_after_edit"
       ? "Your updated endorsement has been approved"
       : "Your endorsement has been approved"
 
@@ -69,30 +95,30 @@ export const EndorsementApprovedEmail = ({
 
           {/* Content */}
           <Section style={styles.content}>
-            <Text style={styles.paragraph}>Hi {endorserName},</Text>
+            <Text style={styles.paragraph}>Hi {safeEndorserName},</Text>
 
             <Text style={styles.paragraph}>
-              {variant === "approved_after_edit"
-                ? "I’ve approved your updated endorsement and the latest version is now eligible to appear on my site. Thanks again for taking the time to keep it up to date — I really appreciate it."
-                : "I’ve approved your endorsement and it’s now eligible to appear on my site. Thanks again for taking the time to write it — I really appreciate it."}
+              {safeVariant === "approved_after_edit"
+                ? "I&apos;ve approved your updated endorsement and the latest version is now eligible to appear on my site. Thanks again for taking the time to keep it up to date — I really appreciate it."
+                : "I&apos;ve approved your endorsement and it&apos;s now eligible to appear on my site. Thanks again for taking the time to write it — I really appreciate it."}
             </Text>
 
             {/* Status highlight */}
             <Section style={styles.statusCardApproved}>
               <Text style={styles.statusCardTitle}>Status: Approved</Text>
               <Text style={styles.statusCardBody}>
-                If anything needs tweaking (spelling, clarity, or if you’d like it removed),
-                just reply to this email and I’ll sort it.
+                If anything needs tweaking (spelling, clarity, or if you&apos;d like it removed),
+                just reply to this email and I&apos;ll sort it.
               </Text>
             </Section>
 
             {/* Endorsement preview */}
             <Section style={styles.card}>
               <Text style={styles.cardLabel}>Your Endorsement</Text>
-              <Text style={styles.quote}>&ldquo;{endorsementText}&rdquo;</Text>
+              <Text style={styles.quote}>&ldquo;{safeEndorsementText}&rdquo;</Text>
               <Text style={styles.cardMeta}>
                 <strong>Relationship:</strong>{" "}
-                {relationshipType.charAt(0).toUpperCase() + relationshipType.slice(1)}
+                {safeRelationshipType.charAt(0).toUpperCase() + safeRelationshipType.slice(1)}
               </Text>
             </Section>
 
@@ -103,20 +129,20 @@ export const EndorsementApprovedEmail = ({
 
             {/* CTA Buttons */}
             <Section style={styles.buttonContainer}>
-              <Button style={styles.button} href={viewUrl}>
+              <Button style={styles.button} href={safeViewUrl}>
                 View Your Endorsement
               </Button>
             </Section>
 
             <Section style={styles.buttonContainer}>
-              <Button style={styles.button} href={publicUrl}>
+              <Button style={styles.button} href={safePublicUrl}>
                 View Endorsements Page
               </Button>
             </Section>
 
             <Text style={styles.footerText}>
               If you prefer not to have your endorsement displayed publicly, reply to this email
-              and I’ll remove it.
+              and I&apos;ll remove it.
             </Text>
           </Section>
 
@@ -145,4 +171,3 @@ export const EndorsementApprovedEmail = ({
 }
 
 export default EndorsementApprovedEmail
-

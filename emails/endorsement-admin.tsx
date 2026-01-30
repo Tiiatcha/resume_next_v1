@@ -13,6 +13,7 @@ import {
 } from "@react-email/components"
 import * as React from "react"
 import { adminEmailStyles as styles } from "./email-styles"
+import type { EndorsementRelationshipType } from "../app/(app)/endorsements/_components/endorsement-types"
 
 /**
  * Email sent to admin (Craig) when a new endorsement is submitted.
@@ -28,7 +29,7 @@ interface EndorsementAdminEmailProps {
   endorserName: string
   endorserEmail?: string
   endorsementText: string
-  relationshipType: string
+  relationshipType: EndorsementRelationshipType
   roleOrTitle?: string
   companyOrProject?: string
   linkedinUrl?: string
@@ -53,38 +54,76 @@ interface EndorsementAdminEmailProps {
   }
   payloadUrl: string
   documentId: string
+  /**
+   * Set to true when rendering for preview purposes only (e.g., in the browser).
+   * When false or undefined (production emails), no default values will be used.
+   */
+  isPreview?: boolean
 }
 
 export const EndorsementAdminEmail = ({
-  variant = "created",
-  endorserName = "John Doe",
-  endorserEmail = "john@example.com",
-  endorsementText = "Craig is an exceptional developer.",
-  relationshipType = "colleague",
-  roleOrTitle = "Senior Developer",
-  companyOrProject = "Tech Corp",
-  linkedinUrl = "https://linkedin.com/in/johndoe",
-  consentToPublish = true,
-  displayPreferences = {
-    showNamePublicly: true,
-    showCompanyOrProjectPublicly: true,
-    showLinkedinUrlPublicly: false,
-  },
+  variant,
+  endorserName,
+  endorserEmail,
+  endorsementText,
+  relationshipType,
+  roleOrTitle,
+  companyOrProject,
+  linkedinUrl,
+  consentToPublish,
+  displayPreferences,
   changedFields,
   submissionMeta,
-  payloadUrl = "https://craigdavison.net",
-  documentId = "123",
+  payloadUrl,
+  documentId,
+  isPreview = false,
 }: EndorsementAdminEmailProps) => {
+  // Apply defaults only for preview mode
+  const safeVariant = isPreview ? (variant ?? "created") : (variant ?? "created")
+  const safeEndorserName = isPreview ? (endorserName || "John Doe") : endorserName
+  const safeEndorserEmail = isPreview ? (endorserEmail || "john@example.com") : (endorserEmail || "")
+  const safeEndorsementText = isPreview
+    ? (endorsementText || "Craig is an exceptional developer.")
+    : endorsementText
+  const safeRelationshipType = isPreview ? (relationshipType || "colleague") : relationshipType
+  const safeRoleOrTitle = isPreview ? (roleOrTitle || "Senior Developer") : (roleOrTitle || "")
+  const safeCompanyOrProject = isPreview ? (companyOrProject || "Tech Corp") : (companyOrProject || "")
+  const safeLinkedinUrl = isPreview ? (linkedinUrl || "https://linkedin.com/in/johndoe") : (linkedinUrl || "")
+  const safeConsentToPublish = consentToPublish !== undefined ? consentToPublish : (isPreview ? true : false)
+  const safeDisplayPreferences = displayPreferences || {
+    showNamePublicly: isPreview ? true : false,
+    showCompanyOrProjectPublicly: isPreview ? true : false,
+    showLinkedinUrlPublicly: isPreview ? false : false,
+  }
+  const safePayloadUrl = isPreview ? (payloadUrl || "https://craigdavison.net") : payloadUrl
+  const safeDocumentId = isPreview ? (documentId || "123") : documentId
+
+  // Validate that in non-preview mode, all required fields are provided
+  if (!isPreview) {
+    if (
+      !safeEndorserName ||
+      !safeEndorsementText ||
+      !safeRelationshipType ||
+      !safePayloadUrl ||
+      !safeDocumentId ||
+      safeConsentToPublish === undefined
+    ) {
+      throw new Error(
+        "EndorsementAdminEmail: All required fields must be provided when not in preview mode"
+      )
+    }
+  }
+
   const previewText =
-    variant === "submitter_updated"
-      ? `Endorsement updated by ${endorserName}`
-      : `New endorsement from ${endorserName}`
-  const payloadLink = `${payloadUrl}/admin/collections/endorsements/${documentId}`
+    safeVariant === "submitter_updated"
+      ? `Endorsement updated by ${safeEndorserName}`
+      : `New endorsement from ${safeEndorserName}`
+  const payloadLink = `${safePayloadUrl}/admin/collections/endorsements/${safeDocumentId}`
 
   const headerTitle =
-    variant === "submitter_updated" ? "✏️ Endorsement Updated" : "🎉 New Endorsement Received"
+    safeVariant === "submitter_updated" ? "✏️ Endorsement Updated" : "🎉 New Endorsement Received"
   const headerSubtitle =
-    variant === "submitter_updated"
+    safeVariant === "submitter_updated"
       ? "A submitter updated their endorsement — it needs review"
       : "A new endorsement is waiting for your review"
 
@@ -109,7 +148,7 @@ export const EndorsementAdminEmail = ({
 
           {/* Content */}
           <Section style={styles.content}>
-            {variant === "submitter_updated" && changedFields && changedFields.length > 0 ? (
+            {safeVariant === "submitter_updated" && changedFields && changedFields.length > 0 ? (
               <>
                 <Heading style={styles.sectionTitle}>What changed</Heading>
                 <table style={styles.detailsTable}>
@@ -138,14 +177,14 @@ export const EndorsementAdminEmail = ({
               <tbody>
                 <tr>
                   <td style={styles.labelCell}>Name:</td>
-                  <td style={styles.valueCell}>{endorserName}</td>
+                  <td style={styles.valueCell}>{safeEndorserName}</td>
                 </tr>
-                {endorserEmail && (
+                {safeEndorserEmail && (
                   <tr>
                     <td style={styles.labelCell}>Email:</td>
                     <td style={styles.valueCell}>
-                      <Link href={`mailto:${endorserEmail}`} style={styles.link}>
-                        {endorserEmail}
+                      <Link href={`mailto:${safeEndorserEmail}`} style={styles.link}>
+                        {safeEndorserEmail}
                       </Link>
                     </td>
                   </tr>
@@ -153,26 +192,26 @@ export const EndorsementAdminEmail = ({
                 <tr>
                   <td style={styles.labelCell}>Relationship:</td>
                   <td style={styles.valueCell}>
-                    {relationshipType.charAt(0).toUpperCase() + relationshipType.slice(1)}
+                    {safeRelationshipType.charAt(0).toUpperCase() + safeRelationshipType.slice(1)}
                   </td>
                 </tr>
-                {roleOrTitle && (
+                {safeRoleOrTitle && (
                   <tr>
                     <td style={styles.labelCell}>Role/Title:</td>
-                    <td style={styles.valueCell}>{roleOrTitle}</td>
+                    <td style={styles.valueCell}>{safeRoleOrTitle}</td>
                   </tr>
                 )}
-                {companyOrProject && (
+                {safeCompanyOrProject && (
                   <tr>
                     <td style={styles.labelCell}>Company/Project:</td>
-                    <td style={styles.valueCell}>{companyOrProject}</td>
+                    <td style={styles.valueCell}>{safeCompanyOrProject}</td>
                   </tr>
                 )}
-                {linkedinUrl && (
+                {safeLinkedinUrl && (
                   <tr>
                     <td style={styles.labelCell}>LinkedIn:</td>
                     <td style={styles.valueCell}>
-                      <Link href={linkedinUrl} style={styles.link}>
+                      <Link href={safeLinkedinUrl} style={styles.link}>
                         View Profile
                       </Link>
                     </td>
@@ -184,7 +223,7 @@ export const EndorsementAdminEmail = ({
             {/* Endorsement Text */}
             <Heading style={styles.sectionTitle}>Endorsement</Heading>
             <Section style={styles.quoteCard}>
-              <Text style={styles.quote}>"{endorsementText}"</Text>
+              <Text style={styles.quote}>"{safeEndorsementText}"</Text>
             </Section>
 
             {/* Display Preferences */}
@@ -193,32 +232,32 @@ export const EndorsementAdminEmail = ({
               <tbody>
                 <tr>
                   <td style={styles.labelCell}>Show name publicly:</td>
-                  <td style={displayPreferences.showNamePublicly ? styles.successCell : styles.errorCell}>
-                    {displayPreferences.showNamePublicly ? "✓ Yes" : "✗ No"}
+                  <td style={safeDisplayPreferences.showNamePublicly ? styles.successCell : styles.errorCell}>
+                    {safeDisplayPreferences.showNamePublicly ? "✓ Yes" : "✗ No"}
                   </td>
                 </tr>
                 <tr>
                   <td style={styles.labelCell}>Show company/project publicly:</td>
                   <td
                     style={
-                      displayPreferences.showCompanyOrProjectPublicly ? styles.successCell : styles.errorCell
+                      safeDisplayPreferences.showCompanyOrProjectPublicly ? styles.successCell : styles.errorCell
                     }
                   >
-                    {displayPreferences.showCompanyOrProjectPublicly ? "✓ Yes" : "✗ No"}
+                    {safeDisplayPreferences.showCompanyOrProjectPublicly ? "✓ Yes" : "✗ No"}
                   </td>
                 </tr>
                 <tr>
                   <td style={styles.labelCell}>Show LinkedIn publicly:</td>
                   <td
-                    style={displayPreferences.showLinkedinUrlPublicly ? styles.successCell : styles.errorCell}
+                    style={safeDisplayPreferences.showLinkedinUrlPublicly ? styles.successCell : styles.errorCell}
                   >
-                    {displayPreferences.showLinkedinUrlPublicly ? "✓ Yes" : "✗ No"}
+                    {safeDisplayPreferences.showLinkedinUrlPublicly ? "✓ Yes" : "✗ No"}
                   </td>
                 </tr>
                 <tr>
                   <td style={styles.labelCell}>Consent to publish:</td>
-                  <td style={consentToPublish ? styles.successCell : styles.errorCell}>
-                    {consentToPublish ? "✓ Yes" : "✗ No"}
+                  <td style={safeConsentToPublish ? styles.successCell : styles.errorCell}>
+                    {safeConsentToPublish ? "✓ Yes" : "✗ No"}
                   </td>
                 </tr>
               </tbody>
