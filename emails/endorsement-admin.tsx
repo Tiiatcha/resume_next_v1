@@ -223,7 +223,7 @@ export const EndorsementAdminEmail = ({
             {/* Endorsement Text */}
             <Heading style={styles.sectionTitle}>Endorsement</Heading>
             <Section style={styles.quoteCard}>
-              <Text style={styles.quote}>"{safeEndorsementText}"</Text>
+              <Text style={styles.quote}>&ldquo;{safeEndorsementText}&rdquo;</Text>
             </Section>
 
             {/* Display Preferences */}

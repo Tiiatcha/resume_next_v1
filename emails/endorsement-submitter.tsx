@@ -126,27 +126,17 @@ export const EndorsementSubmitterEmail = ({
               <Section style={styles.card}>
                 <Text style={styles.cardLabel}>What changed</Text>
                 <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                  }}
+                  style={styles.detailsTable}
                 >
                   <tbody>
                     {changedFields.map((item) => (
                       <tr key={item.field}>
                         <td
-                          style={{
-                            padding: "8px 0",
-                            color: "#718096",
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            width: "34%",
-                            verticalAlign: "top",
-                          }}
+                          style={styles.detailsLabelCell}
                         >
                           {item.field}
                         </td>
-                        <td style={{ padding: "8px 0", color: "#2d3748", fontSize: "14px" }}>
+                        <td style={styles.detailsValueCell}>
                           <Text style={{ margin: "0 0 6px", lineHeight: "1.6" }}>
                             <strong>Before:</strong> {item.previous}
                           </Text>
