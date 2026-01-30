@@ -29,13 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-
-type RelationshipType =
-  | "client"
-  | "colleague"
-  | "manager"
-  | "directReport"
-  | "other"
+import type { EndorsementRelationshipType } from "@/app/(app)/endorsements/_components/endorsement-types"
 
 type DisplayPreferences = Readonly<{
   showNamePublicly?: boolean | null
@@ -48,7 +42,7 @@ export type EndorsementEditorData = Readonly<{
   status: "pending" | "approved" | "rejected"
   endorserName: string
   endorserEmail: string | null
-  relationshipType: RelationshipType
+  relationshipType: EndorsementRelationshipType
   roleOrTitle: string | null
   companyOrProject: string | null
   linkedinUrl: string | null
@@ -81,7 +75,7 @@ export function EndorsementEditor({
   const preferences = endorsement.displayPreferences ?? {}
 
   const [endorserName, setEndorserName] = React.useState(endorsement.endorserName)
-  const [relationshipType, setRelationshipType] = React.useState<RelationshipType>(
+  const [relationshipType, setRelationshipType] = React.useState<EndorsementRelationshipType>(
     endorsement.relationshipType,
   )
   const [roleOrTitle, setRoleOrTitle] = React.useState(endorsement.roleOrTitle ?? "")
@@ -217,7 +211,7 @@ export function EndorsementEditor({
               </Label>
               <Select
                 value={relationshipType}
-                onValueChange={(value) => setRelationshipType(value as RelationshipType)}
+                onValueChange={(value) => setRelationshipType(value as EndorsementRelationshipType)}
               >
                 <SelectTrigger id="endorsement-editor-relationship">
                   <SelectValue placeholder="Select one..." />
