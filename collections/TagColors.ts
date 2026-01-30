@@ -95,6 +95,54 @@ export const TagColors: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeDelete: [
+      async ({ req, id }) => {
+        // Clean up any TagCategories that reference this color before deletion.
+        // This prevents referential integrity issues that would cause "unknown error" in the admin UI.
+        try {
+          const categories = await req.payload.find({
+            collection: "tag-categories",
+            where: {
+              color: {
+                equals: id,
+              },
+            },
+            limit: 100, // Process in batches if there are many
+          })
+
+          // For each category referencing this color, we need to either:
+          // 1. Set their color to null (if we make the field optional), or
+          // 2. Prevent deletion by throwing an error
+          // Since the color field is REQUIRED, we must prevent deletion if categories reference it.
+          if (categories.docs.length > 0) {
+            const categoryNames = categories.docs
+              .map((cat) => (typeof cat === "object" && "name" in cat ? cat.name : "Unknown"))
+              .filter(Boolean)
+              .join(", ")
+
+            throw new Error(
+              `Cannot delete this color because it is used by ${categories.docs.length} tag ${
+                categories.docs.length === 1 ? "category" : "categories"
+              }: ${categoryNames}. Please reassign ${
+                categories.docs.length === 1 ? "this category" : "these categories"
+              } to a different color first.`,
+            )
+          }
+        } catch (error) {
+          // If it's our intentional error, re-throw it
+          if (error instanceof Error && error.message.includes("Cannot delete this color")) {
+            throw error
+          }
+
+          // Otherwise, log and allow deletion to proceed
+          req.payload.logger.error(
+            `Failed to check tag categories for color ${id}: ${error instanceof Error ? error.message : String(error)}`,
+          )
+        }
+      },
+    ],
+  },
 }
 
 /**

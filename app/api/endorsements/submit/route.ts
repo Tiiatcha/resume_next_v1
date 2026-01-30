@@ -226,6 +226,11 @@ export async function POST(request: Request): Promise<Response> {
       companyOrProject,
       linkedinUrl,
       status: "pending",
+      reviewRequest: {
+        type: "new_submission",
+        requestedBy: "submitter",
+        requestedAt: new Date().toISOString(),
+      },
       consentToPublish: true,
       displayPreferences: {
         showNamePublicly: displayNamePublic,
@@ -245,4 +250,3 @@ export async function POST(request: Request): Promise<Response> {
 
   return jsonResponse(body, 201)
 }
-
