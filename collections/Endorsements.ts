@@ -442,6 +442,7 @@ export const Endorsements: CollectionConfig = {
                     relationshipType: currentDoc.relationshipType,
                     viewUrl: `${baseUrl}/endorsements/view/${currentDoc.id}`,
                     changedFields: submitterOwnedFieldChanges,
+                    isPreview: false,
                   }),
                 )
 
@@ -460,16 +461,17 @@ export const Endorsements: CollectionConfig = {
             const html = await render(
               EndorsementApprovedEmail({
                 variant: approvalVariant,
-                endorserName: doc.endorserName,
-                endorsementText: doc.endorsementText,
-                relationshipType: doc.relationshipType,
-                viewUrl: `${baseUrl}/endorsements/view/${doc.id}`,
+                endorserName: currentDoc.endorserName,
+                endorsementText: currentDoc.endorsementText,
+                relationshipType: currentDoc.relationshipType,
+                viewUrl: `${baseUrl}/endorsements/view/${currentDoc.id}`,
                 publicUrl: `${baseUrl}/endorsements`,
+                isPreview: false,
               }),
             )
 
             await BasePayload.sendEmail({
-              to: doc.endorserEmail,
+              to: currentDoc.endorserEmail,
               subject:
                 approvalVariant === "approved_after_edit"
                   ? "Your updated endorsement has been approved"
@@ -506,6 +508,7 @@ export const Endorsements: CollectionConfig = {
                   endorsementText: currentDoc.endorsementText,
                   relationshipType: currentDoc.relationshipType,
                   viewUrl: `${baseUrl}/endorsements/view/${currentDoc.id}`,
+                  isPreview: false,
                 }),
               )
 
@@ -552,6 +555,7 @@ export const Endorsements: CollectionConfig = {
                   : undefined,
                 payloadUrl: payloadUrl,
                 documentId: currentDoc.id,
+                isPreview: false,
               }),
             )
 
@@ -592,6 +596,7 @@ export const Endorsements: CollectionConfig = {
                 relationshipType: currentDoc.relationshipType,
                 viewUrl: `${baseUrl}/endorsements/view/${currentDoc.id}`,
                 changedFields: submitterOwnedFieldChanges,
+                isPreview: false,
               }),
             )
 
@@ -622,21 +627,22 @@ export const Endorsements: CollectionConfig = {
 
         // Send email to the endorser (if they provided an email)
         // NOTE: Currently sending to test address due to sandbox domain restrictions
-        // TODO: Change to doc.endorserEmail when using verified domain
-        if (doc.endorserEmail) {
+        // TODO: Change to currentDoc.endorserEmail when using verified domain
+        if (currentDoc.endorserEmail) {
           try {
             const html = await render(
               EndorsementSubmitterEmail({
                 variant: "created",
-                endorserName: doc.endorserName,
-                endorsementText: doc.endorsementText,
-                relationshipType: doc.relationshipType,
-                viewUrl: `${baseUrl}/endorsements/view/${doc.id}`,
+                endorserName: currentDoc.endorserName,
+                endorsementText: currentDoc.endorsementText,
+                relationshipType: currentDoc.relationshipType,
+                viewUrl: `${baseUrl}/endorsements/view/${currentDoc.id}`,
+                isPreview: false,
               }),
             )
 
             await BasePayload.sendEmail({
-              to: doc.endorserEmail, // TODO: Change to doc.endorserEmail
+              to: currentDoc.endorserEmail, // TODO: Change to currentDoc.endorserEmail
               subject: "Thank you for your endorsement",
               html,
             })
@@ -652,29 +658,38 @@ export const Endorsements: CollectionConfig = {
           const html = await render(
             EndorsementAdminEmail({
               variant: "created",
-              endorserName: doc.endorserName,
-              endorserEmail: doc.endorserEmail,
-              endorsementText: doc.endorsementText,
-              relationshipType: doc.relationshipType,
-              roleOrTitle: doc.roleOrTitle,
-              companyOrProject: doc.companyOrProject,
-              linkedinUrl: doc.linkedinUrl,
-              consentToPublish: doc.consentToPublish,
-              displayPreferences: doc.displayPreferences,
-              submissionMeta: doc.submissionMeta
+              endorserName: currentDoc.endorserName,
+              endorserEmail: currentDoc.endorserEmail ?? undefined,
+              endorsementText: currentDoc.endorsementText,
+              relationshipType: currentDoc.relationshipType,
+              roleOrTitle: currentDoc.roleOrTitle ?? undefined,
+              companyOrProject: currentDoc.companyOrProject ?? undefined,
+              linkedinUrl: currentDoc.linkedinUrl ?? undefined,
+              consentToPublish: currentDoc.consentToPublish,
+              displayPreferences: {
+                showNamePublicly: Boolean(currentDoc.displayPreferences?.showNamePublicly ?? true),
+                showCompanyOrProjectPublicly: Boolean(
+                  currentDoc.displayPreferences?.showCompanyOrProjectPublicly ?? true,
+                ),
+                showLinkedinUrlPublicly: Boolean(
+                  currentDoc.displayPreferences?.showLinkedinUrlPublicly ?? false,
+                ),
+              },
+              submissionMeta: currentDoc.submissionMeta
                 ? {
-                    ipAddress: doc.submissionMeta.ipAddress ?? undefined,
-                    userAgent: doc.submissionMeta.userAgent ?? undefined,
+                    ipAddress: currentDoc.submissionMeta.ipAddress ?? undefined,
+                    userAgent: currentDoc.submissionMeta.userAgent ?? undefined,
                   }
                 : undefined,
               payloadUrl: payloadUrl,
-              documentId: doc.id,
+              documentId: currentDoc.id,
+              isPreview: false,
             }),
           )
 
           await BasePayload.sendEmail({
             to: "craig.davison@ncodein.com", // TODO: Change to craigadavison77@gmail.com
-            subject: `New endorsement from ${doc.endorserName}`,
+            subject: `New endorsement from ${currentDoc.endorserName}`,
             html,
           })
         } catch (error) {
