@@ -9,13 +9,7 @@ import {
   readEndorsementAccessSessionFromCookieHeader,
   buildEndorsementAccessCookieOptions,
 } from "@/lib/endorsements/access-session"
-
-type RelationshipType =
-  | "client"
-  | "colleague"
-  | "manager"
-  | "directReport"
-  | "other"
+import type { EndorsementRelationshipType } from "@/app/(app)/endorsements/_components/endorsement-types"
 
 type UpdateEndorsementRequestBody = {
   endorserName?: unknown
@@ -58,7 +52,7 @@ function buildClearCookieHeader(): string {
   return parts.join("; ")
 }
 
-function validateRelationshipType(value: unknown): value is RelationshipType {
+function validateRelationshipType(value: unknown): value is EndorsementRelationshipType {
   return (
     value === "client" ||
     value === "colleague" ||
@@ -169,6 +163,9 @@ export async function PATCH(request: Request): Promise<Response> {
     return jsonResponse(body, 400)
   }
 
+  // TypeScript needs this assertion after validation - the type guard confirms it's valid
+  const validatedRelationshipType = relationshipType as EndorsementRelationshipType
+
   const payload = await getPayload({ config: configPromise })
 
   let endorsement: { id: string; endorserEmail?: string | null } | null = null
@@ -211,7 +208,7 @@ export async function PATCH(request: Request): Promise<Response> {
     data: {
       endorserName,
       endorsementText,
-      relationshipType,
+      relationshipType: validatedRelationshipType,
       roleOrTitle: roleOrTitle || undefined,
       companyOrProject: companyOrProject || undefined,
       linkedinUrl: linkedinUrl || undefined,

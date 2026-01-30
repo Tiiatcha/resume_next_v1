@@ -2,19 +2,13 @@ import configPromise from "@payload-config"
 import { getPayload } from "payload"
 
 import { checkRateLimit } from "@/lib/rate-limit"
-
-type RelationshipType =
-  | "client"
-  | "colleague"
-  | "manager"
-  | "directReport"
-  | "other"
+import type { EndorsementRelationshipType } from "@/app/(app)/endorsements/_components/endorsement-types"
 
 type IncomingEndorsementPayload = {
   name?: string
   email?: string
   endorsementText?: string
-  relationshipType?: RelationshipType | string
+  relationshipType?: EndorsementRelationshipType | string
   companyOrProject?: string
   roleOrTitle?: string
   linkedinUrl?: string
@@ -140,7 +134,7 @@ export async function POST(request: Request): Promise<Response> {
       ? (payloadBody.relationshipType as string)
       : ""
 
-  const allowedRelationshipTypes: RelationshipType[] = [
+  const allowedRelationshipTypes: EndorsementRelationshipType[] = [
     "client",
     "colleague",
     "manager",
@@ -148,7 +142,7 @@ export async function POST(request: Request): Promise<Response> {
     "other",
   ]
 
-  const relationshipTypeLower = relationshipTypeRaw.toLowerCase() as RelationshipType
+  const relationshipTypeLower = relationshipTypeRaw.toLowerCase() as EndorsementRelationshipType
   const isRelationshipValid = allowedRelationshipTypes.includes(relationshipTypeLower)
 
   if (!isRelationshipValid) {
