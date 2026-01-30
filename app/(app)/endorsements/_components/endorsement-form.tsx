@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import type { EndorsementRelationshipType } from "./endorsement-types"
 
 interface EndorsementFormState {
   name: string
   email: string
-  relationshipType: "client" | "colleague" | "manager" | "directReport" | "other" | ""
+  relationshipType: EndorsementRelationshipType | ""
   roleOrTitle: string
   companyOrProject: string
   linkedinUrl: string
