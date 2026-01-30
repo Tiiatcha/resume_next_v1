@@ -4,6 +4,7 @@ import path from "path";
 import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
+import { resendAdapter } from "@payloadcms/email-resend";
 
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
@@ -66,4 +67,9 @@ export default buildConfig({
       },
     }),
   ],
+  email: resendAdapter({
+    defaultFromName: "mail@craigdavison.net",
+    defaultFromAddress: "mail@craigdavison.net",
+    apiKey: process.env.RESEND_API_KEY || "",
+  }),
 });
