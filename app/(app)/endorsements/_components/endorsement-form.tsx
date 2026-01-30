@@ -44,6 +44,30 @@ interface ApiErrorResponse {
 
 type ApiResponseBody = ApiSuccessResponse | ApiErrorResponse
 
+/**
+ * Returns development test data for the endorsement form when enabled via environment variable.
+ * This makes testing easier by pre-filling the form with realistic data in development.
+ * 
+ * @returns Test data object if NEXT_PUBLIC_PREFILL_TEST_DATA=true, otherwise empty object
+ */
+function getDevelopmentTestData(): Partial<EndorsementFormState> {
+  const shouldPrefill = process.env.NEXT_PUBLIC_PREFILL_TEST_DATA === "true"
+  
+  if (!shouldPrefill) {
+    return {}
+  }
+
+  return {
+    name: "Craig Davison",
+    email: "craigadavison77@gmail.com",
+    relationshipType: "other",
+    roleOrTitle: "Honey Badger",
+    companyOrProject: "Acme Corp",
+    linkedinUrl: "https://www.linkedin.com/in/craig-davison-773aa546/",
+    endorsementText: "Craig is an exceptional developer who brings creativity and technical excellence to every project. His ability to solve complex problems while maintaining clean, maintainable code is remarkable. Working with Craig was a pleasure, and I'd jump at the chance to collaborate again. He's the kind of developer every team needs—skilled, reliable, and always thinking about the bigger picture.",
+  }
+}
+
 const initialFormState: EndorsementFormState = {
   name: "",
   email: "",
@@ -57,6 +81,8 @@ const initialFormState: EndorsementFormState = {
   displayLinkedInPublic: false,
   consentToPublish: false,
   honeypot: "",
+  // Merge in development test data if enabled
+  ...getDevelopmentTestData(),
 }
 
 export function EndorsementForm(): React.JSX.Element {
@@ -80,7 +106,7 @@ export function EndorsementForm(): React.JSX.Element {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch("/api/endorsements", {
+      const response = await fetch("/api/endorsements/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

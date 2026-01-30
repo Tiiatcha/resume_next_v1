@@ -14,6 +14,7 @@ import { TagCategories } from "./collections/TagCategories";
 import { TagColors } from "./collections/TagColors";
 import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
+import { EndorsementAccessChallenges } from "./collections/EndorsementAccessChallenges";
 import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Roadmap } from "./globals/Roadmap";
 import { SiteSettings } from "./globals/SiteSettings";
@@ -24,6 +25,18 @@ import { Experiences } from "./collections/Experiences";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+/**
+ * Validate that the Resend API key is configured.
+ * Logs a warning if missing to help with debugging email issues.
+ */
+const resendApiKey = process.env.RESEND_API_KEY || "";
+if (!resendApiKey) {
+  console.warn(
+    "⚠️  WARNING: RESEND_API_KEY environment variable is not set. Email notifications will not work.",
+  );
+} else {
+  console.log("✅ Email notifications enabled (Resend API key configured)");
+}
 
 export default buildConfig({
   admin: {
@@ -32,7 +45,19 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Categories, Tags, TagCategories, TagColors, Experiences, Endorsements, BlogPosts, ChangelogEntries],
+  collections: [
+    Users,
+    Media,
+    Categories,
+    Tags,
+    TagCategories,
+    TagColors,
+    Experiences,
+    Endorsements,
+    EndorsementAccessChallenges,
+    BlogPosts,
+    ChangelogEntries,
+  ],
   globals: [Roadmap, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
@@ -68,8 +93,8 @@ export default buildConfig({
     }),
   ],
   email: resendAdapter({
-    defaultFromName: "mail@craigdavison.net",
-    defaultFromAddress: "mail@craigdavison.net",
-    apiKey: process.env.RESEND_API_KEY || "",
+    defaultFromName: "Craig Davison",
+    defaultFromAddress: "hello@craigdavison.net",
+    apiKey: resendApiKey,
   }),
 });

@@ -75,6 +75,7 @@ export interface Config {
     'tag-colors': TagColor;
     experiences: Experience;
     endorsements: Endorsement;
+    'endorsement-access-challenges': EndorsementAccessChallenge;
     'blog-posts': BlogPost;
     'changelog-entries': ChangelogEntry;
     'payload-kv': PayloadKv;
@@ -92,6 +93,7 @@ export interface Config {
     'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
     experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
+    'endorsement-access-challenges': EndorsementAccessChallengesSelect<false> | EndorsementAccessChallengesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'changelog-entries': ChangelogEntriesSelect<false> | ChangelogEntriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -435,6 +437,27 @@ export interface Endorsement {
    */
   approvedAt?: string | null;
   /**
+   * Metadata describing why this endorsement currently requires review. This is used to drive email copy and admin workflows (new submission vs submitter edit).
+   */
+  reviewRequest: {
+    /**
+     * What triggered the current review cycle. Submitter edits reset endorsements to pending and require re-approval.
+     */
+    type: 'new_submission' | 'submitter_edit';
+    /**
+     * Who initiated the review request. This is separate from the endorsement `status` field.
+     */
+    requestedBy: 'submitter' | 'admin' | 'system';
+    /**
+     * When the latest review request was created.
+     */
+    requestedAt?: string | null;
+  };
+  /**
+   * Timestamp of the most recent submitter-driven edit (via OTP self-service). Used to trigger update notification emails.
+   */
+  submitterEditAt?: string | null;
+  /**
    * Full name of the person giving the endorsement. They can choose whether this is shown publicly.
    */
   endorserName: string;
@@ -478,6 +501,54 @@ export interface Endorsement {
    * Technical metadata captured at submission time (IP, user agent, etc.). Not shown publicly.
    */
   submissionMeta?: {
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "endorsement-access-challenges".
+ */
+export interface EndorsementAccessChallenge {
+  id: string;
+  /**
+   * The endorsement this OTP challenge is tied to.
+   */
+  endorsement: string | Endorsement;
+  /**
+   * Lowercased/trimmed email used for matching and verification. Never display publicly.
+   */
+  emailNormalized: string;
+  /**
+   * Hash of the OTP code (never store raw codes). This value is compared server-side only.
+   */
+  otpHash: string;
+  /**
+   * When the OTP becomes invalid.
+   */
+  expiresAt: string;
+  /**
+   * When this OTP was successfully verified. Used OTPs must not be reusable.
+   */
+  usedAt?: string | null;
+  /**
+   * How many verification attempts have been made for this challenge.
+   */
+  attemptCount: number;
+  /**
+   * If set, verification attempts should be rejected until this time.
+   */
+  lockedUntil?: string | null;
+  /**
+   * When the OTP email was last sent for this challenge.
+   */
+  lastSentAt?: string | null;
+  /**
+   * Captured for abuse prevention and auditing.
+   */
+  requestMeta?: {
     ipAddress?: string | null;
     userAgent?: string | null;
   };
@@ -671,6 +742,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'endorsements';
         value: string | Endorsement;
+      } | null)
+    | ({
+        relationTo: 'endorsement-access-challenges';
+        value: string | EndorsementAccessChallenge;
       } | null)
     | ({
         relationTo: 'blog-posts';
@@ -892,6 +967,14 @@ export interface ExperiencesSelect<T extends boolean = true> {
 export interface EndorsementsSelect<T extends boolean = true> {
   status?: T;
   approvedAt?: T;
+  reviewRequest?:
+    | T
+    | {
+        type?: T;
+        requestedBy?: T;
+        requestedAt?: T;
+      };
+  submitterEditAt?: T;
   endorserName?: T;
   endorserEmail?: T;
   relationshipType?: T;
@@ -908,6 +991,28 @@ export interface EndorsementsSelect<T extends boolean = true> {
       };
   consentToPublish?: T;
   submissionMeta?:
+    | T
+    | {
+        ipAddress?: T;
+        userAgent?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "endorsement-access-challenges_select".
+ */
+export interface EndorsementAccessChallengesSelect<T extends boolean = true> {
+  endorsement?: T;
+  emailNormalized?: T;
+  otpHash?: T;
+  expiresAt?: T;
+  usedAt?: T;
+  attemptCount?: T;
+  lockedUntil?: T;
+  lastSentAt?: T;
+  requestMeta?:
     | T
     | {
         ipAddress?: T;
