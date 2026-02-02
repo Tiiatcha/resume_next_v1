@@ -129,7 +129,7 @@ function ContainerContent({
   variant = "default",
   ...props
 }: ContainerContentProps): React.JSX.Element {
-  const baseClasses = "container-content flex flex-col gap-4"
+  const baseClasses = "container-content flex flex-col gap-4 max-w-full w-full"
   const variants: Record<ContainerVariant, string> = {
     default: `${baseClasses} items-center justify-center text-center`,
     left: `${baseClasses} items-start justify-start text-left`,

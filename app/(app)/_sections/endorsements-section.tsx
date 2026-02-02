@@ -12,8 +12,19 @@ import {
   ContainerLead,
   ContainerTitle,
 } from "@/components/shared/layout/container"
+/* Shadcn UI Components */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselNavButtons,
+  CarouselPrevious,
+  CarouselNext,
+  CarouselViewport,
+  CarouselTrack,
+  CarouselItem,
+} from "@/components/shared/composites/carousel"
 import { Reveal } from "@/components/shared/motion/reveal"
+/* Endorsement Components */
 import type { EndorsementSummary } from "@/app/(app)/endorsements/_components/endorsement-types"
 import { EndorsementCard } from "@/app/(app)/endorsements/_components/endorsement-card"
 import { EndorsementDetailsPanel } from "@/app/(app)/endorsements/_components/endorsement-details-panel"
@@ -31,7 +42,8 @@ export function EndorsementsSection({
 }: EndorsementsSectionProps): React.JSX.Element {
   const hasEndorsements = endorsements.length > 0
   const [activeEndorsement, setActiveEndorsement] = React.useState<EndorsementSummary | null>(null)
-
+  
+  
   return (
     <>
       <Section
@@ -44,8 +56,8 @@ export function EndorsementsSection({
             <ContainerEyebrow>Endorsements</ContainerEyebrow>
             <ContainerTitle>What others say</ContainerTitle>
             <ContainerLead>
-              Short, honest notes from people I have worked with — clients, colleagues,
-              and managers.
+              Short, honest notes from people I have worked with, including clients, colleagues,
+              and managers. 
             </ContainerLead>
             <p className="mt-4 text-sm text-muted-foreground">
               Learn about{' '}
@@ -77,21 +89,35 @@ export function EndorsementsSection({
                 </Card>
               </Reveal>
             ) : (
-              <div className="mt-4 grid w-full gap-4 md:grid-cols-2">
-                {endorsements.map((endorsement, index) => (
-                  <EndorsementCard
-                    key={endorsement.id}
-                    endorsement={endorsement}
-                    delaySeconds={index * 0.05}
-                    onOpenDetails={setActiveEndorsement}
-                  />
-                ))}
-              </div>
+              <Carousel 
+                infinite={true} 
+                autoScroll={true} 
+                autoScrollIntervalMs={1000} 
+                autoScrollPauseOnHover={true}
+              >
+                <CarouselNavButtons>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </CarouselNavButtons>
+                <CarouselViewport>
+                  <CarouselTrack>
+                    {endorsements.map((endorsement) => (
+                      <CarouselItem key={endorsement.id}>
+                        <EndorsementCard
+                          endorsement={endorsement}
+                          disableReveal
+                          onOpenDetails={setActiveEndorsement}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselTrack>
+                </CarouselViewport>
+              </Carousel>
             )}
           </ContainerContent>
         </Container>
       </Section>
-
+      { /* The panel is only shown when an endorsement is selected */ }
       <EndorsementDetailsPanel
         endorsement={activeEndorsement}
         onClose={() => setActiveEndorsement(null)}

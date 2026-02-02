@@ -2,6 +2,7 @@
 /scripts
 *.mdc
 /docs/**
+/HTML_DEMOS/
 # dependencies
 /node_modules
 /.pnp
