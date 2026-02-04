@@ -239,6 +239,48 @@ html {
   }
 }
 
+/*
+  Hero section geometric background.
+
+  Goals:
+  - Provide a subtle geometric pattern specifically behind the hero content.
+  - Use thin, low-contrast lines so text and cards remain the clear focus.
+  - Respect the site color tokens so the pattern feels integrated in both light and dark modes.
+
+  Implementation notes:
+  - We use three linear gradients at 60°, -60°, and 0° to form a triangular line grid.
+  - `color-mix(in_oklch, var(--border) ...)` keeps the pattern tied to the design system.
+  - A radial `mask-image` gently fades the pattern as it approaches the bottom of the hero.
+*/
+@layer utilities {
+  .hero-geometric-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+      linear-gradient(
+        60deg,
+        color-mix(in_oklch, var(--border) 90%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        -60deg,
+        color-mix(in_oklch, var(--border) 0%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        0deg,
+        color-mix(in_oklch, var(--border) 75%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+    opacity: 0.55;
+    /* Fade the pattern toward the bottom so it does not compete with lower sections. */
+    mask-image: radial-gradient(120% 120% at 50% 0%, black, transparent);
+  }
+}
+
 @media (width <= 40rem) {
   [data-carousel] {
     --carousel-slide-min: 100%;
