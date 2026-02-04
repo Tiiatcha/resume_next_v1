@@ -28,6 +28,7 @@ import { Reveal } from "@/components/shared/motion/reveal"
 import type { EndorsementSummary } from "@/app/(app)/endorsements/_components/endorsement-types"
 import { EndorsementCard } from "@/app/(app)/endorsements/_components/endorsement-card"
 import { EndorsementDetailsPanel } from "@/app/(app)/endorsements/_components/endorsement-details-panel"
+import { Button } from "@/components/ui/button"
 
 // Re-export the type for convenience
 export type { EndorsementSummary }
@@ -92,14 +93,14 @@ export function EndorsementsSection({
               <Carousel 
                 infinite={true} 
                 autoScroll={true} 
-                autoScrollIntervalMs={1000} 
+                autoScrollIntervalMs={5000}
                 autoScrollPauseOnHover={true}
               >
                 <CarouselNavButtons>
                   <CarouselPrevious />
                   <CarouselNext />
                 </CarouselNavButtons>
-                <CarouselViewport>
+                <CarouselViewport className="[mask-image:linear-gradient(to_right,black_88%,transparent)]">
                   <CarouselTrack>
                     {endorsements.map((endorsement) => (
                       <CarouselItem key={endorsement.id}>
@@ -114,6 +115,13 @@ export function EndorsementsSection({
                 </CarouselViewport>
               </Carousel>
             )}
+            <div className="mt-4 flex justify-end  w-full ">
+              <Button variant="outline">
+                <Link href="/endorsements">
+                  Endorse me
+                </Link>
+              </Button>
+            </div>
           </ContainerContent>
         </Container>
       </Section>

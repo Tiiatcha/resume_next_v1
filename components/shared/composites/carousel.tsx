@@ -33,6 +33,9 @@ function useCarouselContext(): CarouselContextValue {
 }
 
 interface CarouselProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Enables infinite scrolling.
+   */
   infinite?: boolean
   rows?: number
   /**
@@ -234,20 +237,6 @@ function CarouselTrack({
         "max-[40rem]:group-data-[carousel-active=true]:w-full max-[40rem]:group-data-[carousel-active=true]:auto-cols-[100%]",
         className
       )}
-      style={{
-        /**
-         * These are the two "make-or-break" layout declarations for the horizontal grid:
-         * - `grid-auto-flow: column` ensures items place left-to-right.
-         * - `grid-template-rows: repeat(var(--carousel-rows), auto)` ensures the grid has a finite
-         *   row count, so auto-placement wraps into new columns rather than stacking forever.
-         *
-         * We keep the Tailwind classes too, but pinning these here makes the carousel resilient
-         * if anything else in the app (or future refactors) unintentionally overrides the utilities.
-         */
-        gridAutoFlow: "column",
-        gridTemplateRows: "repeat(1, auto)",
-        ...style,
-      }}
       {...props}
     >
       {children}

@@ -1,7 +1,7 @@
 /**
  * Responsive content-aware carousel logic.
  *
- * Ported from HTML_DEMOS/Responsive Carousel. Enables carousel behaviour only when
+ *  Enables carousel behaviour only when
  * items overflow the viewport; supports finite and infinite modes; handles resize,
  * swipe, keyboard, and reduced motion. Use with the composable Carousel components
  * in components/shared/composites/carousel.tsx.
@@ -35,7 +35,7 @@ export interface CarouselState {
   isInfinite: boolean
   isAnimating: boolean
   slideDirection: 'next' | 'prev' | null
-  hasInfiniteClones: boolean
+  hasClones: boolean
   isEnabled: boolean
   isReducedMotion: boolean
   hasEventListeners: boolean
@@ -52,32 +52,21 @@ export interface CarouselState {
   pointerStartY: number
   hasDeterminedSwipeAxis: boolean
   isSwipeGesture: boolean
-  /**
-   * Infinite-mode cloning can run before React content has fully painted (fonts, hydration,
-   * async content). We retry a few times before giving up.
-   */
   cloneRetryCount: number
 
-  /** Auto-scroll configuration derived from root data attributes. */
   autoScrollEnabled: boolean
-  /** Last observed `data-auto-scroll` value (for detecting explicit re-enable). */
   autoScrollAttributeEnabled: boolean
   autoScrollIntervalMs: number
   autoScrollPauseOnHover: boolean
   autoScrollTimerId: ReturnType<typeof setTimeout> | null
   autoScrollIsPaused: boolean
-  /**
-   * When the user manually navigates (click/swipe), we disable auto-scroll for the remainder
-   * of this carousel instance lifecycle. This prevents "fighting the user".
-   *
-   * Auto-scroll can be re-enabled by toggling `data-auto-scroll` off and back on.
-   */
+  
   autoScrollDisabledByUser: boolean
   hasAutoScrollHoverListeners: boolean
   onAutoScrollMouseEnter: ((event: MouseEvent) => void) | null
   onAutoScrollMouseLeave: ((event: MouseEvent) => void) | null
 }
-
+// A map of carousel roots to their states
 const stateByRoot = new WeakMap<HTMLElement, CarouselState>()
 
 function getState(root: HTMLElement): CarouselState | undefined {
@@ -98,37 +87,37 @@ function createState(root: HTMLElement): CarouselState {
   }
 
   const state: CarouselState = {
-    root,
-    track,
-    viewport,
-    prevBtn,
-    nextBtn,
-    navButtons,
-    items: [],
-    totalItems: 0,
-    currentItemIndex: 0,
-    stepWidth: 0,
+    root, // the root element of the carousel
+    track, // the track element of the carousel
+    viewport, // the viewport element of the carousel
+    prevBtn, // the previous button element of the carousel
+    nextBtn, // the next button element of the carousel
+    navButtons, // the navigation buttons container element of the carousel
+    items: [], // the items in the carousel
+    totalItems: 0, // the total number of items in the carousel
+    currentItemIndex: 0, // the index of the current item in the carousel
+    stepWidth: 0, // the width of the step in the carousel
     isInfinite: root.getAttribute('data-infinite') === 'true',
-    isAnimating: false,
+    isAnimating: false, // whether the carousel is animating
     slideDirection: null,
-    hasInfiniteClones: false,
-    isEnabled: false,
-    isReducedMotion: typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    hasEventListeners: false,
-    hasSwipeListeners: false,
-    hasTransitionEndListener: false,
-    lastRequestedTranslateX: 0,
-    resizeObserver: null,
-    mutationObserver: null,
-    pendingResizeFrameId: null,
-    isResizing: false,
-    resizeTransitionRestoreTimeoutId: null,
-    activePointerId: null,
-    pointerStartX: 0,
-    pointerStartY: 0,
-    hasDeterminedSwipeAxis: false,
-    isSwipeGesture: false,
-    cloneRetryCount: 0,
+    hasClones: false, // whether the carousel has clones
+    isEnabled: false, // whether the carousel is enabled
+    isReducedMotion: typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches, // whether the user has reduced motion preferences
+    hasEventListeners: false, // whether the carousel has event listeners
+    hasSwipeListeners: false, // whether the carousel has swipe listeners
+    hasTransitionEndListener: false, // whether the carousel has a transition end listener
+    lastRequestedTranslateX: 0, // the last requested translate position
+    resizeObserver: null, // the resize observer
+    mutationObserver: null, // the mutation observer
+    pendingResizeFrameId: null, // the pending resize frame id
+    isResizing: false, // whether the carousel is resizing
+    resizeTransitionRestoreTimeoutId: null, // the resize transition restore timeout id
+    activePointerId: null, // the active pointer id
+    pointerStartX: 0, // the pointer start x
+    pointerStartY: 0, // the pointer start y
+    hasDeterminedSwipeAxis: false,// whether the swipe axis has been determined
+    isSwipeGesture: false, // whether the carousel is a swipe gesture
+    cloneRetryCount: 0, // the clone retry count
 
     autoScrollEnabled: root.getAttribute('data-auto-scroll') === 'true',
     autoScrollAttributeEnabled: root.getAttribute('data-auto-scroll') === 'true',
@@ -146,7 +135,7 @@ function createState(root: HTMLElement): CarouselState {
   return state
 }
 
-function parseAutoScrollIntervalMs(rawValue: string | null | undefined): number {
+function parseIntervalMs(rawValue: string | null | undefined): number {
   if (!rawValue) return 5000
   const trimmed = rawValue.trim().toLowerCase()
   if (!trimmed) return 5000
@@ -165,7 +154,7 @@ function parseAutoScrollIntervalMs(rawValue: string | null | undefined): number 
   return Number.isFinite(numeric) ? numeric : 5000
 }
 
-function syncAutoScrollConfigFromRoot(state: CarouselState): void {
+function syncAutoScrollConfig(state: CarouselState): void {
   const attributeEnabled = state.root.getAttribute('data-auto-scroll') === 'true'
   /**
    * If the user explicitly toggles auto-scroll off and then back on (attribute change),
@@ -181,10 +170,10 @@ function syncAutoScrollConfigFromRoot(state: CarouselState): void {
 
   state.autoScrollEnabled = attributeEnabled && !state.autoScrollDisabledByUser
   state.autoScrollPauseOnHover = state.root.getAttribute('data-auto-scroll-pause-on-hover') === 'true'
-  state.autoScrollIntervalMs = parseAutoScrollIntervalMs(state.root.getAttribute('data-auto-scroll-interval'))
+  state.autoScrollIntervalMs = parseIntervalMs(state.root.getAttribute('data-auto-scroll-interval'))
 }
 
-function disableAutoScrollDueToUserInteraction(state: CarouselState): void {
+function disableAutoScroll(state: CarouselState): void {
   if (!state.autoScrollEnabled && state.autoScrollDisabledByUser) return
   state.autoScrollDisabledByUser = true
   state.autoScrollIsPaused = false
@@ -198,7 +187,7 @@ function stopAutoScroll(state: CarouselState): void {
   }
 }
 
-function ensureAutoScrollHoverListeners(state: CarouselState): void {
+function setAutoScrollHoverListeners(state: CarouselState): void {
   if (state.hasAutoScrollHoverListeners) return
 
   state.onAutoScrollMouseEnter = () => {
@@ -237,7 +226,11 @@ function scheduleAutoScrollTick(state: CarouselState): void {
 
     // Finite: stop once we've reached the end (index-based navigation).
     if (!state.isInfinite && state.currentItemIndex >= state.totalItems - 1) {
-      stopAutoScroll(state)
+      // return to first item and continue auto scroll
+      state.currentItemIndex = 0
+      moveToFocusedItem(state)
+      setButtonStates(state)
+      scheduleAutoScrollTick(state)
       return
     }
 
@@ -271,7 +264,8 @@ function clampNumber(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-function getNonInfiniteScrollBounds(state: CarouselState): {
+/** Used to get the scroll bounds for the carousel, typicall when not infinite */
+function getScrollBounds(state: CarouselState): {
   maxScrollPx: number
   minTranslateX: number
   maxTranslateX: number
@@ -310,13 +304,13 @@ function setTransition(state: CarouselState): void {
   state.track.style.transition = TRANSITION
 }
 
-function rotateFirstItemToEnd(state: CarouselState): void {
+function moveFirstItemToEnd(state: CarouselState): void {
   const first = state.track.firstElementChild
   if (!first) return
   state.track.appendChild(first)
 }
 
-function rotateLastItemToStart(state: CarouselState): void {
+function moveLastItemToStart(state: CarouselState): void {
   const last = state.track.lastElementChild
   if (!last) return
   state.track.insertBefore(last, state.track.firstElementChild)
@@ -329,12 +323,12 @@ function snapTrackToOrigin(state: CarouselState): void {
   restoreTrackTransition(state)
 }
 
-function moveNonInfiniteTrackToFocusedItem(state: CarouselState): void {
+function moveToFocusedItem(state: CarouselState): void {
   getItems(state)
   const focused = state.items[state.currentItemIndex]
   if (!focused) return
   const desiredTranslateX = -focused.offsetLeft
-  const { minTranslateX, maxTranslateX } = getNonInfiniteScrollBounds(state)
+  const { minTranslateX, maxTranslateX } = getScrollBounds(state)
   const clamped = clampNumber(desiredTranslateX, minTranslateX, maxTranslateX)
   state.track.style.transform = `translateX(${clamped}px)`
   state.lastRequestedTranslateX = clamped
@@ -346,7 +340,7 @@ function setButtonStates(state: CarouselState): void {
     state.prevBtn.classList.remove('is-disabled')
     return
   }
-  const { maxScrollPx } = getNonInfiniteScrollBounds(state)
+  const { maxScrollPx } = getScrollBounds(state)
   const currentTranslateX =
     typeof state.lastRequestedTranslateX === 'number'
       ? state.lastRequestedTranslateX
@@ -360,6 +354,9 @@ function setButtonStates(state: CarouselState): void {
   else state.nextBtn.classList.remove('is-disabled')
 }
 
+
+
+
 function moveNext(state: CarouselState): void {
   getItems(state)
   if (state.isInfinite) {
@@ -371,10 +368,20 @@ function moveNext(state: CarouselState): void {
     return
   }
   state.currentItemIndex += 1
-  moveNonInfiniteTrackToFocusedItem(state)
+  moveToFocusedItem(state)
   setButtonStates(state)
 }
-
+function moveNextInfinite(state: CarouselState): void {
+  if (state.isAnimating) return
+  if (state.isReducedMotion) {
+    moveFirstItemToEnd(state)
+    snapTrackToOrigin(state)
+    return
+  }
+  state.isAnimating = true
+  state.slideDirection = 'next'
+  state.track.style.transform = `translateX(${-state.stepWidth}px)`
+}
 function movePrev(state: CarouselState): void {
   getItems(state)
   if (state.isInfinite) {
@@ -386,33 +393,20 @@ function movePrev(state: CarouselState): void {
     return
   }
   state.currentItemIndex -= 1
-  moveNonInfiniteTrackToFocusedItem(state)
+  moveToFocusedItem(state)
   setButtonStates(state)
 }
-
-function moveNextInfinite(state: CarouselState): void {
-  if (state.isAnimating) return
-  if (state.isReducedMotion) {
-    rotateFirstItemToEnd(state)
-    snapTrackToOrigin(state)
-    return
-  }
-  state.isAnimating = true
-  state.slideDirection = 'next'
-  state.track.style.transform = `translateX(${-state.stepWidth}px)`
-}
-
 function movePrevInfinite(state: CarouselState): void {
   if (state.isAnimating) return
   if (state.isReducedMotion) {
-    rotateLastItemToStart(state)
+    moveLastItemToStart(state)
     snapTrackToOrigin(state)
     return
   }
   state.isAnimating = true
   state.slideDirection = 'prev'
   disableTrackTransition(state)
-  rotateLastItemToStart(state)
+  moveLastItemToStart(state)
   state.track.style.transform = `translateX(${-state.stepWidth}px)`
   forceReflow(state.track)
   restoreTrackTransition(state)
@@ -422,18 +416,11 @@ function movePrevInfinite(state: CarouselState): void {
 }
 
 function cloneItemsForInfiniteScroll(state: CarouselState): void {
-  if (state.hasInfiniteClones) return
+  if (state.hasClones) return
   getItems(state)
   const originals = state.items
-
-  /**
-   * React/Next can render the list items first and then populate their contents in a
-   * subsequent paint. Cloning too early would produce structurally empty clones.
-   *
-   * We treat "has at least one element child" as the signal that content has painted.
-   */
-  const hasPaintedContent = originals.some((item) => item.childElementCount > 0)
-  if (!hasPaintedContent && state.cloneRetryCount < 10) {
+  const ContentPainted = originals.some((item) => item.childElementCount > 0)
+  if (!ContentPainted && state.cloneRetryCount < 10) {
     state.cloneRetryCount += 1
     requestAnimationFrame(() => {
       cloneItemsForInfiniteScroll(state)
@@ -441,7 +428,6 @@ function cloneItemsForInfiniteScroll(state: CarouselState): void {
     return
   }
 
-  // Reset once we commit to cloning.
   state.cloneRetryCount = 0
 
   originals.forEach((item, index) => {
@@ -464,7 +450,7 @@ function cloneItemsForInfiniteScroll(state: CarouselState): void {
     return clone
   })
   clones.forEach((el) => state.track.appendChild(el))
-  state.hasInfiniteClones = true
+  state.hasClones = true
 }
 
 function removeClones(state: CarouselState): void {
@@ -508,29 +494,33 @@ function disableCarousel(state: CarouselState): void {
   state.track.style.transform = 'translateX(0px)'
   forceReflow(state.track)
   restoreTrackTransition(state)
-  if (state.hasInfiniteClones) {
+  if (state.hasClones) {
     removeClones(state)
     restoreOriginalItemOrder(state)
-    state.hasInfiniteClones = false
+    state.hasClones = false
   }
 }
 
-function ensureCarouselEventListeners(state: CarouselState): void {
+function setCarouselEventListeners(state: CarouselState): void {
   if (state.hasEventListeners) return
   state.prevBtn.addEventListener('click', () => {
     if (!state.isEnabled) return
-    disableAutoScrollDueToUserInteraction(state)
+     
+    disableAutoScroll(state)
     movePrev(state)
   })
   state.nextBtn.addEventListener('click', () => {
     if (!state.isEnabled) return
-    disableAutoScrollDueToUserInteraction(state)
+    disableAutoScroll(state)
     moveNext(state)
   })
   state.hasEventListeners = true
 }
-
-function ensureCarouselSwipeListeners(state: CarouselState): void {
+/**
+ * Ensure the carousel has swipe listeners
+ * @param state - The carousel state
+ */
+function setCarouselSwipeListeners(state: CarouselState): void {
   if (state.hasSwipeListeners) return
   const slopPx = 6
   const swipeThresholdPx = 35
@@ -569,7 +559,7 @@ function ensureCarouselSwipeListeners(state: CarouselState): void {
     state.activePointerId = null
     if (!state.isSwipeGesture) return
     if (Math.abs(deltaX) < swipeThresholdPx || Math.abs(deltaX) < Math.abs(deltaY)) return
-    disableAutoScrollDueToUserInteraction(state)
+    disableAutoScroll(state)
     if (deltaX < 0) moveNext(state)
     else movePrev(state)
   })
@@ -581,13 +571,13 @@ function ensureCarouselSwipeListeners(state: CarouselState): void {
   state.hasSwipeListeners = true
 }
 
-function ensureTransitionEndListener(state: CarouselState): void {
+function setTransitionEndListener(state: CarouselState): void {
   if (state.hasTransitionEndListener) return
   state.track.addEventListener('transitionend', (event: TransitionEvent) => {
     if (event.target !== state.track || event.propertyName !== 'transform') return
     if (!state.isInfinite || !state.slideDirection) return
     if (state.slideDirection === 'next') {
-      rotateFirstItemToEnd(state)
+      moveFirstItemToEnd(state)
       snapTrackToOrigin(state)
     }
     if (state.slideDirection === 'prev') snapTrackToOrigin(state)
@@ -638,21 +628,7 @@ function getMinCarouselItemWidthPx(state: CarouselState, originalItems: HTMLElem
   return first ? first.getBoundingClientRect().width : 0
 }
 
-function isCarouselRequiredForState(state: CarouselState): boolean {
-  /**
-   * Prefer measuring real overflow in finite mode.
-   *
-   * Why:
-   * - The "min width" calculation is great for stability (avoids hysteresis), but it can
-   *   be wrong if CSS vars aren’t resolved as expected or if the first layout pass reports
-   *   0 widths (common during initial render / font swap / async content).
-   * - For finite carousels, `scrollWidth > clientWidth` is the most direct signal: if it
-   *   overflows, we should activate and show nav buttons.
-   *
-   * Infinite mode:
-   * - Once clones exist, scrollWidth is inflated. So for infinite (or when clones exist),
-   *   we rely on the original-items "min width" computation.
-   */
+function isCarouselRequired(state: CarouselState): boolean {
   const viewportWidth = state.viewport.getBoundingClientRect().width
 
   const originals = getOriginalItems(state)
@@ -662,15 +638,10 @@ function isCarouselRequiredForState(state: CarouselState): boolean {
 
   const epsilon = 1
 
-  /**
-   * Once infinite clones exist, scrollWidth is inflated and no longer reliable.
-   * Before clones exist, scrollWidth/clientWidth is the most direct signal even in infinite mode.
-   */
-  if (state.hasInfiniteClones) {
+  if (state.hasClones) {
     return minimumRequiredWidth > viewportWidth + epsilon
   }
 
-  // Trust actual overflow first; fall back to min-width math.
   const hasActualOverflow = state.track.scrollWidth > state.viewport.clientWidth + epsilon
   return hasActualOverflow || minimumRequiredWidth > viewportWidth + epsilon
 }
@@ -696,7 +667,7 @@ function endCarouselResize(state: CarouselState): void {
   if (state.isEnabled && !state.isInfinite) {
     getItems(state)
     state.currentItemIndex = Math.min(state.currentItemIndex, Math.max(0, state.totalItems - 1))
-    moveNonInfiniteTrackToFocusedItem(state)
+    moveToFocusedItem(state)
     setButtonStates(state)
   }
 }
@@ -705,63 +676,37 @@ function scheduleCarouselReevaluation(state: CarouselState): void {
   if (state.pendingResizeFrameId != null) return
   state.pendingResizeFrameId = requestAnimationFrame(() => {
     state.pendingResizeFrameId = null
-    reevaluateCarouselRequirement(state)
+    evaluateCarouselRequirement(state)
   })
 }
 
-function reevaluateCarouselRequirement(state: CarouselState): void {
+function evaluateCarouselRequirement(state: CarouselState): void {
   state.isInfinite = state.root.getAttribute('data-infinite') === 'true'
-  syncAutoScrollConfigFromRoot(state)
-  const shouldEnable = isCarouselRequiredForState(state)
+  syncAutoScrollConfig(state)
+  const shouldEnable = isCarouselRequired(state)
 
-  /**
-   * Ensure nav visibility always matches the decision.
-   *
-   * This makes the UI resilient even if CSS is cached, overridden, or reordered:
-   * - When carousel is not required, nav buttons must be hidden.
-   * - When carousel is required, nav buttons can be shown.
-   *
-   * CSS still styles/positions the nav; this is purely a display toggle.
-   */
   if (state.navButtons) {
     state.navButtons.style.display = shouldEnable ? 'flex' : 'none'
   }
 
-  // Auto-scroll should only run when the carousel is enabled.
   if (!shouldEnable) {
     stopAutoScroll(state)
   }
-
-  /**
-   * Debug instrumentation (DOM-visible, no console noise).
-   *
-   * These attributes make it easy to inspect why a carousel is (not) activating:
-   * - `data-carousel-initialized="true"` confirms JS ran
-   * - `data-carousel-debug-*` exposes measured geometry + decision
-   *
-   * Safe to keep in production (small strings), but can be removed once stable.
-   */
-  state.root.setAttribute('data-carousel-initialized', 'true')
-  state.root.setAttribute('data-carousel-debug-enabled', shouldEnable ? 'true' : 'false')
-  state.root.setAttribute('data-carousel-debug-infinite', state.isInfinite ? 'true' : 'false')
-  state.root.setAttribute('data-carousel-debug-has-clones', state.hasInfiniteClones ? 'true' : 'false')
-  state.root.setAttribute('data-carousel-debug-viewport', String(Math.round(state.viewport.clientWidth)))
-  state.root.setAttribute('data-carousel-debug-track', String(Math.round(state.track.scrollWidth)))
 
   if (shouldEnable && !state.isEnabled) {
     enableCarousel(state)
     getItems(state)
     if (state.isInfinite) {
-      ensureTransitionEndListener(state)
+      setTransitionEndListener(state)
       initInfiniteCarousel(state)
-      ensureAutoScrollHoverListeners(state)
+      setAutoScrollHoverListeners(state)
       scheduleAutoScrollTick(state)
       return
     }
     state.currentItemIndex = Math.min(state.currentItemIndex, Math.max(0, state.totalItems - 1))
-    moveNonInfiniteTrackToFocusedItem(state)
+    moveToFocusedItem(state)
     setButtonStates(state)
-    ensureAutoScrollHoverListeners(state)
+    setAutoScrollHoverListeners(state)
     scheduleAutoScrollTick(state)
     return
   }
@@ -774,17 +719,17 @@ function reevaluateCarouselRequirement(state: CarouselState): void {
 
   if (shouldEnable && state.isEnabled) {
     if (state.isInfinite) {
-      ensureTransitionEndListener(state)
-      if (!state.hasInfiniteClones) initInfiniteCarousel(state)
-      ensureAutoScrollHoverListeners(state)
+      setTransitionEndListener(state)
+      if (!state.hasClones) initInfiniteCarousel(state)
+      setAutoScrollHoverListeners(state)
       scheduleAutoScrollTick(state)
       return
     }
     getItems(state)
     state.currentItemIndex = Math.min(state.currentItemIndex, Math.max(0, state.totalItems - 1))
-    moveNonInfiniteTrackToFocusedItem(state)
+    moveToFocusedItem(state)
     setButtonStates(state)
-    ensureAutoScrollHoverListeners(state)
+    setAutoScrollHoverListeners(state)
     scheduleAutoScrollTick(state)
   }
 }
@@ -796,24 +741,11 @@ function observeCarouselResize(state: CarouselState): void {
     scheduleCarouselResizeEnd(state)
     scheduleCarouselReevaluation(state)
   })
-  /**
-   * Observe both the viewport and the track.
-   *
-   * Why:
-   * - In the original demo, card widths were effectively stable (CSS clamp + fixed structure).
-   * - In the app, slide content (fonts, async hydration, images) can change the track's
-   *   scrollWidth without changing the viewport's clientWidth.
-   * - If we only observe the viewport, we can miss the moment the content starts overflowing,
-   *   so `data-carousel-active="true"` is never set and the nav buttons never appear.
-   */
+
   state.resizeObserver.observe(state.viewport)
   state.resizeObserver.observe(state.track)
 }
 
-/**
- * Re-evaluates when track children are added or removed so carousel
- * enables/disables and recalculates bounds without a viewport resize.
- */
 function observeCarouselTrackChildren(state: CarouselState): void {
   if (state.mutationObserver) return
   state.mutationObserver = new MutationObserver(() => {
@@ -822,23 +754,17 @@ function observeCarouselTrackChildren(state: CarouselState): void {
   state.mutationObserver.observe(state.track, { childList: true, subtree: false })
 }
 
-/**
- * Initialises the responsive carousel on the given root element.
- * Root must contain elements with data-carousel-viewport, data-carousel-track,
- * data-carousel-prev, and data-carousel-next. Use data-infinite="true" for
- * infinite scrolling.
- */
 export function initResponsiveCarousel(root: HTMLElement): void {
   let state = getState(root)
   if (!state) state = createState(root)
   try {
     root.setAttribute('data-carousel-initialized', 'true')
     state.isInfinite = root.getAttribute('data-infinite') === 'true'
-    ensureCarouselEventListeners(state)
-    ensureCarouselSwipeListeners(state)
+    setCarouselEventListeners(state)
+    setCarouselSwipeListeners(state)
     observeCarouselResize(state)
     observeCarouselTrackChildren(state)
-    reevaluateCarouselRequirement(state)
+    evaluateCarouselRequirement(state)
 
     /**
      * Re-check after the first paint.
@@ -848,7 +774,7 @@ export function initResponsiveCarousel(root: HTMLElement): void {
      * the real rendered geometry so `data-carousel-active="true"` is applied when needed.
      */
     requestAnimationFrame(() => {
-      reevaluateCarouselRequirement(state)
+      evaluateCarouselRequirement(state)
     })
   } catch (error) {
     // Surface init failures in the DOM so they are visible in DevTools.
@@ -859,6 +785,9 @@ export function initResponsiveCarousel(root: HTMLElement): void {
     )
   }
 }
+
+
+
 
 /**
  * Tears down the carousel: disconnects ResizeObserver and clears stored state.

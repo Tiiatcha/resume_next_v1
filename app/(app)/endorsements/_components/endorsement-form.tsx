@@ -7,15 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
+import { SelectItem } from "@/components/ui/select"
+import { Form } from "@/components/shared/composites/form"
+import { FormInputField } from "@/components/shared/primitives/form-inputs/input"
+import { FormSelectField } from "@/components/shared/primitives/form-inputs/select"
+import { FormTextareaField } from "@/components/shared/primitives/form-inputs/textarea"
+import { FormCheckboxField } from "@/components/shared/primitives/form-inputs/checkbox"
 import type { EndorsementRelationshipType } from "./endorsement-types"
 
 interface EndorsementFormState {
@@ -61,7 +58,6 @@ function getDevelopmentTestData(): Partial<EndorsementFormState> {
   return {
     name: "Craig Davison",
     email: "craigadavison77@gmail.com",
-    relationshipType: "other",
     roleOrTitle: "Honey Badger",
     companyOrProject: "Acme Corp",
     linkedinUrl: "https://www.linkedin.com/in/craig-davison-773aa546/",
@@ -114,7 +110,7 @@ export function EndorsementForm(): React.JSX.Element {
         },
         body: JSON.stringify({
           name: formState.name,
-          email: formState.email || undefined,
+          email: formState.email,
           relationshipType: formState.relationshipType || undefined,
           roleOrTitle: formState.roleOrTitle || undefined,
           companyOrProject: formState.companyOrProject || undefined,
@@ -175,11 +171,7 @@ export function EndorsementForm(): React.JSX.Element {
         </p>
       </CardHeader>
       <CardContent>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-          noValidate
-        >
+        <Form onSubmit={handleSubmit}>
           {/* Honeypot field – hidden from humans, attractive to bots. */}
           <div className="hidden" aria-hidden="true">
             <Label htmlFor="endorsement-honeypot">Middle name</Label>
@@ -194,125 +186,57 @@ export function EndorsementForm(): React.JSX.Element {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label className="text-sm font-medium text-foreground" htmlFor="endorsement-name">
-                Name<span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="endorsement-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={formState.name}
-                onChange={(event) => updateField("name", event.target.value)}
-              />
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 grid-rows-[auto_auto_auto_auto]">
+            <FormInputField
+              containerClassName="sm:col-span-1"
+              label="Name"
+              id="endorsement-name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              required
+              value={formState.name}
+              onChange={(event) => updateField("name", event.target.value)}
+            />
 
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label className="text-sm font-medium text-foreground" htmlFor="endorsement-email">
-                Email (never shown publicly)
-              </Label>
-              <Input
-                id="endorsement-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                value={formState.email}
-                onChange={(event) => updateField("email", event.target.value)}
-              />
-              <p className="text-muted-foreground text-xs">
-                Used only if Craig needs to confirm details or clarify your endorsement.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label className="text-sm font-medium text-foreground" htmlFor="endorsement-relationship">
-                Relationship<span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formState.relationshipType}
-                onValueChange={(value) =>
-                  updateField("relationshipType", value as EndorsementFormState["relationshipType"])
-                }
-              >
-                <SelectTrigger
-                  id="endorsement-relationship"
-                  className="w-full"
-                >
-                  <SelectValue placeholder="Select one..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="client">Client</SelectItem>
-                  <SelectItem value="colleague">Colleague</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="directReport">Direct report</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label className="text-sm font-medium text-foreground" htmlFor="endorsement-role">
-                Your role or title (optional)
-              </Label>
-              <Input
-                id="endorsement-role"
-                name="roleOrTitle"
-                type="text"
-                value={formState.roleOrTitle}
-                onChange={(event) => updateField("roleOrTitle", event.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label
-                className="text-sm font-medium text-foreground"
-                htmlFor="endorsement-company"
-              >
-                Company or project (optional)
-              </Label>
-              <Input
-                id="endorsement-company"
-                name="companyOrProject"
-                type="text"
-                value={formState.companyOrProject}
-                onChange={(event) => updateField("companyOrProject", event.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1.5 sm:col-span-1">
-              <Label
-                className="text-sm font-medium text-foreground"
-                htmlFor="endorsement-linkedin"
-              >
-                LinkedIn profile URL (optional)
-              </Label>
-              <Input
-                id="endorsement-linkedin"
-                name="linkedinUrl"
-                type="url"
-                placeholder="https://www.linkedin.com/in/your-profile"
-                value={formState.linkedinUrl}
-                onChange={(event) => updateField("linkedinUrl", event.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              className="text-sm font-medium text-foreground"
-              htmlFor="endorsement-text"
+            <FormInputField
+              containerClassName="sm:col-span-1"
+              label="Email"
+              id="endorsement-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              required
+              helperText="Never shown publicly or shared with anyone."
+              value={formState.email}
+              onChange={(event) => updateField("email", event.target.value)}
+            />
+          
+            <FormSelectField
+              containerClassName="sm:col-span-1"
+              label="Relationship"
+              id="endorsement-relationship"
+              required
+              value={formState.relationshipType || undefined}
+              onValueChange={(value) =>
+                updateField(
+                  "relationshipType",
+                  value as EndorsementFormState["relationshipType"],
+                )
+              }
             >
-              Endorsement<span className="text-destructive">*</span>
-            </Label>
-            <Textarea
+              <SelectItem value="client">Client</SelectItem>
+              <SelectItem value="colleague">Colleague</SelectItem>
+              <SelectItem value="manager">Manager</SelectItem>
+              <SelectItem value="directReport">Direct report</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </FormSelectField>
+
+            
+          </div>
+            <FormTextareaField
+              label="Endorsement"
               id="endorsement-text"
               name="endorsementText"
               required
@@ -320,19 +244,56 @@ export function EndorsementForm(): React.JSX.Element {
               onChange={(event) => updateField("endorsementText", event.target.value)}
               rows={5}
               maxLength={500}
+              footer={
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-muted-foreground text-xs">
+                    A couple of sentences about how we worked together, what stood out to you,
+                    or what you would say to someone thinking about working with me. I may
+                    lightly edit for spelling and clarity before publishing, but will not
+                    change the meaning.
+                  </p>
+                  <p className="text-muted-foreground text-[10px] tabular-nums">
+                    {formState.endorsementText.length}/500
+                  </p>
+                </div>
+              }
+          />
+          <div className="grid gap-4 sm:grid-cols-2 grid-rows-[auto_auto_auto_auto]">
+
+            <FormInputField
+              containerClassName="sm:col-span-1"
+              label="Your role or title (optional)"
+              id="endorsement-role"
+              name="roleOrTitle"
+              type="text"
+              value={formState.roleOrTitle}
+              onChange={(event) => updateField("roleOrTitle", event.target.value)}
             />
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-muted-foreground text-xs">
-                A couple of sentences about how we worked together, what stood out to you,
-                or what you would say to someone thinking about working with me. I may
-                lightly edit for spelling and clarity before publishing, but will not
-                change the meaning.
-              </p>
-              <p className="text-muted-foreground text-[10px] tabular-nums">
-                {formState.endorsementText.length}/500
-              </p>
-            </div>
+            <FormInputField
+              containerClassName="sm:col-span-1"
+              label="Company or project (optional)"
+              id="endorsement-company"
+              name="companyOrProject"
+              type="text"
+              value={formState.companyOrProject}
+              onChange={(event) => updateField("companyOrProject", event.target.value)}
+            />
           </div>
+          <div className="grid gap-4 sm:grid-cols-2 grid-rows-[auto_auto_auto_auto]">
+
+            <FormInputField
+              containerClassName="sm:col-span-1"
+              label="LinkedIn profile URL (optional)"
+              id="endorsement-linkedin"
+              name="linkedinUrl"
+              type="url"
+              placeholder="https://www.linkedin.com/in/your-profile"
+              value={formState.linkedinUrl}
+              onChange={(event) => updateField("linkedinUrl", event.target.value)}
+            />
+          </div>
+
+          
 
           <fieldset className="space-y-3 rounded-md border bg-muted/30 px-3 py-3">
             <legend className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -340,44 +301,41 @@ export function EndorsementForm(): React.JSX.Element {
             </legend>
 
             <div className="space-y-2 text-sm">
-              <label className="flex items-start gap-2">
-                <Checkbox
-                  checked={formState.displayNamePublic}
-                  onCheckedChange={(checked) =>
-                    updateField("displayNamePublic", Boolean(checked))
-                  }
-                  className="mt-[1px]"
-                />
-                <span>
-                  Show my <span className="font-medium">name</span> alongside my endorsement.
-                </span>
-              </label>
+              <FormCheckboxField
+                label={
+                  <span>
+                    Show my <span className="font-medium">name</span> alongside my endorsement.
+                  </span>
+                }
+                checked={formState.displayNamePublic}
+                onCheckedChange={(checked) =>
+                  updateField("displayNamePublic", Boolean(checked))
+                }
+              />
 
-              <label className="flex items-start gap-2">
-                <Checkbox
-                  checked={formState.displayCompanyPublic}
-                  onCheckedChange={(checked) =>
-                    updateField("displayCompanyPublic", Boolean(checked))
-                  }
-                  className="mt-[1px]"
-                />
-                <span>
-                  Show my <span className="font-medium">company or project</span> name.
-                </span>
-              </label>
+              <FormCheckboxField
+                label={
+                  <span>
+                    Show my <span className="font-medium">company or project</span> name.
+                  </span>
+                }
+                checked={formState.displayCompanyPublic}
+                onCheckedChange={(checked) =>
+                  updateField("displayCompanyPublic", Boolean(checked))
+                }
+              />
 
-              <label className="flex items-start gap-2">
-                <Checkbox
-                  checked={formState.displayLinkedInPublic}
-                  onCheckedChange={(checked) =>
-                    updateField("displayLinkedInPublic", Boolean(checked))
-                  }
-                  className="mt-[1px]"
-                />
-                <span>
-                  Show a link to my <span className="font-medium">LinkedIn profile</span>.
-                </span>
-              </label>
+              <FormCheckboxField
+                label={
+                  <span>
+                    Show a link to my <span className="font-medium">LinkedIn profile</span>.
+                  </span>
+                }
+                checked={formState.displayLinkedInPublic}
+                onCheckedChange={(checked) =>
+                  updateField("displayLinkedInPublic", Boolean(checked))
+                }
+              />
             </div>
           </fieldset>
 
@@ -393,19 +351,19 @@ export function EndorsementForm(): React.JSX.Element {
               You can ask me to update or remove your endorsement at any time.
             </p>
 
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox
-                checked={formState.consentToPublish}
-                onCheckedChange={(checked) =>
-                  updateField("consentToPublish", Boolean(checked))
-                }
-                className="mt-[1px]"
-              />
-              <span>
-                I consent to Craig storing my details and publishing my endorsement and
-                the selected information on his website.
-              </span>
-            </label>
+            <FormCheckboxField
+              label={
+                <span>
+                  I consent to Craig storing my details and publishing my endorsement and
+                  the selected information on his website.
+                </span>
+              }
+              checked={formState.consentToPublish}
+              onCheckedChange={(checked) =>
+                updateField("consentToPublish", Boolean(checked))
+              }
+              containerClassName="text-sm"
+            />
           </fieldset>
 
           {serverErrors.length > 0 ? (
@@ -430,7 +388,7 @@ export function EndorsementForm(): React.JSX.Element {
               Typical time to publish is within a few days.
             </p>
           </div>
-        </form>
+        </Form>
       </CardContent>
     </Card>
   )
