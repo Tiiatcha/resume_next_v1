@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'stock-media-sites': StockMediaSite;
     categories: Category;
     tags: Tag;
     'tag-categories': TagCategory;
@@ -87,6 +88,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'stock-media-sites': StockMediaSitesSelect<false> | StockMediaSitesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
@@ -184,6 +186,29 @@ export interface Media {
    * Alternative text for accessibility and SEO
    */
   alt: string;
+  /**
+   * Select the site this image came from (e.g. Unsplash, Pexels). Used for attribution and to parse pasted attribution text.
+   */
+  stockMediaSite?: (string | null) | StockMediaSite;
+  /**
+   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we will render a subtle “Photo by … on …” attribution wherever this media item is used.
+   */
+  imageAttribution?: {
+    platformName?: string | null;
+    /**
+     * Link to the platform (or the platform’s credit URL if required).
+     */
+    platformUrl?: string | null;
+    artistName?: string | null;
+    /**
+     * Link to the artist/photographer profile page.
+     */
+    artistUrl?: string | null;
+    /**
+     * Link to the original image page (often required for attribution).
+     */
+    imageUrl?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -221,6 +246,29 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Stock media sites (Unsplash, Pexels, etc.) used for image attribution. Define parse patterns so pasted attribution can be extracted automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-media-sites".
+ */
+export interface StockMediaSite {
+  id: string;
+  /**
+   * Display name of the stock media site (e.g. Unsplash, Pexels).
+   */
+  name: string;
+  /**
+   * Base URL of the site (e.g. https://unsplash.com).
+   */
+  url: string;
+  /**
+   * Template pattern matching the site's default attribution format. Replace dynamic values with placeholders. Placeholders: {{artist}}, {{artist_name}}, {{artist_url}}, {{image_url}}, {{site_name}}, {{platform_name}}, {{platform_url}}
+   */
+  attributionParsePattern: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Categories can be scoped to specific collections (e.g. Blog posts now, other content types later).
@@ -720,6 +768,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'stock-media-sites';
+        value: string | StockMediaSite;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: string | Category;
       } | null)
@@ -829,6 +881,16 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  stockMediaSite?: T;
+  imageAttribution?:
+    | T
+    | {
+        platformName?: T;
+        platformUrl?: T;
+        artistName?: T;
+        artistUrl?: T;
+        imageUrl?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -874,6 +936,17 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-media-sites_select".
+ */
+export interface StockMediaSitesSelect<T extends boolean = true> {
+  name?: T;
+  url?: T;
+  attributionParsePattern?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

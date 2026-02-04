@@ -2,20 +2,23 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 
-import Image from "next/image"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { SiteBackground } from "@/components/shared/layout/site-background"
 import { Reveal } from "@/components/shared/motion/reveal"
 import Section from "@/components/shared/layout/section"
 import { Container } from "@/components/shared/layout/container"
-import { ImageAttribution } from "@/components/features/blog/components/image-attribution"
+import {
+  ImageAttribution,
+  type ImageAttribution as ImageAttributionType,
+} from "@/components/shared/media/image-attribution"
 import { PayloadRichText } from "@/components/content/payload-rich-text"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-controls"
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 import { Badge } from "@/components/ui/badge"
+import { AttributedMediaImage } from "@/components/shared/media/attributed-image"
 
 export const revalidate = 60
 
@@ -26,13 +29,7 @@ type BlogPost = {
   excerpt?: string | null
   content: SerializedEditorState
   featuredImage?: string | Media | null
-  imageAttribution?: {
-    platformName?: string | null
-    platformUrl?: string | null
-    artistName?: string | null
-    artistUrl?: string | null
-    imageUrl?: string | null
-  } | null
+  imageAttribution?: ImageAttributionType | null
   category?: string | Category | null
   publishedAt?: string | null
   updatedAt?: string | null
@@ -43,6 +40,7 @@ type Media = {
   alt?: string | null
   width?: number | null
   height?: number | null
+  imageAttribution?: ImageAttributionType | null
 }
 
 type Category = {
@@ -148,19 +146,17 @@ export default async function BlogPostPage({
                 </div>
 
                 {featuredImage?.url && (
-                  <figure className="space-y-3">
-                    <div className="relative overflow-hidden rounded-2xl border bg-card/60 supports-[backdrop-filter]:bg-card/40">
-                      <Image
-                        src={featuredImage.url}
-                        alt={featuredImage.alt || post.title}
-                        width={featuredImage.width ?? 1600}
-                        height={featuredImage.height ?? 900}
-                        className="w-full h-auto object-cover"
-                        priority
-                      />
-                    </div>
-                    <ImageAttribution attribution={post.imageAttribution} />
-                  </figure>
+                  <AttributedMediaImage
+                    media={{
+                      ...featuredImage,
+                      // Prefer media-level attribution when present, but fall back to
+                      // the legacy blog-post-level attribution while content is migrated.
+                      imageAttribution:
+                        featuredImage.imageAttribution ?? post.imageAttribution ?? null,
+                    }}
+                    scale="feature"
+                    priority
+                  />
                 )}
 
                 {!featuredImage?.url && post.imageAttribution && (
