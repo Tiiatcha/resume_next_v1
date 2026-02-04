@@ -5,15 +5,16 @@ import { toast } from "sonner"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { SelectItem } from "@/components/ui/select"
 import { Form } from "@/components/shared/composites/form"
 import { FormInputField } from "@/components/shared/primitives/form-inputs/input"
 import { FormSelectField } from "@/components/shared/primitives/form-inputs/select"
 import { FormTextareaField } from "@/components/shared/primitives/form-inputs/textarea"
 import { FormCheckboxField } from "@/components/shared/primitives/form-inputs/checkbox"
+import { HoneypotField } from "@/components/shared/primitives/form-inputs/honeypot-field"
 import type { EndorsementRelationshipType } from "./endorsement-types"
+
+
 
 interface EndorsementFormState {
   name: string
@@ -27,8 +28,6 @@ interface EndorsementFormState {
   displayCompanyPublic: boolean
   displayLinkedInPublic: boolean
   consentToPublish: boolean
-  // Honeypot field – real users will never see or fill this.
-  honeypot: string
 }
 
 interface ApiSuccessResponse {
@@ -77,7 +76,6 @@ const initialFormState: EndorsementFormState = {
   displayCompanyPublic: true,
   displayLinkedInPublic: false,
   consentToPublish: false,
-  honeypot: "",
   // Merge in development test data if enabled
   ...getDevelopmentTestData(),
 }
@@ -101,6 +99,9 @@ export function EndorsementForm(): React.JSX.Element {
     event.preventDefault()
     setServerErrors([])
 
+    const formData = new FormData(event.currentTarget)
+    const honeypotValue = String(formData.get("middleName") ?? "")
+
     setIsSubmitting(true)
     try {
       const response = await fetch("/api/endorsements/submit", {
@@ -120,7 +121,7 @@ export function EndorsementForm(): React.JSX.Element {
           displayCompanyPublic: formState.displayCompanyPublic,
           displayLinkedInPublic: formState.displayLinkedInPublic,
           consentToPublish: formState.consentToPublish,
-          honeypot: formState.honeypot,
+          honeypot: honeypotValue,
         }),
       })
 
@@ -173,18 +174,11 @@ export function EndorsementForm(): React.JSX.Element {
       <CardContent>
         <Form onSubmit={handleSubmit}>
           {/* Honeypot field – hidden from humans, attractive to bots. */}
-          <div className="hidden" aria-hidden="true">
-            <Label htmlFor="endorsement-honeypot">Middle name</Label>
-            <Input
-              id="endorsement-honeypot"
-              type="text"
-              name="middleName"
-              autoComplete="off"
-              tabIndex={-1}
-              value={formState.honeypot}
-              onChange={(event) => updateField("honeypot", event.target.value)}
-            />
-          </div>
+          <HoneypotField
+            id="endorsement-middle-name"
+            name="middleName"
+            label="Middle name"
+          />
 
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 grid-rows-[auto_auto_auto_auto]">
             <FormInputField
