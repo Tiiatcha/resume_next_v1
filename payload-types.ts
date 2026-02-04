@@ -464,7 +464,7 @@ export interface Endorsement {
   /**
    * Optional contact email used only for verification or clarification. This is never displayed on the public site.
    */
-  endorserEmail?: string | null;
+  endorserEmail: string;
   /**
    * How this person has worked with you. This helps future employers and clients understand the context.
    */
