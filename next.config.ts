@@ -2,6 +2,19 @@ import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "clipboard-read=(self), clipboard-write=(self)",
+          },
+        ],
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {
