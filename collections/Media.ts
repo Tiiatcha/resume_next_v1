@@ -23,6 +23,17 @@ export const Media: CollectionConfig = {
       },
     },
     {
+      name: 'stockMediaSite',
+      label: 'Stock media site',
+      type: 'relationship',
+      relationTo: 'stock-media-sites',
+      hasMany: false,
+      admin: {
+        description:
+          'Select the site this image came from (e.g. Unsplash, Pexels). Used for attribution and to parse pasted attribution text.',
+      },
+    },
+    {
       name: 'imageAttribution',
       label: 'Image attribution',
       type: 'group',
@@ -31,6 +42,15 @@ export const Media: CollectionConfig = {
           'Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we will render a subtle “Photo by … on …” attribution wherever this media item is used.',
       },
       fields: [
+        {
+          name: 'attributionParseTrigger',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: './components/features/media/AttributionParseButton#AttributionParseButton',
+            },
+          },
+        },
         {
           name: 'platformName',
           label: 'Platform name',

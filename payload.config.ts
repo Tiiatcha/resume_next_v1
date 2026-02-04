@@ -8,6 +8,7 @@ import { resendAdapter } from "@payloadcms/email-resend";
 
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
+import { StockMediaSites } from "./collections/StockMediaSites";
 import { Categories } from "./collections/BlogCategories";
 import { Tags } from "./collections/Tags";
 import { TagCategories } from "./collections/TagCategories";
@@ -48,6 +49,7 @@ export default buildConfig({
   collections: [
     Users,
     Media,
+    StockMediaSites,
     Categories,
     Tags,
     TagCategories,
