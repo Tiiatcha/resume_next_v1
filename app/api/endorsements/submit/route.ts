@@ -16,10 +16,6 @@ type IncomingEndorsementPayload = {
   displayCompanyPublic?: boolean
   displayLinkedInPublic?: boolean
   consentToPublish?: boolean
-  /**
-   * Honeypot field – should be left empty by real users.
-   * Bots that indiscriminately fill every field will typically populate this.
-   */
   honeypot?: string
 }
 
@@ -150,12 +146,14 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const email =
-    typeof payloadBody.email === "string" ? payloadBody.email.trim() : undefined
-  if (email && email.length > 0) {
-    // Very lightweight email format check – we only care about catching obvious mistakes.
+    typeof payloadBody.email === "string" ? payloadBody.email.trim() : ""
+  if (!email) {
+    errors.push("Email is required.")
+  } else {
+    // Very lightweight email format check.
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailPattern.test(email)) {
-      errors.push("Please provide a valid email address or leave the email field blank.")
+      errors.push("Please provide a valid email address.")
     }
   }
 
@@ -164,7 +162,7 @@ export async function POST(request: Request): Promise<Response> {
       ? payloadBody.linkedinUrl.trim()
       : undefined
   if (linkedinUrl && linkedinUrl.length > 0) {
-    // Lightweight URL check. We only require a scheme and at least one dot.
+    // Lightweight URL check.
     const hasValidPrefix =
       linkedinUrl.startsWith("http://") || linkedinUrl.startsWith("https://")
     const containsDot = linkedinUrl.includes(".")
@@ -205,7 +203,7 @@ export async function POST(request: Request): Promise<Response> {
     config: configPromise,
   })
 
-  // TODO: When you are ready, you can add an additional verification step here
+  // TODO: Add an additional verification step here
   // (for example, reCAPTCHA or Cloudflare Turnstile) before creating the record.
 
   await payload.create({
