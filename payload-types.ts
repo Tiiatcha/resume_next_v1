@@ -184,6 +184,25 @@ export interface Media {
    * Alternative text for accessibility and SEO
    */
   alt: string;
+  /**
+   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we will render a subtle “Photo by … on …” attribution wherever this media item is used.
+   */
+  imageAttribution?: {
+    platformName?: string | null;
+    /**
+     * Link to the platform (or the platform’s credit URL if required).
+     */
+    platformUrl?: string | null;
+    artistName?: string | null;
+    /**
+     * Link to the artist/photographer profile page.
+     */
+    artistUrl?: string | null;
+    /**
+     * Link to the original image page (often required for attribution).
+     */
+    imageUrl?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -829,6 +848,15 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  imageAttribution?:
+    | T
+    | {
+        platformName?: T;
+        platformUrl?: T;
+        artistName?: T;
+        artistUrl?: T;
+        imageUrl?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;

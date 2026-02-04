@@ -1,6 +1,10 @@
 import * as React from "react"
 
-type ImageAttribution = {
+/**
+ * Shape of attribution data stored on Media (or passed from parent documents).
+ * Used anywhere on the site where we display credited images (blog, hero, galleries, etc.).
+ */
+export type ImageAttribution = {
   platformName?: string | null
   platformUrl?: string | null
   artistName?: string | null
@@ -40,6 +44,11 @@ function ExternalLink({
   )
 }
 
+/**
+ * Renders a "Photo by … on …" credit line for attributed images.
+ * Use standalone (e.g. below an image) or inside AttributedMediaImage.
+ * Shared across the site—blog, hero sections, galleries, etc.
+ */
 export function ImageAttribution({
   attribution,
   className,
@@ -92,4 +101,3 @@ export function ImageAttribution({
     </aside>
   )
 }
-

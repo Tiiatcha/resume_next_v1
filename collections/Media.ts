@@ -22,6 +22,62 @@ export const Media: CollectionConfig = {
         description: 'Alternative text for accessibility and SEO',
       },
     },
+    {
+      name: 'imageAttribution',
+      label: 'Image attribution',
+      type: 'group',
+      admin: {
+        description:
+          'Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we will render a subtle “Photo by … on …” attribution wherever this media item is used.',
+      },
+      fields: [
+        {
+          name: 'platformName',
+          label: 'Platform name',
+          type: 'text',
+          admin: {
+            placeholder: 'Unsplash',
+          },
+        },
+        {
+          name: 'platformUrl',
+          label: 'Platform URL',
+          type: 'text',
+          admin: {
+            placeholder: 'https://unsplash.com',
+            description:
+              'Link to the platform (or the platform’s credit URL if required).',
+          },
+        },
+        {
+          name: 'artistName',
+          label: 'Artist name',
+          type: 'text',
+          admin: {
+            placeholder: 'Glenn Carstens-Peters',
+          },
+        },
+        {
+          name: 'artistUrl',
+          label: 'Artist URL',
+          type: 'text',
+          admin: {
+            placeholder: 'https://unsplash.com/@glenncarstenspeters',
+            description: 'Link to the artist/photographer profile page.',
+          },
+        },
+        {
+          name: 'imageUrl',
+          label: 'Image URL',
+          type: 'text',
+          admin: {
+            placeholder: 'https://unsplash.com/photos/npxXWgQ33ZQ',
+            description:
+              'Link to the original image page (often required for attribution).',
+          },
+        },
+      ],
+    },
   ],
   upload: {
     // Image-specific upload configuration
