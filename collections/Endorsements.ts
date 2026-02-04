@@ -141,7 +141,7 @@ export const Endorsements: CollectionConfig = {
       name: "endorserEmail",
       label: "Email (never shown publicly)",
       type: "email",
-      required: false,
+      required: true,
       admin: {
         description:
           "Optional contact email used only for verification or clarification. This is never displayed on the public site.",

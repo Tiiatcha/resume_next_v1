@@ -21,6 +21,15 @@ interface EndorsementCardProps {
   delaySeconds?: number
 
   /**
+   * Disables the Reveal animation wrapper.
+   *
+   * Useful in DOM-manipulated contexts (e.g. infinite carousels that clone nodes),
+   * where animation wrappers can complicate debugging or interfere with the visual
+   * result during development.
+   */
+  disableReveal?: boolean
+
+  /**
    * Opens the side-panel / sheet showing the full endorsement.
    * 
    * If omitted, the "Read more" button will not be rendered.
@@ -90,6 +99,7 @@ function buildRelationshipLine(
 export function EndorsementCard({
   endorsement,
   delaySeconds = 0,
+  disableReveal = false,
   onOpenDetails,
 }: EndorsementCardProps): React.JSX.Element {
   const preferences = endorsement.displayPreferences ?? {}
@@ -106,33 +116,41 @@ export function EndorsementCard({
   const previewText = truncateEndorsementText(fullText, 200)
   const isTruncated = previewText !== fullText
 
+  const cardMarkup = (
+    <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">{nameLabel}</CardTitle>
+        {relationshipLine ? (
+          <p className="text-muted-foreground text-xs">
+            {relationshipLine}
+          </p>
+        ) : null}
+      </CardHeader>
+
+      <CardContent className="space-y-3 text-sm leading-relaxed">
+        <p className="text-pretty">
+          {previewText}{" "}
+          {isTruncated && onOpenDetails ? (
+            <button
+              type="button"
+              onClick={() => onOpenDetails(endorsement)}
+              className="cursor-pointer text-xs font-medium text-primary underline underline-offset-4 hover:no-underline"
+            >
+              Read more
+            </button>
+          ) : null}
+        </p>
+      </CardContent>
+    </Card>
+  )
+
+  if (disableReveal) {
+    return cardMarkup
+  }
+
   return (
     <Reveal delaySeconds={delaySeconds}>
-      <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{nameLabel}</CardTitle>
-          {relationshipLine ? (
-            <p className="text-muted-foreground text-xs">
-              {relationshipLine}
-            </p>
-          ) : null}
-        </CardHeader>
-
-        <CardContent className="space-y-3 text-sm leading-relaxed">
-          <p className="text-pretty">
-            {previewText}{" "}
-            {isTruncated && onOpenDetails ? (
-              <button
-                type="button"
-                onClick={() => onOpenDetails(endorsement)}
-                className="cursor-pointer text-xs font-medium text-primary underline underline-offset-4 hover:no-underline"
-              >
-                Read more
-              </button>
-            ) : null}
-          </p>
-        </CardContent>
-      </Card>
+      {cardMarkup}
     </Reveal>
   )
 }
