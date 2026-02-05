@@ -75,6 +75,7 @@ export interface Config {
     'tag-categories': TagCategory;
     'tag-colors': TagColor;
     experiences: Experience;
+    'page-configs': PageConfig;
     endorsements: Endorsement;
     'endorsement-access-challenges': EndorsementAccessChallenge;
     'blog-posts': BlogPost;
@@ -94,6 +95,7 @@ export interface Config {
     'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
     'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
     experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
+    'page-configs': PageConfigsSelect<false> | PageConfigsSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
     'endorsement-access-challenges': EndorsementAccessChallengesSelect<false> | EndorsementAccessChallengesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
@@ -469,6 +471,128 @@ export interface Experience {
   createdAt: string;
 }
 /**
+ * Content and configuration for code-owned pages, keyed by `pageKey` (e.g. `home`). Layout stays in code; this collection only supplies copy, media, and SEO overrides.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-configs".
+ */
+export interface PageConfig {
+  id: string;
+  /**
+   * Stable key used by the frontend to look up this config (e.g. `home`, `about`).
+   */
+  pageKey: string;
+  /**
+   * Optional hero content for this page. The frontend decides how to render and position this content.
+   */
+  hero?: {
+    /**
+     * Short label above the main heading (e.g. “Online CV”).
+     */
+    eyebrow?: string | null;
+    /**
+     * Primary hero heading for this page.
+     */
+    heading?: string | null;
+    /**
+     * Short lead paragraph under the heading. Keep it concise and user-focused.
+     */
+    lead?: string | null;
+    /**
+     * Optional hero image/media. The frontend may use this as a background layer or inline image and will handle attribution automatically.
+     */
+    media?: (string | null) | Media;
+    /**
+     * Primary calls-to-action for the hero. Up to two buttons; the frontend will render these using the shared Button component.
+     */
+    ctas?:
+      | {
+          label: string;
+          /**
+           * Visual variant for the button. These map directly to the `variant` prop of the shared Button component.
+           */
+          variant?: ('default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive') | null;
+          /**
+           * Internal links are typically on-site routes or anchors (e.g. “#contact”). External links are full URLs.
+           */
+          linkKind: 'internal' | 'external';
+          /**
+           * Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.
+           */
+          internalHref?: string | null;
+          /**
+           * Full external URL (e.g. https://example.com).
+           */
+          externalUrl?: string | null;
+          /**
+           * Only respected for external URLs. The frontend will map this to target/rel attributes.
+           */
+          openInNewTab?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Free-form content buckets keyed by `sectionKey` (e.g. “about”). The frontend will pick and choose from these as needed.
+   */
+  sections?:
+    | {
+        /**
+         * Stable identifier for this section (e.g. “about”, “hero”, “contact”). The frontend uses this to find the right content.
+         */
+        sectionKey: string;
+        eyebrow?: string | null;
+        heading?: string | null;
+        /**
+         * Rich text content for this section. Use headings, links, and lists as needed.
+         */
+        copy?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        media?: (string | null) | Media;
+        /**
+         * Optional notes for editors. Not used on the frontend.
+         */
+        notes?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional page title override. If empty, the site-wide default from Site settings is used.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional meta description override for this page. If empty, the site-wide default is used.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional Open Graph/Twitter share image specific to this page. If empty, the default share image from Site settings is used.
+   */
+  shareImage?: (string | null) | Media;
+  /**
+   * Optional canonical URL for this page. Leave empty to use the automatically derived canonical from Site settings.
+   */
+  canonicalUrl?: string | null;
+  /**
+   * When enabled, this page will request `noindex` regardless of the site-wide robots setting.
+   */
+  preventIndexing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Short endorsements from clients and colleagues. All new submissions start as pending and must be approved before they appear on the site.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -792,6 +916,10 @@ export interface PayloadLockedDocument {
         value: string | Experience;
       } | null)
     | ({
+        relationTo: 'page-configs';
+        value: string | PageConfig;
+      } | null)
+    | ({
         relationTo: 'endorsements';
         value: string | Endorsement;
       } | null)
@@ -1030,6 +1158,50 @@ export interface ExperiencesSelect<T extends boolean = true> {
             };
       };
   tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-configs_select".
+ */
+export interface PageConfigsSelect<T extends boolean = true> {
+  pageKey?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        lead?: T;
+        media?: T;
+        ctas?:
+          | T
+          | {
+              label?: T;
+              variant?: T;
+              linkKind?: T;
+              internalHref?: T;
+              externalUrl?: T;
+              openInNewTab?: T;
+              id?: T;
+            };
+      };
+  sections?:
+    | T
+    | {
+        sectionKey?: T;
+        eyebrow?: T;
+        heading?: T;
+        copy?: T;
+        media?: T;
+        notes?: T;
+        id?: T;
+      };
+  seoTitle?: T;
+  seoDescription?: T;
+  shareImage?: T;
+  canonicalUrl?: T;
+  preventIndexing?: T;
   updatedAt?: T;
   createdAt?: T;
 }
