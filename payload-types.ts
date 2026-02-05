@@ -517,9 +517,25 @@ export interface PageConfig {
            */
           linkKind: 'internal' | 'external';
           /**
+           * Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).
+           */
+          internalLinkMode?: ('document' | 'route') | null;
+          /**
            * Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.
            */
           internalHref?: string | null;
+          /**
+           * Choose which internal content type to link to. Add more options as new content types ship.
+           */
+          internalCollection?: ('blog-posts' | 'media') | null;
+          /**
+           * Select the blog post to link to. The frontend will map this to the appropriate route.
+           */
+          internalBlogPost?: (string | null) | BlogPost;
+          /**
+           * Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.
+           */
+          internalMedia?: (string | null) | Media;
           /**
            * Full external URL (e.g. https://example.com).
            */
@@ -589,6 +605,78 @@ export interface PageConfig {
    * When enabled, this page will request `noindex` regardless of the site-wide robots setting.
    */
   preventIndexing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Blog posts support drafts, published dates, and Lexical rich text content.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: string;
+  title: string;
+  /**
+   * Used in the URL. Auto-generated from the title, but you can edit it.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  /**
+   * Set automatically when a post is first published (you can override).
+   */
+  publishedAt?: string | null;
+  /**
+   * Short summary used on the blog listing page and in metadata.
+   */
+  excerpt?: string | null;
+  /**
+   * Optional category used for filtering (e.g. Engineering, Deep dives).
+   */
+  category?: (string | null) | Category;
+  /**
+   * Main post content (Lexical rich text). Use headings, links, and lists.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  featuredImage?: (string | null) | Media;
+  /**
+   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
+   */
+  imageAttribution?: {
+    platformName?: string | null;
+    /**
+     * Link to the platform (or the platform’s credit URL if required).
+     */
+    platformUrl?: string | null;
+    artistName?: string | null;
+    /**
+     * Link to the artist/photographer profile page.
+     */
+    artistUrl?: string | null;
+    /**
+     * Link to the original image page (often required for attribution).
+     */
+    imageUrl?: string | null;
+  };
+  /**
+   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.
+   */
+  tags?: (string | Tag)[] | null;
+  author?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -724,78 +812,6 @@ export interface EndorsementAccessChallenge {
     ipAddress?: string | null;
     userAgent?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Blog posts support drafts, published dates, and Lexical rich text content.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
- */
-export interface BlogPost {
-  id: string;
-  title: string;
-  /**
-   * Used in the URL. Auto-generated from the title, but you can edit it.
-   */
-  slug: string;
-  status: 'draft' | 'published';
-  /**
-   * Set automatically when a post is first published (you can override).
-   */
-  publishedAt?: string | null;
-  /**
-   * Short summary used on the blog listing page and in metadata.
-   */
-  excerpt?: string | null;
-  /**
-   * Optional category used for filtering (e.g. Engineering, Deep dives).
-   */
-  category?: (string | null) | Category;
-  /**
-   * Main post content (Lexical rich text). Use headings, links, and lists.
-   */
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  featuredImage?: (string | null) | Media;
-  /**
-   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
-   */
-  imageAttribution?: {
-    platformName?: string | null;
-    /**
-     * Link to the platform (or the platform’s credit URL if required).
-     */
-    platformUrl?: string | null;
-    artistName?: string | null;
-    /**
-     * Link to the artist/photographer profile page.
-     */
-    artistUrl?: string | null;
-    /**
-     * Link to the original image page (often required for attribution).
-     */
-    imageUrl?: string | null;
-  };
-  /**
-   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.
-   */
-  tags?: (string | Tag)[] | null;
-  author?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -1180,7 +1196,11 @@ export interface PageConfigsSelect<T extends boolean = true> {
               label?: T;
               variant?: T;
               linkKind?: T;
+              internalLinkMode?: T;
               internalHref?: T;
+              internalCollection?: T;
+              internalBlogPost?: T;
+              internalMedia?: T;
               externalUrl?: T;
               openInNewTab?: T;
               id?: T;

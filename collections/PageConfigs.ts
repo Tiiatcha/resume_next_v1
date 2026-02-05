@@ -135,13 +135,74 @@ export const PageConfigs: CollectionConfig = {
                       },
                     },
                     {
+                      name: "internalLinkMode",
+                      label: "Internal link mode",
+                      type: "select",
+                      defaultValue: "document",
+                      options: [
+                        { label: "Collection document", value: "document" },
+                        { label: "Route / anchor", value: "route" },
+                      ],
+                      admin: {
+                        condition: (_, siblingData) => siblingData?.linkKind === "internal",
+                        description:
+                          "Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).",
+                      },
+                    },
+                    {
                       name: "internalHref",
                       label: "Internal href",
                       type: "text",
                       admin: {
-                        condition: (_, siblingData) => siblingData?.linkKind === "internal",
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "route",
                         description:
                           "Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.",
+                      },
+                    },
+                    {
+                      name: "internalCollection",
+                      label: "Internal collection",
+                      type: "select",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document",
+                        description:
+                          "Choose which internal content type to link to. Add more options as new content types ship.",
+                      },
+                      options: [
+                        { label: "Blog posts", value: "blog-posts" },
+                        { label: "Media", value: "media" },
+                      ],
+                    },
+                    {
+                      name: "internalBlogPost",
+                      label: "Blog post",
+                      type: "relationship",
+                      relationTo: "blog-posts",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document" &&
+                          siblingData?.internalCollection === "blog-posts",
+                        description:
+                          "Select the blog post to link to. The frontend will map this to the appropriate route.",
+                      },
+                    },
+                    {
+                      name: "internalMedia",
+                      label: "Media/file",
+                      type: "upload",
+                      relationTo: "media",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document" &&
+                          siblingData?.internalCollection === "media",
+                        description:
+                          "Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.",
                       },
                     },
                     {
@@ -159,6 +220,7 @@ export const PageConfigs: CollectionConfig = {
                       type: "checkbox",
                       defaultValue: false,
                       admin: {
+                        condition: (_, siblingData) => siblingData?.linkKind === "external",
                         description:
                           "Only respected for external URLs. The frontend will map this to target/rel attributes.",
                       },
