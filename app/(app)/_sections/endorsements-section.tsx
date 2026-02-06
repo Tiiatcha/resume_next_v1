@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button"
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 import { PayloadRichText } from "@/components/content/payload-rich-text"
 
+export const revalidate = 60
+
 type EndorsementsSectionData = {
   eyebrow?: string | null
   heading?: string | null
