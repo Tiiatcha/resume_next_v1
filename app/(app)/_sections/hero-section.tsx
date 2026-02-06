@@ -38,7 +38,7 @@ export function HeroSection({ heroData, ctas = [] }: HeroSectionProps) {
   const heroMedia = heroData?.media && typeof heroData.media === "object" ? heroData.media : null
 
   return (
-    <Section variant="tight" className="py-0 pt-4 sm:pt-6 h-[80vh]">
+    <Section variant="tight" className="py-0 pt-below-nav h-[80vh]">
       <div aria-hidden="true" className="hero-geometric-layer" />
       <Container variant="left" className="gap-8">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
