@@ -17,11 +17,12 @@ import { BlogPosts } from "./collections/BlogPosts";
 import { Endorsements } from "./collections/Endorsements";
 import { EndorsementAccessChallenges } from "./collections/EndorsementAccessChallenges";
 import { ChangelogEntries } from "./collections/ChangelogEntries";
+import { Experiences } from "./collections/Experiences";
+import { PageConfigs } from "./collections/PageConfigs";
 import { Roadmap } from "./globals/Roadmap";
 import { SiteSettings } from "./globals/SiteSettings";
 
 import { s3Storage } from "@payloadcms/storage-s3";
-import { Experiences } from "./collections/Experiences";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -55,6 +56,7 @@ export default buildConfig({
     TagCategories,
     TagColors,
     Experiences,
+    PageConfigs,
     Endorsements,
     EndorsementAccessChallenges,
     BlogPosts,

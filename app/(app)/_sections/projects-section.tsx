@@ -20,8 +20,23 @@ import {
   ContainerTitle,
 } from "@/components/shared/layout/container"
 import { ProjectsGrid } from "@/app/(app)/_sections/projects-grid"
+import { PayloadRichText } from "@/components/content/payload-rich-text"
+import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 
-export function ProjectsSection({ items }: { items: ProjectItem[] }) {
+type ProjectsSectionData = {
+  eyebrow?: string | null
+  heading?: string | null
+  sectionIntro?: SerializedEditorState | null
+  copy?: SerializedEditorState | null
+  sectionClose?: SerializedEditorState | null
+}
+
+export function ProjectsSection({ items,data }: { items: ProjectItem[],data?: ProjectsSectionData | null }) {
+  const eyebrow = data?.eyebrow ?? null
+  const heading = data?.heading ?? null
+  const sectionIntro = data?.sectionIntro ?? null
+  
+
   const [activeProject, setActiveProject] = React.useState<ProjectItem | null>(
     null
   )
@@ -40,11 +55,13 @@ export function ProjectsSection({ items }: { items: ProjectItem[] }) {
     <Section id="projects" surface="featured" glow={{ side: "right", tone: "cool" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
-          <ContainerEyebrow>Projects</ContainerEyebrow>
-          <ContainerTitle>Selected work</ContainerTitle>
+          <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+          <ContainerTitle>{heading}</ContainerTitle>
           <ContainerLead>
-            A curated mix of client work and larger initiatives. Archived projects are
-            available below.
+            <PayloadRichText 
+              data={sectionIntro}
+              className="section-intro text-muted-foreground text-pretty text-lg leading-relaxed" 
+              />
           </ContainerLead>
         </ContainerIntro>
         <ContainerContent variant="left">

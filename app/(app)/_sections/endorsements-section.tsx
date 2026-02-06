@@ -29,22 +29,35 @@ import type { EndorsementSummary } from "@/app/(app)/endorsements/_components/en
 import { EndorsementCard } from "@/app/(app)/endorsements/_components/endorsement-card"
 import { EndorsementDetailsPanel } from "@/app/(app)/endorsements/_components/endorsement-details-panel"
 import { Button } from "@/components/ui/button"
+import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
+import { PayloadRichText } from "@/components/content/payload-rich-text"
 
+type EndorsementsSectionData = {
+  eyebrow?: string | null
+  heading?: string | null
+  sectionIntro?: SerializedEditorState | null
+  copy?: SerializedEditorState | null
+  sectionClose?: SerializedEditorState | null
+}
 // Re-export the type for convenience
 export type { EndorsementSummary }
 
 
 interface EndorsementsSectionProps {
   endorsements: EndorsementSummary[]
+  data?: EndorsementsSectionData | null
 }
 
 export function EndorsementsSection({
   endorsements,
+  data,
 }: EndorsementsSectionProps): React.JSX.Element {
   const hasEndorsements = endorsements.length > 0
   const [activeEndorsement, setActiveEndorsement] = React.useState<EndorsementSummary | null>(null)
-  
-  
+  const eyebrow = data?.eyebrow ?? null
+  const heading = data?.heading ?? null
+  const sectionIntro = data?.sectionIntro ?? null
+
   return (
     <>
       <Section
@@ -54,22 +67,14 @@ export function EndorsementsSection({
       >
         <Container variant="left">
           <ContainerIntro variant="left">
-            <ContainerEyebrow>Endorsements</ContainerEyebrow>
-            <ContainerTitle>What others say</ContainerTitle>
+            <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+            <ContainerTitle>{heading}</ContainerTitle>
             <ContainerLead>
-              Short, honest notes from people I have worked with, including clients, colleagues,
-              and managers. 
+              <PayloadRichText 
+                data={sectionIntro}
+                className="section-intro text-muted-foreground text-pretty text-lg leading-relaxed" 
+              />
             </ContainerLead>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Learn about{' '}
-              <Link
-                href="/blog/building-a-trustworthy-endorsements-system-without-accounts"
-                className="text-foreground underline decoration-primary/40 underline-offset-4 transition-colors hover:decoration-primary"
-              >
-                how and why I built this endorsements system
-              </Link>{' '}
-              with privacy, transparency, and trust at its core.
-            </p>
           </ContainerIntro>
 
           <ContainerContent variant="left">
