@@ -40,26 +40,18 @@ export function AboutSection({
   const sectionIntro = data?.sectionIntro ?? null
   const copy = data?.copy ?? null
   const sectionClose = data?.sectionClose ?? null
-  const eyebrowText = eyebrow?.trim() || DEFAULT_EYEBROW
-  const headingText = heading?.trim() || DEFAULT_HEADING
 
   return (
     <Section id="about" surface="alt" glow={{ side: "right", tone: "cool" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
-          <ContainerEyebrow>{eyebrowText}</ContainerEyebrow>
-          <ContainerTitle>{headingText}</ContainerTitle>
+          <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+          <ContainerTitle>{heading}</ContainerTitle>
           <ContainerLead>
-            {sectionIntro ?? data?.sectionIntro ? (
               <PayloadRichText
-                data={sectionIntro ?? data?.sectionIntro ?? null}
-                className="text-muted-foreground text-pretty text-lg leading-relaxed"
+                data={sectionIntro}
+                className="section-intro text-muted-foreground text-pretty text-lg leading-relaxed"
               />
-            ) : (
-              <p className="text-muted-foreground text-pretty text-lg leading-relaxed">
-                I combine pragmatic engineering with clear communication and a bias toward shipping.
-              </p>
-            )}
           </ContainerLead>
         </ContainerIntro>
         <ContainerContent variant="left">
