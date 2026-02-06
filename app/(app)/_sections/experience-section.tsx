@@ -32,8 +32,8 @@ export function ExperienceSection({ items,data }: { items: ExperienceItem[],data
       <Container variant="left">
         <ContainerIntro variant="left">
           <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
-          <ContainerTitle>{heading}</ContainerTitle>
-          <ContainerLead>
+          <ContainerTitle variant="left">{heading}</ContainerTitle>
+          <ContainerLead variant="left">
             <PayloadRichText 
               data={sectionIntro ?? data?.sectionIntro ?? null}
               className="section-introtext-muted-foreground text-pretty text-lg leading-relaxed" 
