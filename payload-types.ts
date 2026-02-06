@@ -75,6 +75,7 @@ export interface Config {
     'tag-categories': TagCategory;
     'tag-colors': TagColor;
     experiences: Experience;
+    'page-configs': PageConfig;
     endorsements: Endorsement;
     'endorsement-access-challenges': EndorsementAccessChallenge;
     'blog-posts': BlogPost;
@@ -94,6 +95,7 @@ export interface Config {
     'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
     'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
     experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
+    'page-configs': PageConfigsSelect<false> | PageConfigsSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
     'endorsement-access-challenges': EndorsementAccessChallengesSelect<false> | EndorsementAccessChallengesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
@@ -469,6 +471,297 @@ export interface Experience {
   createdAt: string;
 }
 /**
+ * Content and configuration for code-owned pages, keyed by `pageKey` (e.g. `home`). Layout stays in code; this collection only supplies copy, media, and SEO overrides.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-configs".
+ */
+export interface PageConfig {
+  id: string;
+  /**
+   * Stable key used by the frontend to look up this config (e.g. `home`, `about`).
+   */
+  pageKey: string;
+  /**
+   * Optional hero content for this page. The frontend decides how to render and position this content.
+   */
+  hero?: {
+    /**
+     * Short label above the main heading (e.g. “Online CV”).
+     */
+    eyebrow?: string | null;
+    /**
+     * Primary hero heading for this page.
+     */
+    heading?: string | null;
+    /**
+     * Short lead paragraph under the heading. Keep it concise and user-focused.
+     */
+    lead?: string | null;
+    /**
+     * Optional hero image/media. The frontend may use this as a background layer or inline image and will handle attribution automatically.
+     */
+    media?: (string | null) | Media;
+    /**
+     * Primary calls-to-action for the hero. Up to two buttons; the frontend will render these using the shared Button component.
+     */
+    ctas?:
+      | {
+          label: string;
+          /**
+           * Visual variant for the button. These map directly to the `variant` prop of the shared Button component.
+           */
+          variant?: ('default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive') | null;
+          /**
+           * Internal links are typically on-site routes or anchors (e.g. “#contact”). External links are full URLs.
+           */
+          linkKind: 'internal' | 'external';
+          /**
+           * Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).
+           */
+          internalLinkMode?: ('document' | 'route') | null;
+          /**
+           * Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.
+           */
+          internalHref?: string | null;
+          /**
+           * Choose which internal content type to link to. Add more options as new content types ship.
+           */
+          internalCollection?: ('blog-posts' | 'media') | null;
+          /**
+           * Select the blog post to link to. The frontend will map this to the appropriate route.
+           */
+          internalBlogPost?: (string | null) | BlogPost;
+          /**
+           * Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.
+           */
+          internalMedia?: (string | null) | Media;
+          /**
+           * Full external URL (e.g. https://example.com).
+           */
+          externalUrl?: string | null;
+          /**
+           * Only respected for external URLs. The frontend will map this to target/rel attributes.
+           */
+          openInNewTab?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Free-form content buckets keyed by `sectionKey` (e.g. “about”). The frontend will pick and choose from these as needed.
+   */
+  sections?:
+    | {
+        /**
+         * Stable identifier for this section (e.g. “about”, “hero”, “contact”). The frontend uses this to find the right content.
+         */
+        sectionKey: string;
+        /**
+         * Optional notes for editors. Not used on the frontend.
+         */
+        notes?: string | null;
+        eyebrow?: string | null;
+        heading?: string | null;
+        /**
+         * Intro text for this section. This will be displayed below the heading.
+         */
+        sectionIntro?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Rich text content for this section. Use headings, links, and lists as needed.
+         */
+        copy?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        media?: (string | null) | Media;
+        /**
+         * Close text for this section. This will be displayed after the copy. and lead into the section cta
+         */
+        sectionClose?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Optional calls-to-action specific to this section. The frontend can opt-in to render these where appropriate.
+         */
+        ctas?:
+          | {
+              label: string;
+              /**
+               * Visual variant for the button. These map directly to the `variant` prop of the shared Button component.
+               */
+              variant?: ('default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive') | null;
+              /**
+               * Internal links are typically on-site routes or anchors (e.g. “#contact”). External links are full URLs.
+               */
+              linkKind: 'internal' | 'external';
+              /**
+               * Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).
+               */
+              internalLinkMode?: ('route' | 'document') | null;
+              /**
+               * Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.
+               */
+              internalHref?: string | null;
+              /**
+               * Choose which internal content type to link to. Add more options as new content types ship.
+               */
+              internalCollection?: ('blog-posts' | 'media') | null;
+              /**
+               * Select the blog post to link to. The frontend will map this to the appropriate route.
+               */
+              internalBlogPost?: (string | null) | BlogPost;
+              /**
+               * Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.
+               */
+              internalMedia?: (string | null) | Media;
+              /**
+               * Full external URL (e.g. https://example.com).
+               */
+              externalUrl?: string | null;
+              /**
+               * Only respected for external URLs. The frontend will map this to target/rel attributes.
+               */
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional page title override. If empty, the site-wide default from Site settings is used.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional meta description override for this page. If empty, the site-wide default is used.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional Open Graph/Twitter share image specific to this page. If empty, the default share image from Site settings is used.
+   */
+  shareImage?: (string | null) | Media;
+  /**
+   * Optional canonical URL for this page. Leave empty to use the automatically derived canonical from Site settings.
+   */
+  canonicalUrl?: string | null;
+  /**
+   * When enabled, this page will request `noindex` regardless of the site-wide robots setting.
+   */
+  preventIndexing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Blog posts support drafts, published dates, and Lexical rich text content.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: string;
+  title: string;
+  /**
+   * Used in the URL. Auto-generated from the title, but you can edit it.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  /**
+   * Set automatically when a post is first published (you can override).
+   */
+  publishedAt?: string | null;
+  /**
+   * Short summary used on the blog listing page and in metadata.
+   */
+  excerpt?: string | null;
+  /**
+   * Optional category used for filtering (e.g. Engineering, Deep dives).
+   */
+  category?: (string | null) | Category;
+  /**
+   * Main post content (Lexical rich text). Use headings, links, and lists.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  featuredImage?: (string | null) | Media;
+  /**
+   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
+   */
+  imageAttribution?: {
+    platformName?: string | null;
+    /**
+     * Link to the platform (or the platform’s credit URL if required).
+     */
+    platformUrl?: string | null;
+    artistName?: string | null;
+    /**
+     * Link to the artist/photographer profile page.
+     */
+    artistUrl?: string | null;
+    /**
+     * Link to the original image page (often required for attribution).
+     */
+    imageUrl?: string | null;
+  };
+  /**
+   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.
+   */
+  tags?: (string | Tag)[] | null;
+  author?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Short endorsements from clients and colleagues. All new submissions start as pending and must be approved before they appear on the site.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -604,78 +897,6 @@ export interface EndorsementAccessChallenge {
   createdAt: string;
 }
 /**
- * Blog posts support drafts, published dates, and Lexical rich text content.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
- */
-export interface BlogPost {
-  id: string;
-  title: string;
-  /**
-   * Used in the URL. Auto-generated from the title, but you can edit it.
-   */
-  slug: string;
-  status: 'draft' | 'published';
-  /**
-   * Set automatically when a post is first published (you can override).
-   */
-  publishedAt?: string | null;
-  /**
-   * Short summary used on the blog listing page and in metadata.
-   */
-  excerpt?: string | null;
-  /**
-   * Optional category used for filtering (e.g. Engineering, Deep dives).
-   */
-  category?: (string | null) | Category;
-  /**
-   * Main post content (Lexical rich text). Use headings, links, and lists.
-   */
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  featuredImage?: (string | null) | Media;
-  /**
-   * Optional credit line for stock/third-party images (e.g. Unsplash). If any field is filled, we’ll render a subtle “Photo by … on …” caption on the post.
-   */
-  imageAttribution?: {
-    platformName?: string | null;
-    /**
-     * Link to the platform (or the platform’s credit URL if required).
-     */
-    platformUrl?: string | null;
-    artistName?: string | null;
-    /**
-     * Link to the artist/photographer profile page.
-     */
-    artistUrl?: string | null;
-    /**
-     * Link to the original image page (often required for attribution).
-     */
-    imageUrl?: string | null;
-  };
-  /**
-   * Optional tags for filtering and discovery (e.g. Next.js, Payload, TypeScript). Select from the centralized tags collection.
-   */
-  tags?: (string | Tag)[] | null;
-  author?: (string | null) | User;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Changelog entries are short, structured release notes. Use the blog for deep dives and longer write-ups.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -790,6 +1011,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'experiences';
         value: string | Experience;
+      } | null)
+    | ({
+        relationTo: 'page-configs';
+        value: string | PageConfig;
       } | null)
     | ({
         relationTo: 'endorsements';
@@ -1030,6 +1255,71 @@ export interface ExperiencesSelect<T extends boolean = true> {
             };
       };
   tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-configs_select".
+ */
+export interface PageConfigsSelect<T extends boolean = true> {
+  pageKey?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        lead?: T;
+        media?: T;
+        ctas?:
+          | T
+          | {
+              label?: T;
+              variant?: T;
+              linkKind?: T;
+              internalLinkMode?: T;
+              internalHref?: T;
+              internalCollection?: T;
+              internalBlogPost?: T;
+              internalMedia?: T;
+              externalUrl?: T;
+              openInNewTab?: T;
+              id?: T;
+            };
+      };
+  sections?:
+    | T
+    | {
+        sectionKey?: T;
+        notes?: T;
+        eyebrow?: T;
+        heading?: T;
+        sectionIntro?: T;
+        copy?: T;
+        media?: T;
+        sectionClose?: T;
+        ctas?:
+          | T
+          | {
+              label?: T;
+              variant?: T;
+              linkKind?: T;
+              internalLinkMode?: T;
+              internalHref?: T;
+              internalCollection?: T;
+              internalBlogPost?: T;
+              internalMedia?: T;
+              externalUrl?: T;
+              openInNewTab?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  seoTitle?: T;
+  seoDescription?: T;
+  shareImage?: T;
+  canonicalUrl?: T;
+  preventIndexing?: T;
   updatedAt?: T;
   createdAt?: T;
 }

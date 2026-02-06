@@ -13,10 +13,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Reveal } from "@/components/shared/motion/reveal"
 import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react"
 import { contactDetails, getContactHrefs } from "@/lib/contact-details"
+import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
+import { PayloadRichText } from "@/components/content/payload-rich-text"
 
-export function ContactSection() {
+type ContactSectionData = {
+  eyebrow?: string | null
+  heading?: string | null
+  sectionIntro?: SerializedEditorState | null
+  copy?: SerializedEditorState | null
+  sectionClose?: SerializedEditorState | null
+}
+
+export function ContactSection({ data }: { data?: ContactSectionData | null }) {
   const { emailHref, telephoneHref, whatsappHref, mapsHref } =
     getContactHrefs(contactDetails)
+  const eyebrow = data?.eyebrow ?? null
+  const heading = data?.heading ?? null
+  const sectionIntro = data?.sectionIntro ?? null
 
   return (
     <Section
@@ -24,16 +37,9 @@ export function ContactSection() {
       surface="alt"
       glow={{ side: "left", tone: "warm" }}
       reveal={false}
-      // Give the final section a little more breathing room.
       className="py-20 sm:py-24 overflow-hidden"
     >
-      {/* 
-        Decorative map layer:
-        - Reveals on scroll (so it "arrives" as you reach this section).
-        - Non-interactive (`pointer-events-none`) so it behaves like a background.
-        - Strongly toned + masked so it reads as a subtle pattern (not a bright embed).
-        - Uses theme tokens (`--border`, `--primary`) so it naturally fits light/dark.
-      */}
+      
       <Reveal className="pointer-events-none absolute inset-0 z-0 overflow-hidden" y={0}>
         <div aria-hidden="true" className="absolute inset-0">
           {/* Map image (tinted + softened). */}
@@ -49,13 +55,7 @@ export function ContactSection() {
             />
           </div>
 
-          {/* Site-colored tint + subtle grid to harmonize with existing background. */}
-          {/*
-            Flat tint layer (no gradients):
-            - Light mode: a subtle `--primary` wash.
-            - Dark mode: use `--chart-4` (the site's existing accent glow family)
-              to avoid a bright "hot spot" in the center.
-          */}
+          
           <div className="absolute inset-0 bg-[color-mix(in_oklch,var(--primary)_10%,transparent)] opacity-90 mix-blend-multiply dark:hidden" />
           <div className="absolute inset-0 hidden dark:block bg-[color-mix(in_oklch,var(--chart-4)_10%,transparent)] opacity-70 [mix-blend-mode:soft-light]" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--border)_42%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--border)_42%,transparent)_1px,transparent_1px)] bg-[size:88px_88px] opacity-15" />
@@ -66,11 +66,13 @@ export function ContactSection() {
 
       <Container variant="left" className="relative z-10">
         <ContainerIntro variant="left">
-          <ContainerEyebrow>Contact</ContainerEyebrow>
-          <ContainerTitle>Let’s talk</ContainerTitle>
+          <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+          <ContainerTitle>{heading}</ContainerTitle>
           <ContainerLead>
-            If you’d like to discuss a role, a project, or a collaboration, you can
-            reach me here.
+            <PayloadRichText 
+              data={sectionIntro}
+              className="section-intro text-muted-foreground text-pretty text-lg leading-relaxed" 
+              />
           </ContainerLead>
         </ContainerIntro>
 
