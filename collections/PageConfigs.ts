@@ -254,6 +254,15 @@ export const PageConfigs: CollectionConfig = {
                   },
                 },
                 {
+                  name: "notes",
+                  label: "Editor notes",
+                  type: "textarea",
+                  admin: {
+                    description:
+                      "Optional notes for editors. Not used on the frontend.",
+                  },
+                },
+                {
                   name: "eyebrow",
                   label: "Eyebrow",
                   type: "text",
@@ -263,6 +272,16 @@ export const PageConfigs: CollectionConfig = {
                   label: "Heading",
                   type: "text",
                 },
+                {
+                  name: "sectionIntro",
+                  label: "Section intro",
+                  type: "richText",
+                  admin: {
+                    description:
+                      "Intro text for this section. This will be displayed below the heading.",
+                  },
+                },
+                
                 {
                   name: "copy",
                   label: "Copy",
@@ -279,13 +298,156 @@ export const PageConfigs: CollectionConfig = {
                   relationTo: "media",
                 },
                 {
-                  name: "notes",
-                  label: "Editor notes",
-                  type: "textarea",
+                  name: "sectionClose",
+                  label: "Section Close",
+                  type: "richText",
                   admin: {
                     description:
-                      "Optional notes for editors. Not used on the frontend.",
+                      "Close text for this section. This will be displayed after the copy. and lead into the section cta",
                   },
+                },
+                
+                
+                {
+                  name: "ctas",
+                  label: "Section CTAs",
+                  type: "array",
+                  admin: {
+                    description:
+                      "Optional calls-to-action specific to this section. The frontend can opt-in to render these where appropriate.",
+                  },
+                  fields: [
+                    {
+                      name: "label",
+                      label: "Label",
+                      type: "text",
+                      required: true,
+                    },
+                    {
+                      name: "variant",
+                      label: "Button variant",
+                      type: "select",
+                      defaultValue: "default",
+                      options: [
+                        { label: "Default", value: "default" },
+                        { label: "Outline", value: "outline" },
+                        { label: "Secondary", value: "secondary" },
+                        { label: "Ghost", value: "ghost" },
+                        { label: "Link", value: "link" },
+                        { label: "Destructive", value: "destructive" },
+                      ],
+                      admin: {
+                        description:
+                          "Visual variant for the button. These map directly to the `variant` prop of the shared Button component.",
+                      },
+                    },
+                    {
+                      name: "linkKind",
+                      label: "Link type",
+                      type: "select",
+                      required: true,
+                      defaultValue: "internal",
+                      options: [
+                        { label: "Internal", value: "internal" },
+                        { label: "External", value: "external" },
+                      ],
+                      admin: {
+                        description:
+                          "Internal links are typically on-site routes or anchors (e.g. “#contact”). External links are full URLs.",
+                      },
+                    },
+                    {
+                      name: "internalLinkMode",
+                      label: "Internal link mode",
+                      type: "select",
+                      defaultValue: "route",
+                      options: [
+                        { label: "Route / anchor", value: "route" },
+                        { label: "Collection document", value: "document" },
+                      ],
+                      admin: {
+                        condition: (_, siblingData) => siblingData?.linkKind === "internal",
+                        description:
+                          "Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).",
+                      },
+                    },
+                    {
+                      name: "internalHref",
+                      label: "Internal href",
+                      type: "text",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "route",
+                        description:
+                          "Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.",
+                      },
+                    },
+                    {
+                      name: "internalCollection",
+                      label: "Internal collection",
+                      type: "select",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document",
+                        description:
+                          "Choose which internal content type to link to. Add more options as new content types ship.",
+                      },
+                      options: [
+                        { label: "Blog posts", value: "blog-posts" },
+                        { label: "Media", value: "media" },
+                      ],
+                    },
+                    {
+                      name: "internalBlogPost",
+                      label: "Blog post",
+                      type: "relationship",
+                      relationTo: "blog-posts",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document" &&
+                          siblingData?.internalCollection === "blog-posts",
+                        description:
+                          "Select the blog post to link to. The frontend will map this to the appropriate route.",
+                      },
+                    },
+                    {
+                      name: "internalMedia",
+                      label: "Media/file",
+                      type: "upload",
+                      relationTo: "media",
+                      admin: {
+                        condition: (_, siblingData) =>
+                          siblingData?.linkKind === "internal" &&
+                          siblingData?.internalLinkMode === "document" &&
+                          siblingData?.internalCollection === "media",
+                        description:
+                          "Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.",
+                      },
+                    },
+                    {
+                      name: "externalUrl",
+                      label: "External URL",
+                      type: "text",
+                      admin: {
+                        condition: (_, siblingData) => siblingData?.linkKind === "external",
+                        description: "Full external URL (e.g. https://example.com).",
+                      },
+                    },
+                    {
+                      name: "openInNewTab",
+                      label: "Open in new tab",
+                      type: "checkbox",
+                      defaultValue: false,
+                      admin: {
+                        condition: (_, siblingData) => siblingData?.linkKind === "external",
+                        description:
+                          "Only respected for external URLs. The frontend will map this to target/rel attributes.",
+                      },
+                    },
+                  ],
                 },
               ],
             },

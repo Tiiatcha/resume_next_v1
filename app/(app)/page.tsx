@@ -78,6 +78,10 @@ export default async function Home() {
     ? resolveCtas(pageConfig.hero.ctas)
     : []
 
+  const aboutSection = pageConfig?.sections?.find(
+    (section) => section.sectionKey === "about",
+  )
+
   return (
     <SiteBackground className="font-sans">
       <Header />
@@ -89,7 +93,15 @@ export default async function Home() {
         <HeroSection heroData={heroData} ctas={ctas} />
         <StackMarquee />
 
-        <AboutSection skills={skills} />
+        <AboutSection
+          skills={skills}
+          data={aboutSection}
+          eyebrow={aboutSection?.eyebrow ?? null}
+          heading={aboutSection?.heading ?? null}
+          sectionIntro={aboutSection?.sectionIntro ?? null}
+          copy={aboutSection?.copy ?? null}
+          sectionClose={aboutSection?.sectionClose ?? null}
+        />
         <ExperienceSection items={experience} />
         <ProjectsSection items={projects} />
         <EndorsementsSection endorsements={endorsements} />

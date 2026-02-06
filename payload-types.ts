@@ -557,8 +557,30 @@ export interface PageConfig {
          * Stable identifier for this section (e.g. “about”, “hero”, “contact”). The frontend uses this to find the right content.
          */
         sectionKey: string;
+        /**
+         * Optional notes for editors. Not used on the frontend.
+         */
+        notes?: string | null;
         eyebrow?: string | null;
         heading?: string | null;
+        /**
+         * Intro text for this section. This will be displayed below the heading.
+         */
+        sectionIntro?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         /**
          * Rich text content for this section. Use headings, links, and lists as needed.
          */
@@ -579,9 +601,68 @@ export interface PageConfig {
         } | null;
         media?: (string | null) | Media;
         /**
-         * Optional notes for editors. Not used on the frontend.
+         * Close text for this section. This will be displayed after the copy. and lead into the section cta
          */
-        notes?: string | null;
+        sectionClose?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Optional calls-to-action specific to this section. The frontend can opt-in to render these where appropriate.
+         */
+        ctas?:
+          | {
+              label: string;
+              /**
+               * Visual variant for the button. These map directly to the `variant` prop of the shared Button component.
+               */
+              variant?: ('default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive') | null;
+              /**
+               * Internal links are typically on-site routes or anchors (e.g. “#contact”). External links are full URLs.
+               */
+              linkKind: 'internal' | 'external';
+              /**
+               * Choose whether this internal link points to a simple route/anchor or a specific document (e.g. a blog post or media item).
+               */
+              internalLinkMode?: ('route' | 'document') | null;
+              /**
+               * Internal path or anchor (e.g. “#contact” or “/blog”). The frontend is responsible for choosing between <Link> and <a>.
+               */
+              internalHref?: string | null;
+              /**
+               * Choose which internal content type to link to. Add more options as new content types ship.
+               */
+              internalCollection?: ('blog-posts' | 'media') | null;
+              /**
+               * Select the blog post to link to. The frontend will map this to the appropriate route.
+               */
+              internalBlogPost?: (string | null) | BlogPost;
+              /**
+               * Select a media/file item from the library (e.g. a CV PDF). The frontend will map this to the media URL or a detail route.
+               */
+              internalMedia?: (string | null) | Media;
+              /**
+               * Full external URL (e.g. https://example.com).
+               */
+              externalUrl?: string | null;
+              /**
+               * Only respected for external URLs. The frontend will map this to target/rel attributes.
+               */
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -1210,11 +1291,28 @@ export interface PageConfigsSelect<T extends boolean = true> {
     | T
     | {
         sectionKey?: T;
+        notes?: T;
         eyebrow?: T;
         heading?: T;
+        sectionIntro?: T;
         copy?: T;
         media?: T;
-        notes?: T;
+        sectionClose?: T;
+        ctas?:
+          | T
+          | {
+              label?: T;
+              variant?: T;
+              linkKind?: T;
+              internalLinkMode?: T;
+              internalHref?: T;
+              internalCollection?: T;
+              internalBlogPost?: T;
+              internalMedia?: T;
+              externalUrl?: T;
+              openInNewTab?: T;
+              id?: T;
+            };
         id?: T;
       };
   seoTitle?: T;
