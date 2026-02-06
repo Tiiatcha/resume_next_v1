@@ -14,6 +14,8 @@ import { getPageConfig } from "@/lib/payload/get-page-config"
 import { getCtaUrl, type CtaRow } from "@/lib/url/get-cta-url"
 import type { HeroData, ResolvedCta } from "@/app/(app)/_sections/hero-section"
 
+export const revalidate = 60
+
 const BUTTON_VARIANTS: ResolvedCta["variant"][] = [
   "default",
   "outline",
