@@ -81,6 +81,18 @@ export default async function Home() {
   const aboutSection = pageConfig?.sections?.find(
     (section) => section.sectionKey === "about",
   )
+  const experienceSection = pageConfig?.sections?.find(
+    (section) => section.sectionKey === "experience",
+  )
+  const projectsSection = pageConfig?.sections?.find(
+    (section) => section.sectionKey === "projects",
+  )
+  const endorsementsSection = pageConfig?.sections?.find(
+    (section) => section.sectionKey === "endorsements",
+  )
+  const contactSection = pageConfig?.sections?.find(
+    (section) => section.sectionKey === "contact",
+  )
 
   return (
     <SiteBackground className="font-sans">
@@ -93,19 +105,11 @@ export default async function Home() {
         <HeroSection heroData={heroData} ctas={ctas} />
         <StackMarquee />
 
-        <AboutSection
-          skills={skills}
-          data={aboutSection}
-          eyebrow={aboutSection?.eyebrow ?? null}
-          heading={aboutSection?.heading ?? null}
-          sectionIntro={aboutSection?.sectionIntro ?? null}
-          copy={aboutSection?.copy ?? null}
-          sectionClose={aboutSection?.sectionClose ?? null}
-        />
-        <ExperienceSection items={experience} />
-        <ProjectsSection items={projects} />
-        <EndorsementsSection endorsements={endorsements} />
-        <ContactSection />
+        <AboutSection skills={skills} data={aboutSection} />
+        <ExperienceSection items={experience} data={experienceSection} />
+        <ProjectsSection items={projects} data={projectsSection} />
+        <EndorsementsSection endorsements={endorsements} data={endorsementsSection} />
+        <ContactSection data={contactSection} />
 
       </main>
 

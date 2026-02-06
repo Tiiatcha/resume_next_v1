@@ -241,6 +241,15 @@ export const PageConfigs: CollectionConfig = {
               admin: {
                 description:
                   "Free-form content buckets keyed by `sectionKey` (e.g. “about”). The frontend will pick and choose from these as needed.",
+                components: {
+                  RowLabel: {
+                    path: "./components/payload/array-row-label",
+                    clientProps: {
+                      field: "sectionKey",
+                      fallbackLabel: "Section",
+                    },
+                  },
+                },
               },
               fields: [
                 {
