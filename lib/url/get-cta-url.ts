@@ -19,6 +19,8 @@
  * corresponding field here and one entry to INTERNAL_DOCUMENT_HANDLERS below.
  */
 export type CtaRow = {
+  label: string
+  variant?: string | null
   linkKind: "internal" | "external"
   internalLinkMode?: "route" | "document" | null
   internalHref?: string | null

@@ -1,4 +1,3 @@
-
 import { HeroSection } from "@/app/(app)/_sections/hero-section"
 import { StackMarquee } from "@/app/(app)/_sections/stack-marquee"
 import { AboutSection } from "@/app/(app)/_sections/about-section"
@@ -11,14 +10,44 @@ import { getExperienceData, getProjectsData, getSkillsData } from "@/lib/cv-data
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
+import { getPageConfig } from "@/lib/payload/get-page-config"
+import { getCtaUrl, type CtaRow } from "@/lib/url/get-cta-url"
+import type { HeroData, ResolvedCta } from "@/app/(app)/_sections/hero-section"
+
+const BUTTON_VARIANTS: ResolvedCta["variant"][] = [
+  "default",
+  "outline",
+  "secondary",
+  "ghost",
+  "link",
+  "destructive",
+]
+
+function resolveCtas(ctas: CtaRow[]): ResolvedCta[] {
+  if (!Array.isArray(ctas) || ctas.length === 0) return []
+  return ctas.map((cta) => {
+    const { url, openInNewTab } = getCtaUrl(cta)
+    const rawVariant = cta.variant?.trim()
+    const variant =
+      rawVariant && BUTTON_VARIANTS.includes(rawVariant as ResolvedCta["variant"])
+        ? (rawVariant as ResolvedCta["variant"])
+        : "default"
+    return {
+      label: cta.label ?? "",
+      variant,
+      url,
+      openInNewTab,
+    }
+  })
+}
 
 export default async function Home() {
-  // Data is read server-side (filesystem) for a fast, SEO-friendly single-page CV.
-  // Styling remains Tailwind v4 tokens; Motion only handles subtle reveal animations.
-  const [experience, projects, skills] = await Promise.all([
+  // Data is read server-side (filesystem + Payload) for a fast, SEO-friendly single-page CV.
+  const [experience, projects, skills, pageConfig] = await Promise.all([
     getExperienceData(),
     getProjectsData(),
     getSkillsData(),
+    getPageConfig("home"),
   ])
 
   const payload = await getPayloadClient()
@@ -36,6 +65,19 @@ export default async function Home() {
 
   const endorsements = endorsementsResult.docs as unknown as EndorsementSummary[]
 
+  const heroData: HeroData = pageConfig?.hero
+    ? {
+        eyebrow: pageConfig.hero.eyebrow ?? null,
+        heading: pageConfig.hero.heading ?? null,
+        lead: pageConfig.hero.lead ?? null,
+        media: pageConfig.hero.media ?? null,
+      }
+    : { eyebrow: null, heading: null, lead: null, media: null }
+
+  const ctas: ResolvedCta[] = pageConfig?.hero?.ctas
+    ? resolveCtas(pageConfig.hero.ctas)
+    : []
+
   return (
     <SiteBackground className="font-sans">
       <Header />
@@ -44,7 +86,7 @@ export default async function Home() {
         {/* Anchor target for the "Home" nav link */}
         <div id="home" />
 
-        <HeroSection />
+        <HeroSection heroData={heroData} ctas={ctas} />
         <StackMarquee />
 
         <AboutSection skills={skills} />
