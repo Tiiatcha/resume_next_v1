@@ -65,6 +65,8 @@ html {
 }
 
 :root {
+  /* Fallback for --header-height; Header JS overwrites with px value. */
+  --header-height: 3.5rem;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.13 0.028 261.692);
@@ -97,6 +99,11 @@ html {
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
+}
+
+/* Padding-top: pt-4 (1rem) + header height. Use on hero and other sections below nav. */
+.pt-below-nav {
+  padding-top: calc(1rem + var(--header-height, 3.5rem));
 }
 
 .dark {

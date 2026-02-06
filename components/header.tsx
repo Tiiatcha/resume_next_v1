@@ -57,6 +57,7 @@ export function Header() {
     const hoverSettleTimeoutRef = React.useRef<number | null>(null)
     const activeSettleTimeoutRef = React.useRef<number | null>(null)
     const previousActiveSectionIdRef = React.useRef<NavSectionId>("home")
+    const headerRef = React.useRef<HTMLElement | null>(null)
     const navLinksHostRef = React.useRef<HTMLDivElement | null>(null)
     const linkRefsById = React.useRef<Record<NavSectionId, HTMLAnchorElement | null>>({
         home: null,
@@ -118,6 +119,26 @@ export function Header() {
             clearActiveSettleTimeout()
         }
     }, [clearActiveSettleTimeout, clearHoverSettleTimeout])
+
+    // Sync --header-height on :root so hero and other sections can use pt-below-nav.
+    React.useEffect(() => {
+        const el = headerRef.current
+        if (!el) return
+
+        const setHeaderHeight = () => {
+            document.documentElement.style.setProperty(
+                "--header-height",
+                `${el.offsetHeight}px`,
+            )
+        }
+
+        setHeaderHeight()
+
+        const observer = new ResizeObserver(setHeaderHeight)
+        observer.observe(el)
+
+        return () => observer.disconnect()
+    }, [])
 
     const getHighlightRectForSectionId = React.useCallback((sectionId: NavSectionId): HighlightRect | null => {
         const host = navLinksHostRef.current
@@ -322,6 +343,7 @@ export function Header() {
 
     return (
         <header
+            ref={headerRef}
             id="header"
             className={[
                 "sticky top-0 z-50 w-full",
