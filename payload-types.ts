@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'endorsement-access-challenges': EndorsementAccessChallenge;
     users: User;
     media: Media;
     'stock-media-sites': StockMediaSite;
@@ -74,10 +75,9 @@ export interface Config {
     tags: Tag;
     'tag-categories': TagCategory;
     'tag-colors': TagColor;
-    experiences: Experience;
     'page-configs': PageConfig;
+    experiences: Experience;
     endorsements: Endorsement;
-    'endorsement-access-challenges': EndorsementAccessChallenge;
     'blog-posts': BlogPost;
     'changelog-entries': ChangelogEntry;
     'payload-kv': PayloadKv;
@@ -87,6 +87,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'endorsement-access-challenges': EndorsementAccessChallengesSelect<false> | EndorsementAccessChallengesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'stock-media-sites': StockMediaSitesSelect<false> | StockMediaSitesSelect<true>;
@@ -94,10 +95,9 @@ export interface Config {
     tags: TagsSelect<false> | TagsSelect<true>;
     'tag-categories': TagCategoriesSelect<false> | TagCategoriesSelect<true>;
     'tag-colors': TagColorsSelect<false> | TagColorsSelect<true>;
-    experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     'page-configs': PageConfigsSelect<false> | PageConfigsSelect<true>;
+    experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
-    'endorsement-access-challenges': EndorsementAccessChallengesSelect<false> | EndorsementAccessChallengesSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'changelog-entries': ChangelogEntriesSelect<false> | ChangelogEntriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -110,12 +110,14 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
-    roadmap: Roadmap;
     'site-settings': SiteSetting;
+    'site-navigation': SiteNavigation;
+    roadmap: Roadmap;
   };
   globalsSelect: {
-    roadmap: RoadmapSelect<false> | RoadmapSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'site-navigation': SiteNavigationSelect<false> | SiteNavigationSelect<true>;
+    roadmap: RoadmapSelect<false> | RoadmapSelect<true>;
   };
   locale: null;
   user: User & {
@@ -143,6 +145,141 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "endorsement-access-challenges".
+ */
+export interface EndorsementAccessChallenge {
+  id: string;
+  /**
+   * The endorsement this OTP challenge is tied to.
+   */
+  endorsement: string | Endorsement;
+  /**
+   * Lowercased/trimmed email used for matching and verification. Never display publicly.
+   */
+  emailNormalized: string;
+  /**
+   * Hash of the OTP code (never store raw codes). This value is compared server-side only.
+   */
+  otpHash: string;
+  /**
+   * When the OTP becomes invalid.
+   */
+  expiresAt: string;
+  /**
+   * When this OTP was successfully verified. Used OTPs must not be reusable.
+   */
+  usedAt?: string | null;
+  /**
+   * How many verification attempts have been made for this challenge.
+   */
+  attemptCount: number;
+  /**
+   * If set, verification attempts should be rejected until this time.
+   */
+  lockedUntil?: string | null;
+  /**
+   * When the OTP email was last sent for this challenge.
+   */
+  lastSentAt?: string | null;
+  /**
+   * Captured for abuse prevention and auditing.
+   */
+  requestMeta?: {
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Short endorsements from clients and colleagues. All new submissions start as pending and must be approved before they appear on the site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "endorsements".
+ */
+export interface Endorsement {
+  id: string;
+  /**
+   * Only endorsements marked as Approved will be displayed publicly on the site.
+   */
+  status: 'pending' | 'approved' | 'rejected';
+  /**
+   * Timestamp for when this endorsement was approved. Set automatically on first approval, but you can override it.
+   */
+  approvedAt?: string | null;
+  /**
+   * Metadata describing why this endorsement currently requires review. This is used to drive email copy and admin workflows (new submission vs submitter edit).
+   */
+  reviewRequest: {
+    /**
+     * What triggered the current review cycle. Submitter edits reset endorsements to pending and require re-approval.
+     */
+    type: 'new_submission' | 'submitter_edit';
+    /**
+     * Who initiated the review request. This is separate from the endorsement `status` field.
+     */
+    requestedBy: 'submitter' | 'admin' | 'system';
+    /**
+     * When the latest review request was created.
+     */
+    requestedAt?: string | null;
+  };
+  /**
+   * Timestamp of the most recent submitter-driven edit (via OTP self-service). Used to trigger update notification emails.
+   */
+  submitterEditAt?: string | null;
+  /**
+   * Full name of the person giving the endorsement. They can choose whether this is shown publicly.
+   */
+  endorserName: string;
+  /**
+   * Optional contact email used only for verification or clarification. This is never displayed on the public site.
+   */
+  endorserEmail: string;
+  /**
+   * How this person has worked with you. This helps future employers and clients understand the context.
+   */
+  relationshipType: 'client' | 'colleague' | 'manager' | 'directReport' | 'other';
+  /**
+   * Their role or title at the time you worked together (e.g. Delivery Manager, Product Owner, Lead Developer).
+   */
+  roleOrTitle?: string | null;
+  /**
+   * Company name or project context (e.g. Thames Water transformation programme).
+   */
+  companyOrProject?: string | null;
+  /**
+   * Optional LinkedIn profile link to lend extra credibility to the endorsement.
+   */
+  linkedinUrl?: string | null;
+  /**
+   * 2–4 sentences describing what it was like to work with you, focused on impact and reliability. You may lightly edit for clarity and spelling before publishing.
+   */
+  endorsementText: string;
+  /**
+   * The submitter can choose which details are shown publicly alongside their endorsement.
+   */
+  displayPreferences?: {
+    showNamePublicly?: boolean | null;
+    showCompanyOrProjectPublicly?: boolean | null;
+    showLinkedinUrlPublicly?: boolean | null;
+  };
+  /**
+   * The submitter must explicitly consent before their endorsement can be published on your site.
+   */
+  consentToPublish: boolean;
+  /**
+   * Technical metadata captured at submission time (IP, user agent, etc.). Not shown publicly.
+   */
+  submissionMeta?: {
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -389,84 +526,6 @@ export interface TagColor {
    * Optional usage guidance (e.g. 'Use for technology/framework tags', 'Use for soft skills').
    */
   description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * CV experience entries. Dates are stored as real dates; the UI will format them later (e.g. yyyy-MMM, with “Present” for current roles).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "experiences".
- */
-export interface Experience {
-  id: string;
-  /**
-   * Company/organisation name (e.g. “Cadent Gas”).
-   */
-  company: string;
-  /**
-   * Role title (e.g. “Lead Developer”).
-   */
-  title: string;
-  /**
-   * Start date for the role. The UI will decide how to format it (e.g. yyyy-MMM).
-   */
-  fromDate: string;
-  /**
-   * Enable this for your current role. When enabled, the UI can render the end date as “Present”.
-   */
-  isCurrentRole?: boolean | null;
-  /**
-   * End date for the role. Leave empty when “Current role” is enabled.
-   */
-  toDate?: string | null;
-  /**
-   * Controls ordering on the resume. Decide the sort logic in the UI (e.g. descending by fromDate, then by sortOrder).
-   */
-  sortOrder?: number | null;
-  /**
-   * Structured content for the experience entry. Mirrors your current “mixed” model (paragraphs + headed bullet sections).
-   */
-  content: {
-    /**
-     * Experiences currently use `type: mixed` (paragraph blocks plus headed bullet sections).
-     */
-    type: 'mixed';
-    /**
-     * Content blocks rendered in order. Use a Paragraph for narrative text, and a Section for headed bullet lists.
-     */
-    sections: {
-      /**
-       * Select the block type for this row.
-       */
-      type: 'paragraph' | 'section';
-      /**
-       * Paragraph text. Keep it readable and impact-focused.
-       */
-      text?: string | null;
-      /**
-       * Section heading (e.g. “Key Tasks and responsibilities”).
-       */
-      heading?: string | null;
-      /**
-       * Bullet points for the section. Keep each item short and specific.
-       */
-      items?:
-        | {
-            /**
-             * A single bullet point.
-             */
-            item: string;
-            id?: string | null;
-          }[]
-        | null;
-      id?: string | null;
-    }[];
-  };
-  /**
-   * Technologies/skills used in this role. Select from the centralized tags collection.
-   */
-  tags?: (string | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -762,137 +821,80 @@ export interface BlogPost {
   createdAt: string;
 }
 /**
- * Short endorsements from clients and colleagues. All new submissions start as pending and must be approved before they appear on the site.
+ * CV experience entries. Dates are stored as real dates; the UI will format them later (e.g. yyyy-MMM, with “Present” for current roles).
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "endorsements".
+ * via the `definition` "experiences".
  */
-export interface Endorsement {
+export interface Experience {
   id: string;
   /**
-   * Only endorsements marked as Approved will be displayed publicly on the site.
+   * Company/organisation name (e.g. “Cadent Gas”).
    */
-  status: 'pending' | 'approved' | 'rejected';
+  company: string;
   /**
-   * Timestamp for when this endorsement was approved. Set automatically on first approval, but you can override it.
+   * Role title (e.g. “Lead Developer”).
    */
-  approvedAt?: string | null;
+  title: string;
   /**
-   * Metadata describing why this endorsement currently requires review. This is used to drive email copy and admin workflows (new submission vs submitter edit).
+   * Start date for the role. The UI will decide how to format it (e.g. yyyy-MMM).
    */
-  reviewRequest: {
+  fromDate: string;
+  /**
+   * Enable this for your current role. When enabled, the UI can render the end date as “Present”.
+   */
+  isCurrentRole?: boolean | null;
+  /**
+   * End date for the role. Leave empty when “Current role” is enabled.
+   */
+  toDate?: string | null;
+  /**
+   * Controls ordering on the resume. Decide the sort logic in the UI (e.g. descending by fromDate, then by sortOrder).
+   */
+  sortOrder?: number | null;
+  /**
+   * Structured content for the experience entry. Mirrors your current “mixed” model (paragraphs + headed bullet sections).
+   */
+  content: {
     /**
-     * What triggered the current review cycle. Submitter edits reset endorsements to pending and require re-approval.
+     * Experiences currently use `type: mixed` (paragraph blocks plus headed bullet sections).
      */
-    type: 'new_submission' | 'submitter_edit';
+    type: 'mixed';
     /**
-     * Who initiated the review request. This is separate from the endorsement `status` field.
+     * Content blocks rendered in order. Use a Paragraph for narrative text, and a Section for headed bullet lists.
      */
-    requestedBy: 'submitter' | 'admin' | 'system';
-    /**
-     * When the latest review request was created.
-     */
-    requestedAt?: string | null;
+    sections: {
+      /**
+       * Select the block type for this row.
+       */
+      type: 'paragraph' | 'section';
+      /**
+       * Paragraph text. Keep it readable and impact-focused.
+       */
+      text?: string | null;
+      /**
+       * Section heading (e.g. “Key Tasks and responsibilities”).
+       */
+      heading?: string | null;
+      /**
+       * Bullet points for the section. Keep each item short and specific.
+       */
+      items?:
+        | {
+            /**
+             * A single bullet point.
+             */
+            item: string;
+            id?: string | null;
+          }[]
+        | null;
+      id?: string | null;
+    }[];
   };
   /**
-   * Timestamp of the most recent submitter-driven edit (via OTP self-service). Used to trigger update notification emails.
+   * Technologies/skills used in this role. Select from the centralized tags collection.
    */
-  submitterEditAt?: string | null;
-  /**
-   * Full name of the person giving the endorsement. They can choose whether this is shown publicly.
-   */
-  endorserName: string;
-  /**
-   * Optional contact email used only for verification or clarification. This is never displayed on the public site.
-   */
-  endorserEmail: string;
-  /**
-   * How this person has worked with you. This helps future employers and clients understand the context.
-   */
-  relationshipType: 'client' | 'colleague' | 'manager' | 'directReport' | 'other';
-  /**
-   * Their role or title at the time you worked together (e.g. Delivery Manager, Product Owner, Lead Developer).
-   */
-  roleOrTitle?: string | null;
-  /**
-   * Company name or project context (e.g. Thames Water transformation programme).
-   */
-  companyOrProject?: string | null;
-  /**
-   * Optional LinkedIn profile link to lend extra credibility to the endorsement.
-   */
-  linkedinUrl?: string | null;
-  /**
-   * 2–4 sentences describing what it was like to work with you, focused on impact and reliability. You may lightly edit for clarity and spelling before publishing.
-   */
-  endorsementText: string;
-  /**
-   * The submitter can choose which details are shown publicly alongside their endorsement.
-   */
-  displayPreferences?: {
-    showNamePublicly?: boolean | null;
-    showCompanyOrProjectPublicly?: boolean | null;
-    showLinkedinUrlPublicly?: boolean | null;
-  };
-  /**
-   * The submitter must explicitly consent before their endorsement can be published on your site.
-   */
-  consentToPublish: boolean;
-  /**
-   * Technical metadata captured at submission time (IP, user agent, etc.). Not shown publicly.
-   */
-  submissionMeta?: {
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "endorsement-access-challenges".
- */
-export interface EndorsementAccessChallenge {
-  id: string;
-  /**
-   * The endorsement this OTP challenge is tied to.
-   */
-  endorsement: string | Endorsement;
-  /**
-   * Lowercased/trimmed email used for matching and verification. Never display publicly.
-   */
-  emailNormalized: string;
-  /**
-   * Hash of the OTP code (never store raw codes). This value is compared server-side only.
-   */
-  otpHash: string;
-  /**
-   * When the OTP becomes invalid.
-   */
-  expiresAt: string;
-  /**
-   * When this OTP was successfully verified. Used OTPs must not be reusable.
-   */
-  usedAt?: string | null;
-  /**
-   * How many verification attempts have been made for this challenge.
-   */
-  attemptCount: number;
-  /**
-   * If set, verification attempts should be rejected until this time.
-   */
-  lockedUntil?: string | null;
-  /**
-   * When the OTP email was last sent for this challenge.
-   */
-  lastSentAt?: string | null;
-  /**
-   * Captured for abuse prevention and auditing.
-   */
-  requestMeta?: {
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  };
+  tags?: (string | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -981,6 +983,10 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
+        relationTo: 'endorsement-access-challenges';
+        value: string | EndorsementAccessChallenge;
+      } | null)
+    | ({
         relationTo: 'users';
         value: string | User;
       } | null)
@@ -1009,20 +1015,16 @@ export interface PayloadLockedDocument {
         value: string | TagColor;
       } | null)
     | ({
-        relationTo: 'experiences';
-        value: string | Experience;
-      } | null)
-    | ({
         relationTo: 'page-configs';
         value: string | PageConfig;
       } | null)
     | ({
-        relationTo: 'endorsements';
-        value: string | Endorsement;
+        relationTo: 'experiences';
+        value: string | Experience;
       } | null)
     | ({
-        relationTo: 'endorsement-access-challenges';
-        value: string | EndorsementAccessChallenge;
+        relationTo: 'endorsements';
+        value: string | Endorsement;
       } | null)
     | ({
         relationTo: 'blog-posts';
@@ -1073,6 +1075,28 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "endorsement-access-challenges_select".
+ */
+export interface EndorsementAccessChallengesSelect<T extends boolean = true> {
+  endorsement?: T;
+  emailNormalized?: T;
+  otpHash?: T;
+  expiresAt?: T;
+  usedAt?: T;
+  attemptCount?: T;
+  lockedUntil?: T;
+  lastSentAt?: T;
+  requestMeta?:
+    | T
+    | {
+        ipAddress?: T;
+        userAgent?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1226,40 +1250,6 @@ export interface TagColorsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "experiences_select".
- */
-export interface ExperiencesSelect<T extends boolean = true> {
-  company?: T;
-  title?: T;
-  fromDate?: T;
-  isCurrentRole?: T;
-  toDate?: T;
-  sortOrder?: T;
-  content?:
-    | T
-    | {
-        type?: T;
-        sections?:
-          | T
-          | {
-              type?: T;
-              text?: T;
-              heading?: T;
-              items?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              id?: T;
-            };
-      };
-  tags?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "page-configs_select".
  */
 export interface PageConfigsSelect<T extends boolean = true> {
@@ -1325,6 +1315,40 @@ export interface PageConfigsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experiences_select".
+ */
+export interface ExperiencesSelect<T extends boolean = true> {
+  company?: T;
+  title?: T;
+  fromDate?: T;
+  isCurrentRole?: T;
+  toDate?: T;
+  sortOrder?: T;
+  content?:
+    | T
+    | {
+        type?: T;
+        sections?:
+          | T
+          | {
+              type?: T;
+              text?: T;
+              heading?: T;
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "endorsements_select".
  */
 export interface EndorsementsSelect<T extends boolean = true> {
@@ -1354,28 +1378,6 @@ export interface EndorsementsSelect<T extends boolean = true> {
       };
   consentToPublish?: T;
   submissionMeta?:
-    | T
-    | {
-        ipAddress?: T;
-        userAgent?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "endorsement-access-challenges_select".
- */
-export interface EndorsementAccessChallengesSelect<T extends boolean = true> {
-  endorsement?: T;
-  emailNormalized?: T;
-  otpHash?: T;
-  expiresAt?: T;
-  usedAt?: T;
-  attemptCount?: T;
-  lockedUntil?: T;
-  lastSentAt?: T;
-  requestMeta?:
     | T
     | {
         ipAddress?: T;
@@ -1478,6 +1480,78 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Default SEO and social sharing metadata for the site. Individual pages can override these values in code when needed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  /**
+   * Used as the Open Graph site name and as part of the title template.
+   */
+  siteName: string;
+  /**
+   * The canonical public base URL (used for canonical URLs and absolute OG image URLs). Include https://
+   */
+  siteUrl: string;
+  /**
+   * Used for pages that do not define a specific title (e.g. the homepage).
+   */
+  defaultTitle: string;
+  /**
+   * Used when a page defines a specific title. Keep `%s` as the placeholder for the page title.
+   */
+  titleTemplate: string;
+  /**
+   * Used for pages that do not define a specific meta description.
+   */
+  defaultDescription: string;
+  /**
+   * Recommended: 1200×630 PNG/JPG for rich previews (Open Graph + Twitter). Uses the Media item alt text for accessibility.
+   */
+  defaultShareImage?: (string | null) | Media;
+  /**
+   * Optional. Example: @craigdavison (used for Twitter card metadata).
+   */
+  twitterHandle?: string | null;
+  /**
+   * Enable this to set `noindex, nofollow` site-wide (useful for staging environments).
+   */
+  preventIndexing?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Site navigation settings
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-navigation".
+ */
+export interface SiteNavigation {
+  id: string;
+  navigation?:
+    | {
+        /**
+         * Label for the navigation item
+         */
+        label: string;
+        href: string;
+        /**
+         * Open the link in a new tab
+         */
+        openInNewTab: boolean;
+        /**
+         * Icon to display for the navigation item
+         */
+        icon: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Content shown on the public /roadmap page. Update the copy and bullets here without changing code.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1556,47 +1630,39 @@ export interface Roadmap {
   createdAt?: string | null;
 }
 /**
- * Default SEO and social sharing metadata for the site. Individual pages can override these values in code when needed.
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
+ * via the `definition` "site-settings_select".
  */
-export interface SiteSetting {
-  id: string;
-  /**
-   * Used as the Open Graph site name and as part of the title template.
-   */
-  siteName: string;
-  /**
-   * The canonical public base URL (used for canonical URLs and absolute OG image URLs). Include https://
-   */
-  siteUrl: string;
-  /**
-   * Used for pages that do not define a specific title (e.g. the homepage).
-   */
-  defaultTitle: string;
-  /**
-   * Used when a page defines a specific title. Keep `%s` as the placeholder for the page title.
-   */
-  titleTemplate: string;
-  /**
-   * Used for pages that do not define a specific meta description.
-   */
-  defaultDescription: string;
-  /**
-   * Recommended: 1200×630 PNG/JPG for rich previews (Open Graph + Twitter). Uses the Media item alt text for accessibility.
-   */
-  defaultShareImage?: (string | null) | Media;
-  /**
-   * Optional. Example: @craigdavison (used for Twitter card metadata).
-   */
-  twitterHandle?: string | null;
-  /**
-   * Enable this to set `noindex, nofollow` site-wide (useful for staging environments).
-   */
-  preventIndexing?: boolean | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteUrl?: T;
+  defaultTitle?: T;
+  titleTemplate?: T;
+  defaultDescription?: T;
+  defaultShareImage?: T;
+  twitterHandle?: T;
+  preventIndexing?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-navigation_select".
+ */
+export interface SiteNavigationSelect<T extends boolean = true> {
+  navigation?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        openInNewTab?: T;
+        icon?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1655,23 +1721,6 @@ export interface RoadmapSelect<T extends boolean = true> {
             };
       };
   _status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
- */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  siteName?: T;
-  siteUrl?: T;
-  defaultTitle?: T;
-  titleTemplate?: T;
-  defaultDescription?: T;
-  defaultShareImage?: T;
-  twitterHandle?: T;
-  preventIndexing?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
