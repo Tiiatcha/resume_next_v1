@@ -32,6 +32,7 @@ const dirname = path.dirname(filename);
 
 
 
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -105,6 +106,6 @@ export default buildConfig({
   email: resendAdapter({
     defaultFromName: "Craig Davison",
     defaultFromAddress: "hello@craigdavison.net",
-    apiKey: resendApiKey,
+    apiKey: process.env.RESEND_API_KEY || "",
   }),
 });
