@@ -21,7 +21,7 @@ export const SiteSettings: GlobalConfig = {
   },
   admin: {
     description:
-      "Default SEO and social sharing metadata for the site. Individual pages can override these values in code when needed.",
+      "Site-wide hub: SEO defaults, contact info, CV/downloads, feature toggles, and legal policy content. Individual pages can override SEO in code when needed.",
   },
   fields: [
     {
@@ -118,6 +118,200 @@ export const SiteSettings: GlobalConfig = {
               admin: {
                 description:
                   "Enable this to set `noindex, nofollow` site-wide (useful for staging environments).",
+              },
+            },
+          ],
+        },
+        {
+          label: "Contact",
+          fields: [
+            {
+              name: "contactEmail",
+              label: "Contact email",
+              type: "email",
+              admin: {
+                description: "Primary contact email shown across the site (footer, contact section). Leave empty to hide or use fallback.",
+              },
+            },
+            {
+              name: "contactPhone",
+              label: "Contact phone",
+              type: "text",
+              admin: {
+                description: "Optional. Display number for tel: links and contact section.",
+              },
+            },
+            {
+              name: "contactLocation",
+              label: "Contact location",
+              type: "text",
+              admin: {
+                description: "Optional. Human-readable location (e.g. “Leicestershire, UK”).",
+              },
+            },
+            {
+              name: "contactWhatsApp",
+              label: "WhatsApp number",
+              type: "text",
+              admin: {
+                description:
+                  "Optional. E.164 format (digits only, with country code, no +). Used for WhatsApp deep links.",
+              },
+            },
+          ],
+        },
+        {
+          label: "CV / Downloads",
+          fields: [
+            {
+              name: "cvCurrent",
+              label: "Current CV file",
+              type: "upload",
+              relationTo: "media",
+              admin: {
+                description:
+                  "Primary CV PDF. Upload a PDF to the Media library; this field links to it. PDF is recommended for compatibility.",
+              },
+            },
+            {
+              name: "cvDisplayName",
+              label: "CV display name",
+              type: "text",
+              admin: {
+                description: "Optional. Label shown for the download (e.g. “Craig Davison CV (Full-stack)”).",
+              },
+            },
+            {
+              name: "cvLastUpdated",
+              label: "CV last updated",
+              type: "date",
+              admin: {
+                description: "Optional. Date the current CV was last updated.",
+              },
+            },
+            {
+              name: "cvVariants",
+              label: "CV variants",
+              type: "array",
+              admin: {
+                description:
+                  "Optional. Alternative CV versions (e.g. short vs full). If you set “Default”, use only one per site; multiple defaults are not enforced.",
+              },
+              fields: [
+                {
+                  name: "label",
+                  label: "Label",
+                  type: "text",
+                  required: true,
+                  admin: { description: "e.g. “Short version”, “Full-stack”." },
+                },
+                {
+                  name: "file",
+                  label: "File",
+                  type: "upload",
+                  relationTo: "media",
+                  required: true,
+                  admin: { description: "PDF upload from Media." },
+                },
+                {
+                  name: "isDefault",
+                  label: "Default variant",
+                  type: "checkbox",
+                  defaultValue: false,
+                  admin: {
+                    description: "Mark as the default download when multiple variants exist. Prefer only one default.",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: "Features",
+          fields: [
+            {
+              name: "enableBlog",
+              label: "Enable blog",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the Blog link in navigation and allow access to the blog section.",
+              },
+            },
+            {
+              name: "enableEndorsements",
+              label: "Enable endorsements",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the Endorsements section on the homepage and in navigation.",
+              },
+            },
+            {
+              name: "enableRoadmap",
+              label: "Enable roadmap",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the Roadmap link and allow access to the roadmap page.",
+              },
+            },
+            {
+              name: "enableChangelog",
+              label: "Enable changelog",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the Changelog link and allow access to the changelog page.",
+              },
+            },
+            {
+              name: "enableContactForm",
+              label: "Enable contact form",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the Contact section (and contact form if implemented) on the homepage.",
+              },
+            },
+            {
+              name: "enableCvDownload",
+              label: "Enable CV download",
+              type: "checkbox",
+              defaultValue: true,
+              admin: {
+                description: "Show the CV download button in the footer and any CV download CTAs.",
+              },
+            },
+          ],
+        },
+        {
+          label: "Legal",
+          fields: [
+            {
+              name: "privacyPolicyContent",
+              label: "Privacy policy content",
+              type: "richText",
+              admin: {
+                description:
+                  "Source of truth for the Privacy Policy page. Render this rich text on your privacy policy route; add the page/link in your nav or footer separately.",
+              },
+            },
+            {
+              name: "cookiePolicyContent",
+              label: "Cookie policy content",
+              type: "richText",
+              admin: {
+                description:
+                  "Source of truth for the Cookie Policy page. Render this rich text on your cookie policy route; add the page/link in your nav or footer separately.",
+              },
+            },
+            {
+              name: "legalLastUpdated",
+              label: "Legal last updated",
+              type: "date",
+              admin: {
+                description: "Optional. Date when privacy/cookie policies were last updated.",
               },
             },
           ],

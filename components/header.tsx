@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 
 import { ThemeToggle } from "@/components/shared/theme/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { useSiteSettings } from "@/lib/site-settings-context"
 import {
     Sheet,
     SheetClose,
@@ -45,9 +46,20 @@ function getUnionRect(a: HighlightRect, b: HighlightRect): HighlightRect {
     return { x: left, y: top, width: right - left, height: bottom - top }
 }
 
+/** All possible nav section IDs; filtered by feature flags before rendering. */
+const ALL_NAV_ITEMS: NavItem[] = [
+    { id: "home", label: "Home", href: "/#home" },
+    { id: "about", label: "About", href: "/#about" },
+    { id: "experience", label: "Experience", href: "/#experience" },
+    { id: "projects", label: "Projects", href: "/#projects" },
+    { id: "endorsements", label: "Endorsements", href: "/#endorsements" },
+    { id: "contact", label: "Contact", href: "/#contact" },
+]
+
 export function Header() {
     const pathname = usePathname()
     const isHomeRoute = pathname === "/"
+    const siteSettings = useSiteSettings()
 
     const [hasScrolled, setHasScrolled] = React.useState(false)
     const [activeSectionId, setActiveSectionId] = React.useState<NavSectionId>("home")
@@ -68,17 +80,16 @@ export function Header() {
         contact: null,
     })
 
-    const navItems: NavItem[] = React.useMemo(
-        () => [
-            { id: "home", label: "Home", href: "/#home" },
-            { id: "about", label: "About", href: "/#about" },
-            { id: "experience", label: "Experience", href: "/#experience" },
-            { id: "projects", label: "Projects", href: "/#projects" },
-            { id: "endorsements", label: "Endorsements", href: "/#endorsements" },
-            { id: "contact", label: "Contact", href: "/#contact" },
-        ],
-        [],
-    )
+    const navItems: NavItem[] = React.useMemo(() => {
+        if (!siteSettings) return ALL_NAV_ITEMS
+        return ALL_NAV_ITEMS.filter((item) => {
+            if (item.id === "endorsements") return siteSettings.enableEndorsements
+            if (item.id === "contact") return siteSettings.enableContactForm
+            return true
+        })
+    }, [siteSettings])
+
+    const showBlogLink = siteSettings?.enableBlog !== false
 
     const [highlightRect, setHighlightRect] = React.useState<HighlightRect | null>(null)
 
@@ -186,8 +197,8 @@ export function Header() {
         function syncActiveSection() {
             // Determine which section is currently "active" based on scroll position.
             // We pick the last section whose top has passed a threshold so the highlight
-            // feels stable as you scroll.
-            const candidateIds: NavSectionId[] = ["home", "about", "experience", "projects", "endorsements", "contact"]
+            // feels stable as you scroll. Use only section IDs that are in the current nav (feature flags).
+            const candidateIds: NavSectionId[] = navItems.map((item) => item.id)
             const thresholdFromTop = activeSectionThresholdPx
 
             let newestActiveId: NavSectionId = candidateIds[0]
@@ -207,11 +218,11 @@ export function Header() {
 
             // Edge case: the last section may never reach the threshold if the document
             // can't scroll far enough (common near the bottom). In that case, treat
-            // "at the bottom" as the Contact section being active.
+            // "at the bottom" as the last visible section being active.
             const viewportBottom = window.scrollY + window.innerHeight
             const documentBottom = document.documentElement.scrollHeight
-            if (viewportBottom >= documentBottom - 4) {
-                newestActiveId = "contact"
+            if (viewportBottom >= documentBottom - 4 && candidateIds.length > 0) {
+                newestActiveId = candidateIds[candidateIds.length - 1]
             }
 
             setActiveSectionId((current) => (current === newestActiveId ? current : newestActiveId))
@@ -222,7 +233,7 @@ export function Header() {
 
         window.addEventListener("scroll", syncActiveSection, { passive: true })
         return () => window.removeEventListener("scroll", syncActiveSection)
-    }, [isHomeRoute])
+    }, [isHomeRoute, navItems])
 
     const sectionMaxWidthClass = "max-w-[calc(72rem+2rem)] sm:max-w-[calc(72rem+3rem)]"
     const topOfPageMaxWidthClass = "max-w-full"
@@ -456,26 +467,27 @@ export function Header() {
                                 )
                             })}
 
-                            {/* Separator before blog link */}
-                            <div 
-                                className="relative mx-2 h-6 w-px bg-muted-foreground/20" 
-                                aria-hidden="true" 
-                            />
-
-                            {/* Blog link - separate from hash-based navigation */}
-                            <Link
-                                href="/blog"
-                                className={[
-                                    "relative z-10 rounded-full px-3 py-1.5 transition-colors",
-                                    "border-l border-border pl-4 ml-1",
-                                    pathname === "/blog"
-                                        ? "text-foreground"
-                                        : "text-muted-foreground hover:text-foreground",
-                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                                ].join(" ")}
-                            >
-                                Blog
-                            </Link>
+                            {showBlogLink ? (
+                                <>
+                                    <div
+                                        className="relative mx-2 h-6 w-px bg-muted-foreground/20"
+                                        aria-hidden="true"
+                                    />
+                                    <Link
+                                        href="/blog"
+                                        className={[
+                                            "relative z-10 rounded-full px-3 py-1.5 transition-colors",
+                                            "border-l border-border pl-4 ml-1",
+                                            pathname === "/blog"
+                                                ? "text-foreground"
+                                                : "text-muted-foreground hover:text-foreground",
+                                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                        ].join(" ")}
+                                    >
+                                        Blog
+                                    </Link>
+                                </>
+                            ) : null}
                         </div>
                     </div>
 
@@ -523,20 +535,23 @@ export function Header() {
                                                 </SheetClose>
                                             ))}
 
-                                            <div className="my-2 border-t" aria-hidden="true" />
-
-                                            <SheetClose asChild>
-                                                <Link
-                                                    href="/blog"
-                                                    className={[
-                                                        "rounded-lg px-3 py-2 text-base font-medium",
-                                                        "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
-                                                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                                                    ].join(" ")}
-                                                >
-                                                    Blog
-                                                </Link>
-                                            </SheetClose>
+                                            {showBlogLink ? (
+                                                <>
+                                                    <div className="my-2 border-t" aria-hidden="true" />
+                                                    <SheetClose asChild>
+                                                        <Link
+                                                            href="/blog"
+                                                            className={[
+                                                                "rounded-lg px-3 py-2 text-base font-medium",
+                                                                "text-foreground/90 hover:text-foreground hover:bg-foreground/5",
+                                                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                                            ].join(" ")}
+                                                        >
+                                                            Blog
+                                                        </Link>
+                                                    </SheetClose>
+                                                </>
+                                            ) : null}
                                         </div>
                                     </div>
                                     </SheetContent>

@@ -12,9 +12,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Reveal } from "@/components/shared/motion/reveal"
 import { ArrowUpRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react"
-import { contactDetails, getContactHrefs } from "@/lib/contact-details"
-import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 import { PayloadRichText } from "@/components/content/payload-rich-text"
+import { getContactFromSettings } from "@/lib/contact-from-settings"
+import { useSiteSettings } from "@/lib/site-settings-context"
+import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 
 type ContactSectionData = {
   eyebrow?: string | null
@@ -25,8 +26,8 @@ type ContactSectionData = {
 }
 
 export function ContactSection({ data }: { data?: ContactSectionData | null }) {
-  const { emailHref, telephoneHref, whatsappHref, mapsHref } =
-    getContactHrefs(contactDetails)
+  const siteSettings = useSiteSettings()
+  const contact = getContactFromSettings(siteSettings)
   const eyebrow = data?.eyebrow ?? null
   const heading = data?.heading ?? null
   const sectionIntro = data?.sectionIntro ?? null
@@ -50,8 +51,16 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
               className="h-full w-full origin-center scale-[1.15] grayscale contrast-125 saturate-0 brightness-[0.95] dark:brightness-[0.8] blur-[1px]"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Map background centered on Earl Shilton"
-              src="https://www.google.com/maps?q=Earl%20Shilton&z=13&output=embed"
+              title={
+                contact.locationDisplay !== "—"
+                  ? `Map background centered on ${contact.locationDisplay}`
+                  : "Map background"
+              }
+              src={
+                contact.locationDisplay !== "—"
+                  ? `https://www.google.com/maps?q=${encodeURIComponent(contact.locationDisplay)}&z=13&output=embed`
+                  : "https://www.google.com/maps?q=UK&z=6&output=embed"
+              }
             />
           </div>
 
@@ -94,9 +103,9 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
                   </p>
                   <a
                     className="inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline"
-                    href={emailHref}
+                    href={contact.emailHref}
                   >
-                    {contactDetails.emailAddress}
+                    {contact.emailDisplay}
                   </a>
                 </CardContent>
               </Card>
@@ -118,9 +127,9 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
                   </p>
                   <a
                     className="inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline"
-                    href={telephoneHref}
+                    href={contact.telephoneHref}
                   >
-                    {contactDetails.phoneNumberDisplay}
+                    {contact.phoneDisplay}
                   </a>
                 </CardContent>
               </Card>
@@ -145,7 +154,7 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
                   </p>
                   <a
                     className="inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline"
-                    href={whatsappHref}
+                    href={contact.whatsappHref}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -167,11 +176,13 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <p className="text-muted-foreground text-pretty">
-                    Based in {contactDetails.location}.
+                    {contact.locationDisplay !== "—"
+                      ? `Based in ${contact.locationDisplay}.`
+                      : "Location not set in Site settings."}
                   </p>
                   <a
                     className="inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline"
-                    href={mapsHref}
+                    href={contact.mapsHref}
                     target="_blank"
                     rel="noreferrer"
                   >
