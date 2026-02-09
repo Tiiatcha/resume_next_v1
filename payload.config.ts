@@ -1,11 +1,11 @@
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import path from "path";
+import { sharedLexicalEditor } from "./lib/lexical-editor";
 import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { resendAdapter } from "@payloadcms/email-resend";
-
+// collections
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { StockMediaSites } from "./collections/StockMediaSites";
@@ -19,26 +19,18 @@ import { EndorsementAccessChallenges } from "./collections/EndorsementAccessChal
 import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Experiences } from "./collections/Experiences";
 import { PageConfigs } from "./collections/PageConfigs";
+// globals
 import { Roadmap } from "./globals/Roadmap";
 import { SiteSettings } from "./globals/SiteSettings";
-
+import { SiteNavigation } from "./globals/SiteNavigation";
+// storage adapters
 import { s3Storage } from "@payloadcms/storage-s3";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-/**
- * Validate that the Resend API key is configured.
- * Logs a warning if missing to help with debugging email issues.
- */
-const resendApiKey = process.env.RESEND_API_KEY || "";
-if (!resendApiKey) {
-  console.warn(
-    "⚠️  WARNING: RESEND_API_KEY environment variable is not set. Email notifications will not work.",
-  );
-} else {
-  console.log("✅ Email notifications enabled (Resend API key configured)");
-}
+
+
 
 export default buildConfig({
   admin: {
@@ -46,8 +38,19 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    dateFormat: "yyyy-MMM-dd",
   },
+  cors:{
+    origins: ["https://craigdavison.net", "https://www.craigdavison.net","http://localhost:3000"],
+    // headers: ["Content-Type", "Authorization"],
+  },
+  csrf:[
+    "https://craigdavison.net",
+    "https://www.craigdavison.net",
+    "http://localhost:3000",
+  ],
   collections: [
+    EndorsementAccessChallenges,
     Users,
     Media,
     StockMediaSites,
@@ -55,15 +58,18 @@ export default buildConfig({
     Tags,
     TagCategories,
     TagColors,
-    Experiences,
     PageConfigs,
+    Experiences,
     Endorsements,
-    EndorsementAccessChallenges,
     BlogPosts,
     ChangelogEntries,
   ],
-  globals: [Roadmap, SiteSettings],
-  editor: lexicalEditor(),
+  globals: [
+    SiteSettings, 
+    SiteNavigation,
+    Roadmap,
+  ],
+  editor: sharedLexicalEditor,
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

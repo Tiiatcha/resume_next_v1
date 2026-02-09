@@ -42,16 +42,16 @@ export default function ArrayRowLabel({
 }: ArrayRowLabelProps) {
   const { data, rowNumber } = useRowLabel<Record<string, unknown>>()
 
-  const rawValue =
+  const value =
     field && typeof data?.[field] === "string"
       ? (data[field] as string).trim()
       : ""
 
-  if (rawValue) {
-    return <>{rawValue}</>
+  if (value) {
+    return <>{value}</>
   }
 
-  const number = typeof rowNumber === "number" ? rowNumber : 1
-  return <>{`${fallbackLabel} ${number}`}</>
+  const number = typeof rowNumber === "number" ? rowNumber+1 : 1
+  return <>{`${fallbackLabel} ${number.toString().padStart(2, "0")}`}</>
 }
 

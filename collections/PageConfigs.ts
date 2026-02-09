@@ -1,5 +1,4 @@
 import type { CollectionConfig } from "payload"
-
 /**
  * Page configuration documents keyed by `pageKey`.
  *
