@@ -11,6 +11,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { getPageConfig } from "@/lib/payload/get-page-config"
+import { getSiteSettings } from "@/lib/seo/get-site-settings"
 import { getCtaUrl, type CtaRow } from "@/lib/url/get-cta-url"
 import type { HeroData, ResolvedCta } from "@/app/(app)/_sections/hero-section"
 
@@ -45,11 +46,12 @@ function resolveCtas(ctas: CtaRow[]): ResolvedCta[] {
 
 export default async function Home() {
   // Data is read server-side (filesystem + Payload) for a fast, SEO-friendly single-page CV.
-  const [experience, projects, skills, pageConfig] = await Promise.all([
+  const [experience, projects, skills, pageConfig, siteSettings] = await Promise.all([
     getExperienceData(),
     getProjectsData(),
     getSkillsData(),
     getPageConfig("home"),
+    getSiteSettings(),
   ])
 
   const payload = await getPayloadClient()
@@ -110,8 +112,12 @@ export default async function Home() {
         <AboutSection skills={skills} data={aboutSection} />
         <ExperienceSection items={experience} data={experienceSection} />
         <ProjectsSection items={projects} data={projectsSection} />
-        <EndorsementsSection endorsements={endorsements} data={endorsementsSection} />
-        <ContactSection data={contactSection} />
+        {siteSettings.enableEndorsements ? (
+          <EndorsementsSection endorsements={endorsements} data={endorsementsSection} />
+        ) : null}
+        {siteSettings.enableContactForm ? (
+          <ContactSection data={contactSection} />
+        ) : null}
 
       </main>
 

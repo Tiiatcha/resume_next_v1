@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Activity,
   Atom,
@@ -19,18 +21,20 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Container } from "@/components/shared/layout/container"
 import { SectionGlowOrb } from "@/components/shared/layout/section-glow-orb"
-import { contactDetails, getContactHrefs } from "@/lib/contact-details"
+import { getContactFromSettings } from "@/lib/contact-from-settings"
+import { useSiteSettings } from "@/lib/site-settings-context"
 
 type FooterNavLink = {
   label: string
-  /**
-   * Use an absolute in-app hash link (`/#section-id`) so navigation works even
-   * from non-home pages (e.g. `/roadmap`).
-   */
   href: `/#${string}`
 }
 
-const footerNavLinks: FooterNavLink[] = [
+type FooterSiteLink = {
+  label: string
+  href: `/${string}`
+}
+
+const ALL_FOOTER_NAV_LINKS: FooterNavLink[] = [
   { label: "Home", href: "/#home" },
   { label: "About", href: "/#about" },
   { label: "Experience", href: "/#experience" },
@@ -38,12 +42,7 @@ const footerNavLinks: FooterNavLink[] = [
   { label: "Contact", href: "/#contact" },
 ]
 
-type FooterSiteLink = {
-  label: string
-  href: `/${string}`
-}
-
-const footerSiteLinks: FooterSiteLink[] = [
+const ALL_FOOTER_SITE_LINKS: FooterSiteLink[] = [
   { label: "Blog", href: "/blog" },
   { label: "Roadmap", href: "/roadmap" },
   { label: "Changelog", href: "/changelog" },
@@ -52,15 +51,33 @@ const footerSiteLinks: FooterSiteLink[] = [
 /**
  * Site footer for the single-page CV.
  *
- * Design goals:
- * - Slightly richer than a "copyright bar" (CTA, quick links, contact shortcuts)
- * - Still lightweight: no client-side state, no JS-only interactions
- * - Accessible: clear labels, sensible focus styles, and no decorative noise for AT
+ * Contact and CV data come from Site Settings (Contact / CV tabs).
+ * Feature flags from Site Settings control which nav/site links and CV button are shown.
  */
 export function Footer() {
   const year = new Date().getFullYear()
-  const { emailHref, telephoneHref, whatsappHref, mapsHref } =
-    getContactHrefs(contactDetails)
+  const siteSettings = useSiteSettings()
+  const contact = getContactFromSettings(siteSettings)
+
+  const footerNavLinks = siteSettings
+    ? ALL_FOOTER_NAV_LINKS.filter((link) => {
+        if (link.label === "Contact") return siteSettings.enableContactForm
+        return true
+      })
+    : ALL_FOOTER_NAV_LINKS
+
+  const footerSiteLinks = siteSettings
+    ? ALL_FOOTER_SITE_LINKS.filter((link) => {
+        if (link.label === "Blog") return siteSettings.enableBlog
+        if (link.label === "Roadmap") return siteSettings.enableRoadmap
+        if (link.label === "Changelog") return siteSettings.enableChangelog
+        return true
+      })
+    : ALL_FOOTER_SITE_LINKS
+
+  const showCvDownload = siteSettings?.enableCvDownload !== false
+  const cvUrl = siteSettings?.cvCurrent?.url ?? null
+  const cvLabel = siteSettings?.cvCurrent?.displayName?.trim() || "Download CV"
 
   return (
     <footer className="relative isolate overflow-hidden border-t px-4">
@@ -93,28 +110,27 @@ export function Footer() {
 
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild>
-                <a href={emailHref}>
+                <a href={contact.emailHref}>
                   <Mail className="size-4" aria-hidden="true" />
                   Email me
                 </a>
               </Button>
 
               <Button asChild variant="outline">
-                <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <a href={contact.whatsappHref} target="_blank" rel="noreferrer">
                   <MessageCircle className="size-4" aria-hidden="true" />
                   WhatsApp
                   <ArrowUpRight className="size-4" aria-hidden="true" />
                 </a>
               </Button>
 
-              <Button asChild variant="outline">
-                <a
-                  href="/assets/documents/Craig%20Davison%20CV%20Oct%202024.pdf"
-                  download="Craig-Davison-CV.pdf"
-                >
-                  Download CV
-                </a>
-              </Button>
+              {showCvDownload && cvUrl ? (
+                <Button asChild variant="outline">
+                  <a href={cvUrl} download>
+                    {cvLabel}
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </div>
         </div>
@@ -153,31 +169,31 @@ export function Footer() {
             <ul className="text-muted-foreground grid gap-2 text-sm">
               <li>
                 <a
-                  href={emailHref}
+                  href={contact.emailHref}
                   className="inline-flex items-center gap-2 underline underline-offset-4 hover:no-underline"
                 >
                   <Mail className="size-4" aria-hidden="true" />
-                  {contactDetails.emailAddress}
+                  {contact.emailDisplay}
                 </a>
               </li>
               <li>
                 <a
-                  href={telephoneHref}
+                  href={contact.telephoneHref}
                   className="inline-flex items-center gap-2 underline underline-offset-4 hover:no-underline"
                 >
                   <Phone className="size-4" aria-hidden="true" />
-                  {contactDetails.phoneNumberDisplay}
+                  {contact.phoneDisplay}
                 </a>
               </li>
               <li>
                 <a
-                  href={mapsHref}
+                  href={contact.mapsHref}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 underline underline-offset-4 hover:no-underline"
                 >
                   <MapPin className="size-4" aria-hidden="true" />
-                  {contactDetails.location}
+                  {contact.locationDisplay}
                   <ArrowUpRight className="size-4" aria-hidden="true" />
                 </a>
               </li>
