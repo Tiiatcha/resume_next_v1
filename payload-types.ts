@@ -1480,7 +1480,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Default SEO and social sharing metadata for the site. Individual pages can override these values in code when needed.
+ * Site-wide hub: SEO defaults, contact info, CV/downloads, feature toggles, and legal policy content. Individual pages can override SEO in code when needed.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
@@ -1519,6 +1519,118 @@ export interface SiteSetting {
    * Enable this to set `noindex, nofollow` site-wide (useful for staging environments).
    */
   preventIndexing?: boolean | null;
+  /**
+   * Primary contact email shown across the site (footer, contact section). Leave empty to hide or use fallback.
+   */
+  contactEmail?: string | null;
+  /**
+   * Optional. Display number for tel: links and contact section.
+   */
+  contactPhone?: string | null;
+  /**
+   * Optional. Human-readable location (e.g. “Leicestershire, UK”).
+   */
+  contactLocation?: string | null;
+  /**
+   * Optional. E.164 format (digits only, with country code, no +). Used for WhatsApp deep links.
+   */
+  contactWhatsApp?: string | null;
+  /**
+   * Primary CV PDF. Upload a PDF to the Media library; this field links to it. PDF is recommended for compatibility.
+   */
+  cvCurrent?: (string | null) | Media;
+  /**
+   * Optional. Label shown for the download (e.g. “Craig Davison CV (Full-stack)”).
+   */
+  cvDisplayName?: string | null;
+  /**
+   * Optional. Date the current CV was last updated.
+   */
+  cvLastUpdated?: string | null;
+  /**
+   * Optional. Alternative CV versions (e.g. short vs full). If you set “Default”, use only one per site; multiple defaults are not enforced.
+   */
+  cvVariants?:
+    | {
+        /**
+         * e.g. “Short version”, “Full-stack”.
+         */
+        label: string;
+        /**
+         * PDF upload from Media.
+         */
+        file: string | Media;
+        /**
+         * Mark as the default download when multiple variants exist. Prefer only one default.
+         */
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Show the Blog link in navigation and allow access to the blog section.
+   */
+  enableBlog?: boolean | null;
+  /**
+   * Show the Endorsements section on the homepage and in navigation.
+   */
+  enableEndorsements?: boolean | null;
+  /**
+   * Show the Roadmap link and allow access to the roadmap page.
+   */
+  enableRoadmap?: boolean | null;
+  /**
+   * Show the Changelog link and allow access to the changelog page.
+   */
+  enableChangelog?: boolean | null;
+  /**
+   * Show the Contact section (and contact form if implemented) on the homepage.
+   */
+  enableContactForm?: boolean | null;
+  /**
+   * Show the CV download button in the footer and any CV download CTAs.
+   */
+  enableCvDownload?: boolean | null;
+  /**
+   * Source of truth for the Privacy Policy page. Render this rich text on your privacy policy route; add the page/link in your nav or footer separately.
+   */
+  privacyPolicyContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Source of truth for the Cookie Policy page. Render this rich text on your cookie policy route; add the page/link in your nav or footer separately.
+   */
+  cookiePolicyContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional. Date when privacy/cookie policies were last updated.
+   */
+  legalLastUpdated?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1642,6 +1754,30 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   defaultShareImage?: T;
   twitterHandle?: T;
   preventIndexing?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  contactLocation?: T;
+  contactWhatsApp?: T;
+  cvCurrent?: T;
+  cvDisplayName?: T;
+  cvLastUpdated?: T;
+  cvVariants?:
+    | T
+    | {
+        label?: T;
+        file?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  enableBlog?: T;
+  enableEndorsements?: T;
+  enableRoadmap?: T;
+  enableChangelog?: T;
+  enableContactForm?: T;
+  enableCvDownload?: T;
+  privacyPolicyContent?: T;
+  cookiePolicyContent?: T;
+  legalLastUpdated?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

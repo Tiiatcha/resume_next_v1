@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./global.css";
 import { ThemeProvider } from "@/components/shared/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { SiteSettingsProvider } from "@/lib/site-settings-context";
 import { getSiteSettings } from "@/lib/seo/get-site-settings";
 
 const geistSans = Geist({
@@ -70,11 +71,13 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteSettings = await getSiteSettings()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -91,8 +94,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <SiteSettingsProvider value={siteSettings}>
+            {children}
+            <Toaster />
+          </SiteSettingsProvider>
         </ThemeProvider>
       </body>
     </html>
