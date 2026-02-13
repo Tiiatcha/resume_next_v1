@@ -1,4 +1,5 @@
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
+import type { Where } from "payload"
 
 type Media = {
   url?: string | null
@@ -123,9 +124,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const payload = await getPayloadClient()
 
-    const whereAndConditions: Record<string, unknown>[] = [
-      { status: { equals: "published" } },
-    ]
+    const whereAndConditions: Where[] = [{ status: { equals: "published" } }]
 
     if (categoryIds.length > 0) {
       whereAndConditions.push({
