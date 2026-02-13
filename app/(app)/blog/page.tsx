@@ -37,8 +37,8 @@ function BlogPostCardSkeleton() {
 
 function BlogPostsLoadingFallback() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 pt-2">
+    <div className="space-y-6 w-full">
+      <div className="flex flex-wrap items-center gap-2 pt-2 w-full">
         <div className="h-7 w-12 rounded-full bg-muted/60 animate-pulse" />
         <div className="h-7 w-20 rounded-full bg-muted/40 animate-pulse" />
         <div className="h-7 w-24 rounded-full bg-muted/40 animate-pulse" />
@@ -48,7 +48,7 @@ function BlogPostsLoadingFallback() {
       <section
         aria-label="Loading blog posts"
         aria-busy="true"
-        className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3 w-full"
       >
         {Array.from({ length: 6 }).map((_, index) => (
           <BlogPostCardSkeleton key={index} />
