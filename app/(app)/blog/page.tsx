@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
+
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
@@ -9,7 +9,7 @@ import { Reveal } from "@/components/shared/motion/reveal"
 import Section from "@/components/shared/layout/section"
 import { Container } from "@/components/shared/layout/container"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import BlogPostCard from "./_components/BlogPostCard"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-controls"
 import { Badge } from "@/components/ui/badge"
@@ -140,16 +140,14 @@ export default async function BlogIndexPage({
                       })}
                   </div>
                 ) : null}
-
-                {/* Admin controls render client-side to allow static page generation */}
                 <BlogAdminControls variant="list" />
               </div>
             </Reveal>
 
-            <Separator className="my-10" />
-
             {posts.length ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div 
+                className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3"
+              >
                 {posts.map((post, idx) => {
                   const featuredImage =
                     post.featuredImage && typeof post.featuredImage === "object"
@@ -161,58 +159,29 @@ export default async function BlogIndexPage({
                       : null
 
                   return (
-                    <Reveal key={post.id} delaySeconds={idx * 0.05}>
-                      <Link href={`/blog/${post.slug}`} className="group block h-full">
-                        <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40 h-full overflow-hidden transition-all hover:border-primary/50 p-0">
-                          {featuredImage?.url && (
-                            <div className="relative aspect-[2/1] w-full overflow-hidden">
-                              <Image
-                                src={featuredImage.url}
-                                alt={featuredImage.alt || post.title}
-                                width={featuredImage.width ?? 800}
-                                height={featuredImage.height ?? 400}
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              />
-                            </div>
-                          )}
-                          <CardHeader className="gap-2">
-                            {category?.name ? (
-                              <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
-                                {category.name}
-                              </p>
-                            ) : null}
-                            <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                              {post.title}
-                            </CardTitle>
-                            {post.publishedAt ? (
-                              <p className="text-muted-foreground text-xs">
-                                {new Date(post.publishedAt).toLocaleDateString("en-GB", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "2-digit",
-                                })}
-                              </p>
-                            ) : null}
-                          </CardHeader>
-                          <CardContent>
-                            {post.excerpt ? (
-                              <p className="text-muted-foreground text-pretty leading-relaxed">
-                                {post.excerpt}
-                              </p>
-                            ) : (
-                              <p className="text-muted-foreground text-sm">
-                                Read post →
-                              </p>
-                            )}
-                          </CardContent>
-                        </Card>
+                    <Reveal
+                      key={post.id}
+                      delaySeconds={idx * 0.05}
+                      className="grid row-span-5 grid-rows-subgrid"
+                    >
+                      <Link
+                        href={`/blog/${post.slug}`} 
+                        className="group grid row-span-5 grid-rows-subgrid"
+                      >
+                        <BlogPostCard
+                          featuredImage={featuredImage}
+                          title={post.title}
+                          category={category}
+                          publishedAt={post.publishedAt}
+                          excerpt={post.excerpt}
+                        />
                       </Link>
                     </Reveal>
                   )
                 })}
               </div>
             ) : (
-              <Reveal>
+              <Reveal className="grid row-span-5 grid-rows-subgrid">
                 <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40">
                   <CardHeader>
                     <CardTitle className="text-base">No posts yet</CardTitle>
