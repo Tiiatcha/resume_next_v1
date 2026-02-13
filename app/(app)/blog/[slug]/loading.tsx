@@ -46,7 +46,7 @@ export default function BlogPostLoadingPage() {
               <div className="bg-muted/40 text-muted-foreground rounded-xl aspect-[16/9] w-full animate-pulse overflow-hidden">
                 {/* placeholder svg with currentColor */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100">
-                  <path d="M0 0h100v100H0z" fill="currentColor" opacity="0.05"  />
+                  <path d="M0 0h100v100H0z" fill="currentColor" opacity="0"  />
                 </svg>
 
               </div>
