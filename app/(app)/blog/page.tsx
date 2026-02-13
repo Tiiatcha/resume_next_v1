@@ -1,6 +1,4 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
@@ -8,11 +6,9 @@ import { SiteBackground } from "@/components/shared/layout/site-background"
 import { Reveal } from "@/components/shared/motion/reveal"
 import Section from "@/components/shared/layout/section"
 import { Container } from "@/components/shared/layout/container"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import BlogPostCard from "./_components/BlogPostCard"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-controls"
-import { Badge } from "@/components/ui/badge"
+import { BlogPostsBrowser } from "./_components/BlogPostsBrowser"
 
 export const metadata: Metadata = {
   title: "Blog — Craig Davison",
@@ -46,6 +42,27 @@ type BlogPostListItem = {
   updatedAt?: string | null
 }
 
+interface PaginationState {
+  page: number
+  limit: number
+  totalPages: number
+  totalDocs: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
+interface PayloadPaginatedResult<TDocument> {
+  docs: TDocument[]
+  page: number
+  totalPages: number
+  totalDocs: number
+  limit: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
+const DEFAULT_PAGE_SIZE = 12
+
 function normaliseCategorySlug(value: unknown): string | null {
   if (typeof value !== "string") return null
   const trimmed = value.trim()
@@ -78,10 +95,11 @@ export default async function BlogIndexPage({
       ? categories.find((cat) => cat.slug === activeCategorySlug) ?? null
       : null
 
-  const postsResult = await payload.find({
+  const postsResult = (await payload.find({
     collection: "blog-posts",
     depth: 1,
-    limit: 50,
+    limit: DEFAULT_PAGE_SIZE,
+    page: 1,
     sort: "-publishedAt",
     where: {
       and: [
@@ -89,9 +107,9 @@ export default async function BlogIndexPage({
         ...(activeCategory?.id ? [{ category: { equals: activeCategory.id } }] : []),
       ],
     },
-  })
+  })) as unknown as PayloadPaginatedResult<BlogPostListItem>
 
-  const posts = postsResult.docs as unknown as BlogPostListItem[]
+  const posts = postsResult.docs
 
   return (
     <SiteBackground className="font-sans">
@@ -113,87 +131,23 @@ export default async function BlogIndexPage({
                   building and shipping to ideas and musings.
                 </p>
 
-                {categories.length ? (
-                  <div className="flex flex-wrap items-center gap-2 pt-2">
-                    <Link href="/blog">
-                      <Badge variant={activeCategorySlug ? "outline" : "default"}>
-                        All
-                      </Badge>
-                    </Link>
-                    {categories
-                      .filter((cat) => typeof cat.slug === "string" && cat.slug)
-                      .map((cat) => {
-                        const slug = cat.slug as string
-                        const name = typeof cat.name === "string" && cat.name.trim()
-                          ? cat.name.trim()
-                          : slug
-
-                        const isActive = slug === activeCategorySlug
-
-                        return (
-                          <Link key={cat.id} href={`/blog?category=${encodeURIComponent(slug)}`}>
-                            <Badge variant={isActive ? "default" : "outline"}>
-                              {name}
-                            </Badge>
-                          </Link>
-                        )
-                      })}
-                  </div>
-                ) : null}
                 <BlogAdminControls variant="list" />
               </div>
             </Reveal>
 
-            {posts.length ? (
-              <div 
-                className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3"
-              >
-                {posts.map((post, idx) => {
-                  const featuredImage =
-                    post.featuredImage && typeof post.featuredImage === "object"
-                      ? (post.featuredImage as Media)
-                      : null
-                  const category =
-                    post.category && typeof post.category === "object"
-                      ? (post.category as Category)
-                      : null
-
-                  return (
-                    <Reveal
-                      key={post.id}
-                      delaySeconds={idx * 0.05}
-                      className="grid row-span-5 grid-rows-subgrid"
-                    >
-                      <Link
-                        href={`/blog/${post.slug}`} 
-                        className="group grid row-span-5 grid-rows-subgrid"
-                      >
-                        <BlogPostCard
-                          featuredImage={featuredImage}
-                          title={post.title}
-                          category={category}
-                          publishedAt={post.publishedAt}
-                          excerpt={post.excerpt}
-                        />
-                      </Link>
-                    </Reveal>
-                  )
-                })}
-              </div>
-            ) : (
-              <Reveal className="grid row-span-5 grid-rows-subgrid">
-                <Card className="bg-card/60 supports-[backdrop-filter]:bg-card/40">
-                  <CardHeader>
-                    <CardTitle className="text-base">No posts yet</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      I&apos;m working on the first articles—check back soon.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            )}
+            <BlogPostsBrowser
+              categories={categories}
+              initialPosts={posts}
+              initialActiveCategoryIds={activeCategory?.id ? [activeCategory.id] : []}
+              initialPagination={{
+                page: postsResult.page,
+                limit: postsResult.limit,
+                totalPages: postsResult.totalPages,
+                totalDocs: postsResult.totalDocs,
+                hasNextPage: postsResult.hasNextPage,
+                hasPrevPage: postsResult.hasPrevPage,
+              }}
+            />
           </Container>
         </Section>
       </main>
