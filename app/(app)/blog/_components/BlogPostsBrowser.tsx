@@ -73,7 +73,7 @@ type BlogPostsApiResponseBody =
   | BlogPostsApiSuccessResponseBody
   | BlogPostsApiErrorResponseBody
 
-const PAGE_SIZE_OPTIONS: number[] = [10, 20, 40]
+const PAGE_SIZE_OPTIONS: number[] = [12, 24, 36, 48]
 
 function getCategoryDisplayName(category: Category): string {
   if (typeof category.name === "string" && category.name.trim().length > 0) {
