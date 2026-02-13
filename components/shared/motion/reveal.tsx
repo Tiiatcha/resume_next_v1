@@ -8,11 +8,13 @@ export function Reveal({
   className,
   y = 8,
   delaySeconds = 0,
+  ...props
 }: {
   children: React.ReactNode
   className?: string
   y?: number
   delaySeconds?: number
+  style?: React.CSSProperties
 }) {
   const hostRef = React.useRef<HTMLDivElement | null>(null)
   const [isInView, setIsInView] = React.useState(false)
@@ -51,6 +53,7 @@ export function Reveal({
         ease: [0.21, 0.45, 0.15, 1],
         delay: delaySeconds,
       }}
+      {...props}
     >
       {children}
     </motion.div>
