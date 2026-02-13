@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
@@ -6,9 +7,8 @@ import { SiteBackground } from "@/components/shared/layout/site-background"
 import { Reveal } from "@/components/shared/motion/reveal"
 import Section from "@/components/shared/layout/section"
 import { Container } from "@/components/shared/layout/container"
-import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-controls"
-import { BlogPostsBrowser } from "./_components/BlogPostsBrowser"
+import { BlogPostsData } from "./_components/BlogPostsData"
 
 export const metadata: Metadata = {
   title: "Blog — Craig Davison",
@@ -18,55 +18,44 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-type Media = {
-  url?: string | null
-  alt?: string | null
-  width?: number | null
-  height?: number | null
+function BlogPostCardSkeleton() {
+  return (
+    <div className="grid row-span-5 grid-rows-subgrid">
+      <div className="bg-muted/40 rounded-md aspect-[3/2] w-full animate-pulse" />
+      <div className="flex flex-col gap-3 py-4">
+        <div className="h-3 w-28 rounded-full bg-muted/60 animate-pulse" />
+        <div className="h-5 w-3/4 rounded-full bg-muted/70 animate-pulse" />
+        <div className="h-3 w-1/2 rounded-full bg-muted/60 animate-pulse" />
+        <div className="mt-2 space-y-2">
+          <div className="h-3 w-full rounded-full bg-muted/50 animate-pulse" />
+          <div className="h-3 w-5/6 rounded-full bg-muted/40 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  )
 }
 
-type Category = {
-  id: string
-  name?: string | null
-  slug?: string | null
-}
+function BlogPostsLoadingFallback() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2 pt-2">
+        <div className="h-7 w-12 rounded-full bg-muted/60 animate-pulse" />
+        <div className="h-7 w-20 rounded-full bg-muted/40 animate-pulse" />
+        <div className="h-7 w-24 rounded-full bg-muted/40 animate-pulse" />
+        <div className="h-7 w-16 rounded-full bg-muted/40 animate-pulse" />
+      </div>
 
-type BlogPostListItem = {
-  id: string
-  title: string
-  slug: string
-  excerpt?: string | null
-  featuredImage?: string | Media | null
-  category?: string | Category | null
-  publishedAt?: string | null
-  updatedAt?: string | null
-}
-
-interface PaginationState {
-  page: number
-  limit: number
-  totalPages: number
-  totalDocs: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
-}
-
-interface PayloadPaginatedResult<TDocument> {
-  docs: TDocument[]
-  page: number
-  totalPages: number
-  totalDocs: number
-  limit: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
-}
-
-const DEFAULT_PAGE_SIZE = 12
-
-function normaliseCategorySlug(value: unknown): string | null {
-  if (typeof value !== "string") return null
-  const trimmed = value.trim()
-  return trimmed ? trimmed : null
+      <section
+        aria-label="Loading blog posts"
+        aria-busy="true"
+        className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {Array.from({ length: 6 }).map((_, index) => (
+          <BlogPostCardSkeleton key={index} />
+        ))}
+      </section>
+    </div>
+  )
 }
 
 export default async function BlogIndexPage({
@@ -75,41 +64,6 @@ export default async function BlogIndexPage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category } = await searchParams
-  const activeCategorySlug = normaliseCategorySlug(category)
-
-  const payload = await getPayloadClient()
-
-  const categoriesResult = await payload.find({
-    collection: "categories",
-    depth: 0,
-    limit: 200,
-    sort: "name",
-    where: {
-      scopes: { contains: "blog-posts" },
-    },
-  })
-
-  const categories = categoriesResult.docs as unknown as Category[]
-  const activeCategory =
-    activeCategorySlug
-      ? categories.find((cat) => cat.slug === activeCategorySlug) ?? null
-      : null
-
-  const postsResult = (await payload.find({
-    collection: "blog-posts",
-    depth: 1,
-    limit: DEFAULT_PAGE_SIZE,
-    page: 1,
-    sort: "-publishedAt",
-    where: {
-      and: [
-        { status: { equals: "published" } },
-        ...(activeCategory?.id ? [{ category: { equals: activeCategory.id } }] : []),
-      ],
-    },
-  })) as unknown as PayloadPaginatedResult<BlogPostListItem>
-
-  const posts = postsResult.docs
 
   return (
     <SiteBackground className="font-sans">
@@ -135,19 +89,9 @@ export default async function BlogIndexPage({
               </div>
             </Reveal>
 
-            <BlogPostsBrowser
-              categories={categories}
-              initialPosts={posts}
-              initialActiveCategoryIds={activeCategory?.id ? [activeCategory.id] : []}
-              initialPagination={{
-                page: postsResult.page,
-                limit: postsResult.limit,
-                totalPages: postsResult.totalPages,
-                totalDocs: postsResult.totalDocs,
-                hasNextPage: postsResult.hasNextPage,
-                hasPrevPage: postsResult.hasPrevPage,
-              }}
-            />
+            <Suspense fallback={<BlogPostsLoadingFallback />}>
+              <BlogPostsData categorySlug={category} />
+            </Suspense>
           </Container>
         </Section>
       </main>

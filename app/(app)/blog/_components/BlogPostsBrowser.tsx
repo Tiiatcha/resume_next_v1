@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react"
 import Link from "next/link"
+import { Loader2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -87,6 +88,23 @@ function getCategoryDisplayName(category: Category): string {
   return "Untitled category"
 }
 
+function BlogPostCardSkeleton() {
+  return (
+    <div className="grid row-span-5 grid-rows-subgrid">
+      <div className="bg-muted/40 rounded-md aspect-[3/2] w-full animate-pulse" />
+      <div className="flex flex-col gap-3 py-4">
+        <div className="h-3 w-28 rounded-full bg-muted/60 animate-pulse" />
+        <div className="h-5 w-3/4 rounded-full bg-muted/70 animate-pulse" />
+        <div className="h-3 w-1/2 rounded-full bg-muted/60 animate-pulse" />
+        <div className="mt-2 space-y-2">
+          <div className="h-3 w-full rounded-full bg-muted/50 animate-pulse" />
+          <div className="h-3 w-5/6 rounded-full bg-muted/40 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function BlogPostsBrowser({
   categories,
   initialPosts,
@@ -102,8 +120,13 @@ export function BlogPostsBrowser({
   const [pagination, setPagination] = useState<PaginationState>(initialPagination)
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
   const totalVisiblePosts = posts.length
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const fetchPosts = useCallback(
     (
@@ -227,7 +250,7 @@ export function BlogPostsBrowser({
   const hasActiveCategoryFilters = activeCategoryIds.length > 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {categories.length ? (
         <Reveal>
           <div className="flex flex-wrap items-center gap-2 pt-2">
@@ -285,6 +308,16 @@ export function BlogPostsBrowser({
               : null}
           </p>
 
+          {isPending ? (
+            <div
+              aria-live="polite"
+              className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs sm:text-sm text-muted-foreground shadow-sm"
+            >
+              <Loader2 className="size-3.5 animate-spin text-primary" />
+              <span>Applying filters…</span>
+            </div>
+          ) : null}
+
           {errorMessage ? (
             <p className="text-destructive text-xs sm:text-sm">{errorMessage}</p>
           ) : null}
@@ -330,8 +363,23 @@ export function BlogPostsBrowser({
         </div>
       </div>
 
-      {posts.length ? (
-        <div className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3">
+      {!isMounted ? (
+        <section
+          aria-label="Loading blog posts"
+          aria-busy="true"
+          className="grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {Array.from({ length: 6 }).map((_, index) => (
+            <BlogPostCardSkeleton key={index} />
+          ))}
+        </section>
+      ) : posts.length ? (
+        <div
+          aria-busy={isPending}
+          className={`grid grid-rows-[repeat(5,auto)] gap-6 grid-flow-row sm:grid-cols-2 lg:grid-cols-3 ${
+            isPending ? "opacity-60 transition-opacity duration-150" : ""
+          }`}
+        >
           {posts.map((post, index) => {
             const featuredImage =
               post.featuredImage && typeof post.featuredImage === "object"
