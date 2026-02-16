@@ -45,7 +45,7 @@ export function AboutSection({
     <Section id="about" surface="alt" glow={{ side: "right", tone: "cool" }}>
       <Container variant="left">
         <ContainerIntro variant="left">
-          <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+          <ContainerEyebrow className="eyebrow">{eyebrow}</ContainerEyebrow>
           <ContainerTitle variant="left">{heading}</ContainerTitle>
           <ContainerLead variant="left">
               <PayloadRichText
