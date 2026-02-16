@@ -61,16 +61,16 @@ function ContainerTitle({
   ...props
 }: ContainerTitleProps): React.JSX.Element {
   const baseClasses =
-    "container-title text-2xl font-semibold leading-tight tracking-tight"
+    "container-title"
   const variants: Record<ContainerVariant, string> = {
     default: `${baseClasses} text-center`,
     left: `${baseClasses} text-left`,
   }
 
   return (
-    <div className={cn(variants[variant], className)} {...props}>
+    <h2 className={cn(variants[variant], className)} {...props}>
       {children}
-    </div>
+    </h2>
   )
 }
 
@@ -85,8 +85,8 @@ function ContainerEyebrow({
   ...props
 }: ContainerEyebrowProps): React.JSX.Element {
   const variants: Record<ContainerVariant, string> = {
-    default: "container-eyebrow text-sm text-muted-foreground",
-    left: "container-eyebrow text-left text-sm text-muted-foreground",
+    default: "container-eyebrow eyebrow ",
+    left: "container-eyebrow eyebrow text-left",
   }
 
   return (

@@ -3,16 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
-  Smooth anchor navigation (e.g. header links to `#about`).
-
-  Notes:
-  - Section-level `scroll-mt-24` (see `components/shared/layout/section.tsx`)
-    provides the sticky-header offset.
-  - Respect reduced-motion preferences by disabling smooth scrolling.
-*/
 html {
   scroll-behavior: smooth;
+  
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -139,7 +132,7 @@ html {
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
-
+  
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -147,33 +140,48 @@ html {
   body {
     @apply bg-background text-foreground;
   }
-
-  /*
-    Fix for Radix Dialog / react-remove-scroll breaking layouts.
-
-    When Radix Dialog opens, react-remove-scroll applies `position: relative !important`
-    to the body to manage scroll locking. This creates a new stacking context that breaks
-    fixed positioning and causes dialog overlays/content to not display correctly.
-
-    Override the position to keep body static while preserving scroll lock behavior.
-
-    References:
-    - https://github.com/radix-ui/primitives/issues/1662
-    - https://github.com/shadcn-ui/ui/issues/2614
-  */
   body[data-scroll-locked] {
     position: static !important;
     overflow: hidden !important;
     /* Prevent layout shift from scrollbar compensation */
     margin-right: 0 !important;
   }
+  
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-black font-(family-name:--font-heading-display) text-pretty leading-tight tracking-tight;
+  }
+  h1 {
+    @apply text-4xl sm:text-5xl;
+  }
+  h2 {
+    @apply text-3xl sm:text-4xl;
+  }
+  h3 {
+    @apply text-2xl sm:text-3xl;
+  }
+  h4 {
+    @apply text-xl sm:text-2xl;
+  }
+  h5 {
+    @apply text-lg sm:text-xl;
+  }
+  h6 {
+    @apply text-2xl sm:text-3xl;
+  }
+  .hero-eyebrow {
+    @apply font-(family-name:--font-eyebrow) text-4xl font-medium tracking-[0.22em] text-muted-foreground origin-bottom-left;
+  }
+  .eyebrow {
+    @apply text-xs tracking-[0.22em] text-muted-foreground origin-bottom-left uppercase;
+  }
 }
 
-/*
-  Non-Tailwind note:
-  - Keyframes must be declared in CSS for `animate-[cv-marquee_...]` to reference.
-  - Everything else about the marquee is Tailwind v4 utility classes.
-*/
 @keyframes cv-marquee {
   from {
     transform: translate3d(0, 0, 0);
@@ -246,19 +254,6 @@ html {
   }
 }
 
-/*
-  Hero section geometric background.
-
-  Goals:
-  - Provide a subtle geometric pattern specifically behind the hero content.
-  - Use thin, low-contrast lines so text and cards remain the clear focus.
-  - Respect the site color tokens so the pattern feels integrated in both light and dark modes.
-
-  Implementation notes:
-  - We use three linear gradients at 60°, -60°, and 0° to form a triangular line grid.
-  - `color-mix(in_oklch, var(--border) ...)` keeps the pattern tied to the design system.
-  - A radial `mask-image` gently fades the pattern as it approaches the bottom of the hero.
-*/
 @layer utilities {
   .hero-geometric-layer {
     position: absolute;
@@ -304,6 +299,7 @@ html {
   HTML that the Lexical React converter outputs.
 */
 @layer components {
+  
   .payload-richtext {
     @apply text-foreground;
   }

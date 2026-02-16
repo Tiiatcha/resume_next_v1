@@ -69,7 +69,7 @@ export function EndorsementsSection({
       >
         <Container variant="left">
           <ContainerIntro variant="left">
-            <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+            <ContainerEyebrow className="eyebrow">{eyebrow}</ContainerEyebrow>
             <ContainerTitle variant="left">{heading}</ContainerTitle>
             <ContainerLead variant="left">
               <PayloadRichText 

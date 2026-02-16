@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Zalando_Sans, Nothing_You_Could_Do,Hurricane } from "next/font/google";
 import "./global.css";
 import { ThemeProvider } from "@/components/shared/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,6 +14,17 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const eyebrowFont = Hurricane({
+  variable: "--font-eyebrow",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const headingDisplayFont = Zalando_Sans({
+  variable: "--font-heading-display",
   subsets: ["latin"],
 });
 
@@ -82,8 +93,10 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={[
+          headingDisplayFont.variable,
           geistSans.variable,
           geistMono.variable,
+          eyebrowFont.variable,
           "min-h-dvh bg-background text-foreground antialiased",
         ].join(" ")}
       >
