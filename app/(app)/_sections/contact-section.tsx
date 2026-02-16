@@ -75,7 +75,7 @@ export function ContactSection({ data }: { data?: ContactSectionData | null }) {
 
       <Container variant="left" className="relative z-10">
         <ContainerIntro variant="left">
-          <ContainerEyebrow>{eyebrow}</ContainerEyebrow>
+          <ContainerEyebrow className="eyebrow">{eyebrow}</ContainerEyebrow>
           <ContainerTitle variant="left">{heading}</ContainerTitle>
           <ContainerLead variant="left">
             <PayloadRichText 
