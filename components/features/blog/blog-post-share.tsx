@@ -7,6 +7,7 @@
  * and copy is the short form (e.g. site.com/s/abc12).
  */
 
+import type { JSX } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { CopyIcon } from "lucide-react"
 import { toast } from "sonner"
