@@ -1,14 +1,12 @@
 "use client"
 
 /**
- * Share bar for blog posts: fetches or reuses a short URL and provides
- * share actions for Facebook, X (Twitter), LinkedIn, WhatsApp, and Copy link.
- * Short URL is resolved on first interaction so the link used for sharing
- * and copy is the short form (e.g. site.com/s/abc12).
+ * Share bar for blog posts: provides share actions for Facebook, X (Twitter),
+ * LinkedIn, WhatsApp, and Copy link using the canonical URL for the post.
  */
 
 import type { JSX } from "react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback } from "react"
 import { CopyIcon } from "lucide-react"
 import { toast } from "sonner"
 import { FaFacebookF, FaLinkedinIn, FaWhatsapp, FaXTwitter } from "react-icons/fa6"
@@ -24,8 +22,6 @@ import {
 export type BlogPostShareProps = {
   /** Full canonical URL of the post (fallback if short URL API fails). */
   canonicalUrl: string
-  /** Blog post slug for building /blog/{slug} when requesting short link. */
-  slug: string
   /** Post title used in share text. */
   title: string
   /** Optional excerpt for share message body. */
@@ -57,70 +53,23 @@ function buildShareUrl(target: ShareTarget, url: string, title: string, excerpt?
 
 export function BlogPostShare({
   canonicalUrl,
-  slug,
   title,
   excerpt,
 }: BlogPostShareProps): JSX.Element {
-  const [shortUrl, setShortUrl] = useState<string | null>(null)
-  /** In-flight promise so multiple clicks await the same request. */
-  const fetchPromiseRef = useRef<Promise<string> | null>(null)
-
-  /** Resolve short URL (get-or-create) for this post. Uses canonicalUrl if API fails. */
-  const getShareUrl = useCallback(async (): Promise<string> => {
-    if (shortUrl) return shortUrl
-    if (fetchPromiseRef.current) return fetchPromiseRef.current
-    const promise = (async (): Promise<string> => {
-      try {
-        const res = await fetch("/api/short-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path: `/blog/${slug}` }),
-        })
-        const data = (await res.json()) as { shortUrl?: string; error?: string }
-        if (res.ok && typeof data.shortUrl === "string") {
-          setShortUrl(data.shortUrl)
-          return data.shortUrl
-        }
-      } catch {
-        // Fall through to canonical
-      } finally {
-        fetchPromiseRef.current = null
-      }
-      return canonicalUrl
-    })()
-    fetchPromiseRef.current = promise
-    return promise
-  }, [canonicalUrl, slug, shortUrl])
-
-  // Pre-generate or fetch the short URL as soon as the component mounts so that
-  // the first user interaction can usually use the short link without delay.
-  useEffect(() => {
-    void getShareUrl()
-  }, [getShareUrl])
-
   const handleCopyLink = useCallback((): void => {
-    const urlToCopy = shortUrl ?? canonicalUrl
-
     void navigator.clipboard
-      .writeText(urlToCopy)
+      .writeText(canonicalUrl)
       .then(() => {
         toast.success("Link copied to clipboard.")
       })
       .catch(() => {
         toast.error("Clipboard access is not supported. Copy the link manually.")
       })
-
-    // Warm up the short URL in the background so subsequent copies and shares
-    // can use the short link without blocking the user gesture.
-    if (!shortUrl) {
-      void getShareUrl()
-    }
-  }, [canonicalUrl, shortUrl, getShareUrl])
+  }, [canonicalUrl])
 
   const handleShare = useCallback(
     async (target: ShareTarget): Promise<void> => {
-      const url = await getShareUrl()
-      const shareUrl = buildShareUrl(target, url, title, excerpt)
+      const shareUrl = buildShareUrl(target, canonicalUrl, title, excerpt)
       // Open using link semantics so browsers prefer a new tab over a popup window.
       const anchor = document.createElement("a")
       anchor.href = shareUrl
@@ -128,7 +77,7 @@ export function BlogPostShare({
       anchor.rel = "noopener noreferrer"
       anchor.click()
     },
-    [getShareUrl, title, excerpt]
+    [canonicalUrl, title, excerpt]
   )
 
   return (
