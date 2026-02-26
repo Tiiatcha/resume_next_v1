@@ -19,7 +19,6 @@ import { EndorsementAccessChallenges } from "./collections/EndorsementAccessChal
 import { ChangelogEntries } from "./collections/ChangelogEntries";
 import { Experiences } from "./collections/Experiences";
 import { PageConfigs } from "./collections/PageConfigs";
-import { ShortLinks } from "./collections/ShortLinks";
 // globals
 import { Roadmap } from "./globals/Roadmap";
 import { SiteSettings } from "./globals/SiteSettings";
@@ -65,7 +64,6 @@ export default buildConfig({
     Endorsements,
     BlogPosts,
     ChangelogEntries,
-    ShortLinks,
   ],
   globals: [
     SiteSettings, 

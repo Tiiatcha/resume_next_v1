@@ -244,7 +244,6 @@ const BlogPostPage = async ({
                   ) : null}
                   <BlogPostShare
                     canonicalUrl={canonicalUrl}
-                    slug={post.slug}
                     title={post.title}
                     excerpt={post.excerpt ?? undefined}
                   />
