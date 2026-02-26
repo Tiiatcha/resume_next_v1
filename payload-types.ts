@@ -80,6 +80,7 @@ export interface Config {
     endorsements: Endorsement;
     'blog-posts': BlogPost;
     'changelog-entries': ChangelogEntry;
+    'short-links': ShortLink;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -100,6 +101,7 @@ export interface Config {
     endorsements: EndorsementsSelect<false> | EndorsementsSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'changelog-entries': ChangelogEntriesSelect<false> | ChangelogEntriesSelect<true>;
+    'short-links': ShortLinksSelect<false> | ShortLinksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -959,6 +961,29 @@ export interface ChangelogEntry {
   createdAt: string;
 }
 /**
+ * Short URLs (e.g. /s/xyz) that redirect to full paths. Created automatically when blog posts are shared.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links".
+ */
+export interface ShortLink {
+  id: string;
+  /**
+   * URL-safe code used in the short link path (e.g. /s/<shortCode>). Generated automatically by the API.
+   */
+  shortCode: string;
+  /**
+   * Destination path on this site (e.g. /blog/my-post-slug). Redirects go to siteUrl + targetPath.
+   */
+  targetPath: string;
+  /**
+   * Optional label for admin display (e.g. post title). Not used in redirects.
+   */
+  label?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1033,6 +1058,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'changelog-entries';
         value: string | ChangelogEntry;
+      } | null)
+    | ({
+        relationTo: 'short-links';
+        value: string | ShortLink;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1436,6 +1465,17 @@ export interface ChangelogEntriesSelect<T extends boolean = true> {
         id?: T;
       };
   relatedPost?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "short-links_select".
+ */
+export interface ShortLinksSelect<T extends boolean = true> {
+  shortCode?: T;
+  targetPath?: T;
+  label?: T;
   updatedAt?: T;
   createdAt?: T;
 }
