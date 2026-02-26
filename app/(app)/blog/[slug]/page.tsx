@@ -16,6 +16,7 @@ import { PayloadRichText } from "@/components/content/payload-rich-text"
 import { Separator } from "@/components/ui/separator"
 import { getPayloadClient } from "@/lib/payload/get-payload-client"
 import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-controls"
+import { BlogPostShare } from "@/components/features/blog/blog-post-share"
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 import { Badge } from "@/components/ui/badge"
 import { AttributedMediaImage } from "@/components/shared/media/attributed-image"
@@ -241,6 +242,12 @@ const BlogPostPage = async ({
                       {post.excerpt}
                     </p>
                   ) : null}
+                  <BlogPostShare
+                    canonicalUrl={canonicalUrl}
+                    slug={post.slug}
+                    title={post.title}
+                    excerpt={post.excerpt ?? undefined}
+                  />
                 </div>
 
                 {featuredImage?.url && (
