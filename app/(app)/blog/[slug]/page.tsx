@@ -19,6 +19,7 @@ import { BlogAdminControls } from "@/components/features/blog/admin/blog-admin-c
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical"
 import { Badge } from "@/components/ui/badge"
 import { AttributedMediaImage } from "@/components/shared/media/attributed-image"
+import { getSiteSettings } from "@/lib/seo/get-site-settings"
 
 export const revalidate = 60
 
@@ -73,7 +74,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPublishedPostBySlug(slug)
+
+  const [post, siteSettings] = await Promise.all([
+    getPublishedPostBySlug(slug),
+    getSiteSettings(),
+  ])
 
   if (!post) {
     return {
@@ -82,19 +87,73 @@ export async function generateMetadata({
     }
   }
 
+  const category =
+    post.category && typeof post.category === "object"
+      ? (post.category as Category)
+      : null
+
+  const featuredImage =
+    post.featuredImage && typeof post.featuredImage === "object"
+      ? (post.featuredImage as Media)
+      : null
+
+  const ogImages =
+    featuredImage?.url
+      ? [
+          {
+            url: featuredImage.url,
+            alt: featuredImage.alt ?? post.title,
+            width: featuredImage.width ?? 1200,
+            height: featuredImage.height ?? 630,
+          },
+        ]
+      : siteSettings.defaultShareImage
+        ? [
+            {
+              url: siteSettings.defaultShareImage.url,
+              alt: siteSettings.defaultShareImage.alt ?? post.title,
+              width: siteSettings.defaultShareImage.width ?? 1200,
+              height: siteSettings.defaultShareImage.height ?? 630,
+            },
+          ]
+        : undefined
+
   return {
     title: `${post.title} — Craig Davison`,
-    description: post.excerpt ?? undefined,
+    description: post.excerpt ?? siteSettings.defaultDescription ?? undefined,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
+    openGraph: {
+      type: "article",
+      url: `/blog/${post.slug}`,
+      title: post.title,
+      description: post.excerpt ?? siteSettings.defaultDescription ?? undefined,
+      publishedTime: post.publishedAt ?? undefined,
+      modifiedTime: post.updatedAt ?? undefined,
+      section: category?.name ?? category?.slug ?? undefined,
+      tags: category?.slug ? [category.slug] : undefined,
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt ?? siteSettings.defaultDescription ?? undefined,
+      images: ogImages?.map((image) => image.url),
+    },
   }
 }
 
-export default async function BlogPostPage({
+const BlogPostPage = async ({
   params,
 }: {
   params: Promise<{ slug: string }>
-}) {
+}) => {
   const { slug } = await params
-  const post = await getPublishedPostBySlug(slug)
+  const [post, siteSettings] = await Promise.all([
+    getPublishedPostBySlug(slug),
+    getSiteSettings(),
+  ])
   if (!post) notFound()
 
   const featuredImage =
@@ -106,8 +165,47 @@ export default async function BlogPostPage({
       ? (post.category as Category)
       : null
 
+  const siteUrl = siteSettings.siteUrl
+  const canonicalUrl = new URL(`/blog/${post.slug}`, siteUrl).toString()
+
+  const shareImageUrl =
+    featuredImage?.url ?? siteSettings.defaultShareImage?.url ?? undefined
+
+  const jsonLdArticle = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt ?? siteSettings.defaultDescription ?? undefined,
+    url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
+    image: shareImageUrl ? [shareImageUrl] : undefined,
+    articleSection: category?.name ?? category?.slug ?? undefined,
+    author: {
+      "@type": "Person",
+      name: "Craig Davison",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteSettings.siteName,
+      url: siteUrl,
+      logo: siteSettings.defaultShareImage?.url
+        ? {
+            "@type": "ImageObject",
+            url: siteSettings.defaultShareImage.url,
+          }
+        : undefined,
+    },
+  }
+
   return (
     <SiteBackground className="font-sans">
+      <script
+        type="application/ld+json"
+        // Structured data for richer search results.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }}
+      />
       <Header />
 
       <main className="w-full">
@@ -181,4 +279,6 @@ export default async function BlogPostPage({
     </SiteBackground>
   )
 }
+
+export default BlogPostPage
 
